@@ -6,3 +6,7 @@
 
 # Unignore all dirs
 !*/
+
+node_modules
+*.cache
+*.log
