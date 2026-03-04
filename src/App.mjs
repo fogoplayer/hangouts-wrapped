@@ -1,4 +1,5 @@
 import "./libs/pwaupdate.js";
+import "./services/wasm_exec.js";
 import { css, LitElement } from "./libs/lit-all@2.7.6.js";
 import globalCss from "./global-styles/global.css.mjs";
 
@@ -18,6 +19,15 @@ export default class App extends LitElement {
     super();
     this.createRoute("/*", Home);
     page.start();
+
+    debugger;
+    const go = new Go();
+    WebAssembly.instantiateStreaming(
+      fetch("./services/wasmTest.wasm"),
+      go.importObject
+    ).then((result) => {
+      go.run(result.instance);
+    });
   }
 
   /**
