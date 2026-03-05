@@ -9,6 +9,11 @@
     "noEmit": true,
     "strict": true
   },
-  "include": ["src/**/*.js", "src/**/*.mjs", "src/**/*.d.ts"],
+  "include": [
+    "src/**/*.js",
+    "src/**/*.mjs",
+    "src/**/*.d.ts",
+    "src/libs/go-wasm-runtime@1.23.4.d.ts"
+  ],
   "exclude": ["node_modules"]
 }
