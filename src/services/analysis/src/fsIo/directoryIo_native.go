@@ -1,4 +1,6 @@
-package fsio
+//go:build !(js && wasm)
+
+package fsIo
 
 import (
 	"encoding/json"
