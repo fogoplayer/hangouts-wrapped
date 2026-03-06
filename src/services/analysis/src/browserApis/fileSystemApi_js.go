@@ -5,11 +5,16 @@ import (
 	"syscall/js"
 )
 
-func ShowDirectoryPicker() DirectoryHandle {
+func ShowDirectoryPicker(directoryChannel chan DirectoryHandle) {
 	fmt.Println("Calling browser directory picker")
-	jsDirectoryHandle := js.Global().Call("showDirectoryPicker")
-	directoryHandle := DirectoryHandle{jsDirectoryHandle}
-	return directoryHandle
+	jsDirectoryHandlePromise := js.Global().Call("showDirectoryPicker")
+	jsDirectoryHandlePromise.Call("then", js.FuncOf(func(this js.Value, args []js.Value) any {
+		fmt.Println("then")
+		directoryChannel <- DirectoryHandle{args[0]}
+		js.Global().Set("handle", args[0])
+		fmt.Println("set handle")
+		return nil
+	}))
 }
 
 type DirectoryHandle struct {
