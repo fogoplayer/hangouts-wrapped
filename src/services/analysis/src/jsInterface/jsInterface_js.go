@@ -15,7 +15,11 @@ func Initialize() {
 var ingestDirectory js.Func = js.FuncOf(func(this js.Value, args []js.Value) any {
 	channel := browserApis.ShowDirectoryPicker()
 	go func() {
-		fmt.Println(<-channel)
+		directoryEntry := <-channel
+		fmt.Println(directoryEntry.Entries())
+		// for i, v := range directoryEntry.Entries() {
+		// 	js.Global().Set("handle_"+strconv.Itoa(i), v)
+		// }
 	}()
 	return nil
 })
