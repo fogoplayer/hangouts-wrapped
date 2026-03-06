@@ -7,9 +7,7 @@ import (
 )
 
 func Setup() {
-
-	fmt.Println("Setting up")
-
+	fmt.Println("Starting initialization")
 	jsInterface.Initialize()
-
+	go (func() {})()
 }

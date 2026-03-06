@@ -1,6 +1,7 @@
 import { LitElement, html, css } from "../libs/lit-all@2.7.6.js";
 import globalCss from "../global-styles/global.css.mjs";
 import "../services/analysis/analysis.mjs";
+import { selectDirectoryForAnalysis } from "../services/analysis/analysis.mjs";
 
 export default class Home extends LitElement {
   static properties = {
@@ -16,8 +17,7 @@ export default class Home extends LitElement {
   }
 
   async selectDirectory() {
-    const directoryHandle = await showDirectoryPicker();
-    debugger;
+    selectDirectoryForAnalysis();
   }
 
   render() {
