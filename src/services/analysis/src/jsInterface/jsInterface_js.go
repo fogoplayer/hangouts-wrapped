@@ -13,8 +13,7 @@ func Initialize() {
 }
 
 var ingestDirectory js.Func = js.FuncOf(func(this js.Value, args []js.Value) any {
-	channel := make(chan browserApis.DirectoryHandle)
-	browserApis.ShowDirectoryPicker(channel)
+	channel := browserApis.ShowDirectoryPicker()
 	go func() {
 		fmt.Println(<-channel)
 	}()
