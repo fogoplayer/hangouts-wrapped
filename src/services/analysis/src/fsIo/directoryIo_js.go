@@ -1,9 +1,6 @@
-//go:build js && wasm
-
 package fsIo
 
 import (
-	"zarinloosli.com/hangouts-wrapped/jsInterface"
 	"zarinloosli.com/hangouts-wrapped/model/jsonSchema"
 )
 
@@ -13,6 +10,5 @@ func IngestDirectory(
 	groupInfoJsonChannel chan<- jsonSchema.GroupInfo_JsonSchema,
 	messagesJsonChannel chan<- jsonSchema.Messages_JsonSchema,
 ) error {
-	jsInterface.GetDirectory()
 	return nil
 }

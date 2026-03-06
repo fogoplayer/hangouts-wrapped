@@ -17,7 +17,7 @@ func main() {
 	messagesJsonChannel := make(chan jsonSchema.Messages_JsonSchema)
 
 	if runtime.GOOS == "js" {
-		IngestDirectory("", userInfoJsonChannel, groupInfoJsonChannel, messagesJsonChannel)
+		<-messagesJsonChannel // TODO to make the program run indefinitely in WASM, remove later
 	} else {
 		args := os.Args[1:] // exclude program
 
