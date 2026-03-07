@@ -1,10 +1,11 @@
 package browserApis
 
 import (
-	"fmt"
 	"strings"
 	"syscall/js"
 )
+
+var PathToFileHandle map[string]*FSHandle = make(map[string]*FSHandle)
 
 func ShowDirectoryPicker(channels ...chan DirectoryHandle) chan DirectoryHandle {
 
@@ -30,7 +31,6 @@ type DirectoryHandle struct {
 func (handle DirectoryHandle) Entries() []FSHandle {
 	jsHandleIter := handle.jsValue.Call("entries")
 	js.Global().Set("iterator", jsHandleIter)
-	fmt.Println("set iterator")
 
 	entriesChannel := make(chan FSEntry)
 	loopChannel := make(chan struct{}, 1)
@@ -44,11 +44,14 @@ func (handle DirectoryHandle) Entries() []FSHandle {
 				close(entriesChannel)
 			} else {
 				fsEntry := nextFile.Value(func(v js.Value) FSEntry {
+					name := v.Get("1")
+					parentPath := append(handle.parentPath, handle.Name())
 					return FSEntry{
 						v.Get("0").String(),
-						FSHandle{v.Get("1"), append(handle.parentPath, handle.Name())},
+						FSHandle{name, parentPath},
 					}
 				})
+				PathToFileHandle[fsEntry.Handle.RelativePath()] = &fsEntry.Handle
 				loopChannel <- struct{}{}
 				entriesChannel <- fsEntry
 			}
@@ -98,7 +101,14 @@ func (handle FSHandle) Name() string {
 }
 
 func (handle FSHandle) RelativePath() string {
-	return strings.Join(append(handle.parentPath, handle.Name()), ",")
+	return strings.Join(append(handle.parentPath, handle.Name()), "/")
+}
+
+func (handle FSHandle) AsDirectoryHandle() DirectoryHandle {
+	if !handle.IsDirectory() {
+		panic(nil)
+	}
+	return DirectoryHandle{handle}
 }
 
 // /////// //
