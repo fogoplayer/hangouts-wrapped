@@ -1,6 +1,7 @@
 package browserApis
 
 import (
+	"fmt"
 	"strings"
 	"syscall/js"
 )
@@ -67,11 +68,7 @@ func (handle DirectoryHandle) Entries() []FSHandle {
 }
 
 func DirectoryHandleFromJs(value js.Value) DirectoryHandle {
-	candidate := DirectoryHandle{FSHandle{value, []string{}}}
-	if !candidate.IsDirectory() {
-		panic(nil)
-	}
-	return candidate
+	return FSHandle{value, []string{}}.AsDirectoryHandle()
 }
 
 // ////////// //
@@ -81,12 +78,8 @@ type FileHandle struct {
 	FSHandle
 }
 
-func FileHandleFromJs(value js.Value) DirectoryHandle {
-	candidate := DirectoryHandle{FSHandle{value, []string{}}}
-	if !candidate.IsDirectory() {
-		panic(nil)
-	}
-	return candidate
+func FileHandleFromJs(value js.Value) FileHandle {
+	return FSHandle{value, []string{}}.AsFileHandle()
 }
 
 func (handle FileHandle) Data() chan []byte {
@@ -117,7 +110,7 @@ func (handle FSHandle) IsDirectory() bool {
 	case FILE:
 		return false
 	default:
-		panic(nil) // TODO not sure what the right value to panic on is here
+		panic(fmt.Sprintf("%v cannot be coerced into %s", handle.jsValue, "\"directory\"|\"file\""))
 	}
 }
 
@@ -131,14 +124,14 @@ func (handle FSHandle) RelativePath() string {
 
 func (handle FSHandle) AsDirectoryHandle() DirectoryHandle {
 	if !handle.IsDirectory() {
-		panic(nil)
+		TypeMismatchPanic[DirectoryHandle](handle.jsValue)
 	}
 	return DirectoryHandle{handle}
 }
 
 func (handle FSHandle) AsFileHandle() FileHandle {
 	if handle.IsDirectory() {
-		panic(nil)
+		TypeMismatchPanic[FileHandle](handle.jsValue)
 	}
 	return FileHandle{handle}
 }
