@@ -5,7 +5,7 @@ import (
 	"syscall/js"
 )
 
-var PathToFileHandle map[string]*FSHandle = make(map[string]*FSHandle)
+var PathToFSHandle map[string]*FSHandle = make(map[string]*FSHandle)
 
 func ShowDirectoryPicker(channels ...chan DirectoryHandle) chan DirectoryHandle {
 
@@ -51,7 +51,7 @@ func (handle DirectoryHandle) Entries() []FSHandle {
 						FSHandle{name, parentPath},
 					}
 				})
-				PathToFileHandle[fsEntry.Handle.RelativePath()] = &fsEntry.Handle
+				PathToFSHandle[fsEntry.Handle.RelativePath()] = &fsEntry.Handle
 				loopChannel <- struct{}{}
 				entriesChannel <- fsEntry
 			}
@@ -72,6 +72,31 @@ func DirectoryHandleFromJs(value js.Value) DirectoryHandle {
 		panic(nil)
 	}
 	return candidate
+}
+
+// ////////// //
+// FileHandle //
+// ////////// //
+type FileHandle struct {
+	FSHandle
+}
+
+func FileHandleFromJs(value js.Value) DirectoryHandle {
+	candidate := DirectoryHandle{FSHandle{value, []string{}}}
+	if !candidate.IsDirectory() {
+		panic(nil)
+	}
+	return candidate
+}
+
+func (handle FileHandle) Data() chan []byte {
+	js.Global().Set("handle", handle.jsValue)
+	jsFile := <-Promise[js.Value]{handle.jsValue.Call("getFile")}.ToChannel(func(v js.Value) js.Value { return v })
+	return Promise[[]byte]{jsFile.Call("bytes")}.ToChannel(func(v js.Value) []byte {
+		var data []byte
+		js.CopyBytesToGo(data, v)
+		return data
+	})
 }
 
 // //////// //
@@ -109,6 +134,13 @@ func (handle FSHandle) AsDirectoryHandle() DirectoryHandle {
 		panic(nil)
 	}
 	return DirectoryHandle{handle}
+}
+
+func (handle FSHandle) AsFileHandle() FileHandle {
+	if handle.IsDirectory() {
+		panic(nil)
+	}
+	return FileHandle{handle}
 }
 
 // /////// //

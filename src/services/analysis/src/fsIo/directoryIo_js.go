@@ -1,7 +1,10 @@
 package fsIo
 
 import (
+	"path/filepath"
+
 	"zarinloosli.com/hangouts-wrapped/browserApis"
+	"zarinloosli.com/hangouts-wrapped/model"
 	"zarinloosli.com/hangouts-wrapped/model/jsonSchema"
 )
 
@@ -11,15 +14,21 @@ func IngestDirectory(
 	groupInfoJsonChannel chan<- jsonSchema.GroupInfo_JsonSchema,
 	messagesJsonChannel chan<- jsonSchema.Messages_JsonSchema,
 ) error {
-	println(path)
-	fileHandle := browserApis.PathToFileHandle[path]
-	if fileHandle.IsDirectory() {
-		directoryHandle := fileHandle.AsDirectoryHandle()
+	fsHandle := browserApis.PathToFSHandle[path]
+	if fsHandle.IsDirectory() {
+		directoryHandle := fsHandle.AsDirectoryHandle()
 		for _, v := range directoryHandle.Entries() {
 			IngestDirectory(v.RelativePath(), userInfoJsonChannel, groupInfoJsonChannel, messagesJsonChannel)
 		}
 	} else {
 		// TODO
+		fileHandle := fsHandle.AsFileHandle()
+
+		if filepath.Ext(fileHandle.Name()) == ".json" {
+			go func() {
+				model.BytesChannel <- <-fileHandle.Data()
+			}()
+		}
 	}
 	return nil
 }

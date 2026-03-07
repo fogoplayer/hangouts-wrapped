@@ -7,6 +7,6 @@ import (
 
 func promptForChatDataDirectory() string {
 	chatDataDirectory := <-model.ChatDataDirectoryChannel
-	browserApis.PathToFileHandle[chatDataDirectory.RelativePath()] = &chatDataDirectory.FSHandle
+	browserApis.PathToFSHandle[chatDataDirectory.RelativePath()] = &chatDataDirectory.FSHandle
 	return chatDataDirectory.RelativePath()
 }
