@@ -1,25 +1,17 @@
 package jsInterface
 
 import (
-	"fmt"
 	"syscall/js"
 
 	"zarinloosli.com/hangouts-wrapped/browserApis"
+	"zarinloosli.com/hangouts-wrapped/model"
 )
 
 func Initialize() {
-	js.Global().Set("ingestDirectory", ingestDirectory)
-	fmt.Println("Set ingestDirectory")
+	js.Global().Set("showWasmDirectoryPicker", showDirectoryPicker)
 }
 
-var ingestDirectory js.Func = js.FuncOf(func(this js.Value, args []js.Value) any {
-	channel := browserApis.ShowDirectoryPicker()
-	go func() {
-		directoryEntry := <-channel
-		for _, v := range directoryEntry.Entries() {
-			fmt.Println(v.Name(), v.IsDirectory(), v)
-			// js.Global().Set("handle_"+strconv.Itoa(i), v)
-		}
-	}()
+var showDirectoryPicker js.Func = js.FuncOf(func(this js.Value, args []js.Value) any {
+	browserApis.ShowDirectoryPicker(model.ChatDataDirectoryChannel)
 	return nil
 })

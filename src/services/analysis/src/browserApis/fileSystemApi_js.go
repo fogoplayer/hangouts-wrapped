@@ -5,10 +5,18 @@ import (
 	"syscall/js"
 )
 
-func ShowDirectoryPicker() chan DirectoryHandle {
+func ShowDirectoryPicker(channels ...chan DirectoryHandle) chan DirectoryHandle {
+
 	jsDirectoryHandlePromise := js.Global().Call("showDirectoryPicker")
 	directoryHandlePromise := Promise[DirectoryHandle]{jsDirectoryHandlePromise}
-	return directoryHandlePromise.ToChannel(DirectoryHandleFromJs)
+	switch len(channels) {
+	case 0:
+		return directoryHandlePromise.ToChannel(DirectoryHandleFromJs)
+	case 1:
+		return directoryHandlePromise.ToChannel(DirectoryHandleFromJs, channels[0])
+	default:
+		panic(nil)
+	}
 }
 
 // /////////////// //
