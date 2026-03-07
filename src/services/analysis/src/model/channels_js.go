@@ -1,5 +1,3 @@
 package model
 
-import "zarinloosli.com/hangouts-wrapped/browserApis"
-
-var ChatDataDirectoryChannel chan browserApis.DirectoryHandle = make(chan browserApis.DirectoryHandle)
+var ChatDataDirectoryChannel chan FSAgnosticDirectoryHandle = make(chan FSAgnosticDirectoryHandle)

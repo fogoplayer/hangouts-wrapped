@@ -7,10 +7,7 @@ import (
 	"zarinloosli.com/hangouts-wrapped/util"
 )
 
-var PathToFSHandle map[string]*FSHandle = make(map[string]*FSHandle)
-
 func ShowDirectoryPicker(channels ...chan DirectoryHandle) chan DirectoryHandle {
-
 	jsDirectoryHandlePromise := js.Global().Call("showDirectoryPicker")
 	directoryHandlePromise := Promise[DirectoryHandle]{jsDirectoryHandlePromise}
 	switch len(channels) {
@@ -33,13 +30,12 @@ type DirectoryHandle struct {
 
 func (handle DirectoryHandle) Entries() []FSHandle {
 	jsHandleIter := handle.jsValue.Call("entries")
-	js.Global().Set("iterator", jsHandleIter)
 
 	entriesChannel := make(chan FSEntry)
 	loopChannel := make(chan struct{}, 1)
 	loopChannel <- struct{}{} // push one item for the equivalent of a do...while loop
 
-	go func() {
+	go func() { // TODO is this goroutine necessary?
 		for range loopChannel {
 			nextFile := <-Promise[Iterator[FSEntry]]{jsHandleIter.Call("next")}.ToChannel(IteratorFromJs)
 			if nextFile.Done() {
@@ -54,7 +50,6 @@ func (handle DirectoryHandle) Entries() []FSHandle {
 						FSHandle{name, parentPath},
 					}
 				})
-				PathToFSHandle[fsEntry.Handle.RelativePath()] = &fsEntry.Handle
 				loopChannel <- struct{}{}
 				entriesChannel <- fsEntry
 			}
@@ -84,7 +79,7 @@ func FileHandleFromJs(value js.Value) FileHandle {
 	return FSHandle{value, []string{}}.AsFileHandle()
 }
 
-func (handle FileHandle) Data() chan []byte {
+func (handle FileHandle) Bytes() chan []byte {
 	js.Global().Set("handle", handle.jsValue)
 	jsFile := <-Promise[js.Value]{handle.jsValue.Call("getFile")}.ToChannel(func(v js.Value) js.Value { return v })
 	return Promise[[]byte]{jsFile.Call("bytes")}.ToChannel(func(v js.Value) []byte {
@@ -97,6 +92,15 @@ func (handle FileHandle) Data() chan []byte {
 // //////// //
 // FSHandle //
 // //////// //
+type FSHandleInterface interface {
+	JSWrapper
+	Name() string
+	Path() string
+	IsDirectory() bool
+	AsDirectoryHandle() DirectoryHandle
+	AsFileHandle() FileHandle
+}
+
 type FSHandle struct {
 	jsValue    js.Value
 	parentPath []string
@@ -124,7 +128,7 @@ func (handle FSHandle) Name() string {
 	return handle.jsValue.Get("name").String()
 }
 
-func (handle FSHandle) RelativePath() string {
+func (handle FSHandle) Path() string {
 	return strings.Join(append(handle.parentPath, handle.Name()), "/")
 }
 
@@ -140,6 +144,10 @@ func (handle FSHandle) AsFileHandle() FileHandle {
 		TypeMismatchPanic[FileHandle](handle.jsValue)
 	}
 	return FileHandle{handle}
+}
+
+func (handle FSHandle) StoreAsGlobalVariable(varName string) {
+	js.Global().Set(varName, handle.jsValue)
 }
 
 // /////// //
