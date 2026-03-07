@@ -20,6 +20,5 @@ func GetIntFromJsValue(jsValue js.Value) (int64, error) {
 }
 
 func TypeMismatchPanic[T any](value js.Value) {
-	errorMessage := fmt.Sprintf("%v cannot be coerced into %s", value, reflect.TypeFor[T]().Name())
-	panic(errors.New(errorMessage))
+	panic(fmt.Errorf("%v cannot be coerced into %s", value, reflect.TypeFor[T]().Name()))
 }
