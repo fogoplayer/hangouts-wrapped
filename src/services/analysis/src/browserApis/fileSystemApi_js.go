@@ -1,7 +1,6 @@
 package browserApis
 
 import (
-	"fmt"
 	"strings"
 	"syscall/js"
 
@@ -113,7 +112,8 @@ func (handle FSHandle) IsDirectory() bool {
 	case FILE:
 		return false
 	default:
-		panic(fmt.Sprintf("%v cannot be coerced into %s", handle.jsValue, "\"directory\"|\"file\""))
+		ValueMismatchPanic(handle.jsValue.Get("kind"), DIRECTORY+"|"+FILE)
+		return false
 	}
 }
 
