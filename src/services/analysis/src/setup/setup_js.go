@@ -9,5 +9,4 @@ import (
 func Setup() {
 	fmt.Println("Starting initialization")
 	jsInterface.Initialize()
-	go (func() {})()
 }
