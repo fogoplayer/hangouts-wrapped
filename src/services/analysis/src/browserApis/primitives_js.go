@@ -22,8 +22,3 @@ func GetIntFromJsValue(jsValue js.Value) (int64, error) {
 func TypeMismatchPanic[T any](value js.Value) {
 	panic(fmt.Errorf("%v cannot be coerced into %s", value, reflect.TypeFor[T]().Name()))
 }
-
-func ValueMismatchPanic(value js.Value, valueDescription string) {
-	panic(fmt.Errorf("%v cannot be coerced into %s", value, valueDescription))
-
-}
