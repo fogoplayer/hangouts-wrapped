@@ -1,6 +1,10 @@
 package browserApis
 
-import "syscall/js"
+import (
+	"syscall/js"
+
+	"zarinloosli.com/hangouts-wrapped/util"
+)
 
 // func await[T any](channel chan[T]){
 
@@ -19,7 +23,7 @@ func (p Promise[T]) ToChannel(jsToGoConverter func(js.Value) T, channels ...chan
 	case 1:
 		channel = channels[0]
 	default:
-		panic(nil)
+		util.WrongNumberOfArgumentsPanic(len(channels))
 	}
 	p.value.Call("then", js.FuncOf(func(this js.Value, args []js.Value) any {
 		promiseValue := args[0]

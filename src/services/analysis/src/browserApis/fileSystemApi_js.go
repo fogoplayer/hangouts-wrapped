@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 	"syscall/js"
+
+	"zarinloosli.com/hangouts-wrapped/util"
 )
 
 var PathToFSHandle map[string]*FSHandle = make(map[string]*FSHandle)
@@ -18,7 +20,8 @@ func ShowDirectoryPicker(channels ...chan DirectoryHandle) chan DirectoryHandle 
 	case 1:
 		return directoryHandlePromise.ToChannel(DirectoryHandleFromJs, channels[0])
 	default:
-		panic(nil)
+		util.WrongNumberOfArgumentsPanic(len(channels))
+		return nil
 	}
 }
 
