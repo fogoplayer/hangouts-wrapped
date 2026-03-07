@@ -9,5 +9,5 @@ await WebAssembly.instantiateStreaming(
 });
 
 export function selectDirectoryForAnalysis() {
-  ingestDirectory();
+  showWasmDirectoryPicker();
 }

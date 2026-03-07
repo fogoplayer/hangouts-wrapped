@@ -1,6 +1,8 @@
 package fsIo
 
 import (
+	"fmt"
+
 	"zarinloosli.com/hangouts-wrapped/model/jsonSchema"
 )
 
@@ -10,5 +12,6 @@ func IngestDirectory(
 	groupInfoJsonChannel chan<- jsonSchema.GroupInfo_JsonSchema,
 	messagesJsonChannel chan<- jsonSchema.Messages_JsonSchema,
 ) error {
+	fmt.Println(path)
 	return nil
 }

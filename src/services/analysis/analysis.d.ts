@@ -1,1 +1,1 @@
-declare function ingestDirectory(): void;
+declare function showWasmDirectoryPicker(): void;
