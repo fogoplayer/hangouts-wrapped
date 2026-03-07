@@ -2,6 +2,7 @@ package browserApis
 
 import (
 	"fmt"
+	"strings"
 	"syscall/js"
 )
 
@@ -43,7 +44,10 @@ func (handle DirectoryHandle) Entries() []FSHandle {
 				close(entriesChannel)
 			} else {
 				fsEntry := nextFile.Value(func(v js.Value) FSEntry {
-					return FSEntry{v.Get("0").String(), FSHandle{v.Get("1")}}
+					return FSEntry{
+						v.Get("0").String(),
+						FSHandle{v.Get("1"), append(handle.parentPath, handle.Name())},
+					}
 				})
 				loopChannel <- struct{}{}
 				entriesChannel <- fsEntry
@@ -60,7 +64,7 @@ func (handle DirectoryHandle) Entries() []FSHandle {
 }
 
 func DirectoryHandleFromJs(value js.Value) DirectoryHandle {
-	candidate := DirectoryHandle{FSHandle{value}}
+	candidate := DirectoryHandle{FSHandle{value, []string{}}}
 	if !candidate.IsDirectory() {
 		panic(nil)
 	}
@@ -71,7 +75,8 @@ func DirectoryHandleFromJs(value js.Value) DirectoryHandle {
 // FSHandle //
 // //////// //
 type FSHandle struct {
-	jsValue js.Value
+	jsValue    js.Value
+	parentPath []string
 }
 
 func (handle FSHandle) IsDirectory() bool {
@@ -90,6 +95,10 @@ func (handle FSHandle) IsDirectory() bool {
 
 func (handle FSHandle) Name() string {
 	return handle.jsValue.Get("name").String()
+}
+
+func (handle FSHandle) RelativePath() string {
+	return strings.Join(append(handle.parentPath, handle.Name()), ",")
 }
 
 // /////// //
