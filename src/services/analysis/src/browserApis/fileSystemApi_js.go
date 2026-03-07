@@ -11,12 +11,15 @@ func ShowDirectoryPicker() chan DirectoryHandle {
 	return directoryHandlePromise.ToChannel(DirectoryHandleFromJs)
 }
 
+// /////////////// //
+// DirectoryHandle //
+// /////////////// //
 type DirectoryHandle struct {
-	directoryHandle js.Value
+	FSHandle
 }
 
 func (handle DirectoryHandle) Entries() []FSHandle {
-	jsHandleIter := handle.directoryHandle.Call("entries")
+	jsHandleIter := handle.jsValue.Call("entries")
 	js.Global().Set("iterator", jsHandleIter)
 	fmt.Println("set iterator")
 
@@ -32,7 +35,7 @@ func (handle DirectoryHandle) Entries() []FSHandle {
 				close(entriesChannel)
 			} else {
 				fsEntry := nextFile.Value(func(v js.Value) FSEntry {
-					return FSEntry{v.Get("0").String(), DirectoryHandleFromJs(v.Get("1"))}
+					return FSEntry{v.Get("0").String(), FSHandle{v.Get("1")}}
 				})
 				loopChannel <- struct{}{}
 				entriesChannel <- fsEntry
@@ -48,16 +51,42 @@ func (handle DirectoryHandle) Entries() []FSHandle {
 	return entriesList
 }
 
-func (DirectoryHandle) IsDirectory() bool {
-	return true
+func DirectoryHandleFromJs(value js.Value) DirectoryHandle {
+	candidate := DirectoryHandle{FSHandle{value}}
+	if !candidate.IsDirectory() {
+		panic(nil)
+	}
+	return candidate
 }
 
-func DirectoryHandleFromJs(v js.Value) DirectoryHandle { return DirectoryHandle{v} }
-
-type FSHandle interface {
-	IsDirectory() bool
+// //////// //
+// FSHandle //
+// //////// //
+type FSHandle struct {
+	jsValue js.Value
 }
 
+func (handle FSHandle) IsDirectory() bool {
+	FILE := "file"
+	DIRECTORY := "directory"
+
+	switch handle.jsValue.Get("kind").String() {
+	case DIRECTORY:
+		return true
+	case FILE:
+		return false
+	default:
+		panic(nil) // TODO not sure what the right value to panic on is here
+	}
+}
+
+func (handle FSHandle) Name() string {
+	return handle.jsValue.Get("name").String()
+}
+
+// /////// //
+// FSEntry //
+// /////// //
 type FSEntry struct {
 	Name   string
 	Handle FSHandle
