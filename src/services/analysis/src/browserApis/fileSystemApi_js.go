@@ -21,33 +21,31 @@ func (handle DirectoryHandle) Entries() []FSHandle {
 	fmt.Println("set iterator")
 
 	entriesChannel := make(chan FSEntry)
+	loopChannel := make(chan struct{}, 1)
+	loopChannel <- struct{}{} // push one item for the equivalent of a do...while loop
 
-	// TODO Loop
-	nextFile := <-Promise[Iterator[FSEntry]]{jsHandleIter.Call("next")}.ToChannel(IteratorFromJs)
-	if nextFile.Done() {
-		close(entriesChannel)
-	} else {
-		fsEntry := nextFile.Value(func(v js.Value) FSEntry {
-			return FSEntry{v.Get("0").String(), DirectoryHandleFromJs(v.Get("1"))}
-		})
-		entriesChannel <- fsEntry
-	}
+	go func() {
+		for range loopChannel {
+			nextFile := <-Promise[Iterator[FSEntry]]{jsHandleIter.Call("next")}.ToChannel(IteratorFromJs)
+			if nextFile.Done() {
+				close(loopChannel)
+				close(entriesChannel)
+			} else {
+				fsEntry := nextFile.Value(func(v js.Value) FSEntry {
+					return FSEntry{v.Get("0").String(), DirectoryHandleFromJs(v.Get("1"))}
+				})
+				loopChannel <- struct{}{}
+				entriesChannel <- fsEntry
+			}
+		}
+	}()
 
+	entriesList := []FSHandle{}
 	for entry := range entriesChannel {
-		fmt.Println(entry.Name)
+		entriesList = append(entriesList, entry.Handle)
 	}
 
-	// jsHandleList := jsHandleIter.Call("next")
-
-	// jsHandleListLength, err := GetIntFromJsValue(jsHandleList.Get("length"))
-	// if err != nil {
-	// 	return []FSHandle{}
-	// }
-
-	// fmt.Println(jsHandleListLength)
-	// handleList := []FSHandle{}
-	// for i := range jsHandleListLength
-	return []FSHandle{}
+	return entriesList
 }
 
 func (DirectoryHandle) IsDirectory() bool {
