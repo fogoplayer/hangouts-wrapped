@@ -103,16 +103,19 @@ type FSHandle struct {
 }
 
 func (handle FSHandle) IsDirectory() bool {
-	FILE := "file"
-	DIRECTORY := "directory"
+	type FSHandle_Kind string
+	const (
+		DIRECTORY FSHandle_Kind = "directory"
+		FILE      FSHandle_Kind = "file"
+	)
 
-	switch handle.jsValue.Get("kind").String() {
+	switch FSHandle_Kind(handle.jsValue.Get("kind").String()) {
 	case DIRECTORY:
 		return true
 	case FILE:
 		return false
 	default:
-		ValueMismatchPanic(handle.jsValue.Get("kind"), DIRECTORY+"|"+FILE)
+		TypeMismatchPanic[FSHandle_Kind](handle.jsValue.Get("kind"))
 		return false
 	}
 }
