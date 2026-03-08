@@ -18,18 +18,23 @@ func (handle DirectoryHandle) Entries() []FSHandle {
 
 	go func() { // loop in a goroutine so that we can immediately start listening for entries, too
 		for range loopChannel {
+			// We need to know if we are `Done` to know if we are ending the loop or not... so there's no harm in getting the
+			// value synchronously. Plus, we're in a goroutine already
 			nextFile, _ := Promise[Iterator[FSEntry]]{jsHandleIter.Call("next")}.ValueSync(IteratorFromJs)
-			// TODO error handling
+			// no error handling needed - this is a wrapper for a JS async iterator, so it *will* have a `next`` method that
+			// *will* return a value
+
 			if nextFile.Done() {
 				close(loopChannel)
 				close(entriesChannel)
 			} else {
 				fsEntry := nextFile.Value(func(v js.Value) FSEntry {
-					name := v.Get("1")
+					name := v.Get("0").String()
+					fileHandle := v.Get("1")
 					parentPath := append(handle.parentPath, handle.Name())
 					return FSEntry{
-						v.Get("0").String(),
-						FSHandle{name, parentPath},
+						name,
+						FSHandle{fileHandle, parentPath},
 					}
 				})
 				loopChannel <- struct{}{}
