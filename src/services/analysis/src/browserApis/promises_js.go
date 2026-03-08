@@ -2,7 +2,6 @@ package browserApis
 
 import (
 	"errors"
-	"fmt"
 	"syscall/js"
 
 	"zarinloosli.com/hangouts-wrapped/util"
@@ -54,6 +53,5 @@ type PromiseResult[T any] struct {
 }
 
 func (result PromiseResult[T]) Value() (T, error) {
-	fmt.Println("PromiseResult", result.value, result.err)
 	return result.value, result.err
 }

@@ -118,10 +118,8 @@ func (handle FileHandle) Bytes() chan []byte {
 		jsFile, _ := Promise[js.Value]{handle.jsValue.Call("getFile")}.ValueSync(func(v js.Value) (js.Value, error) { return v, nil })
 
 		bytes, _ := Promise[[]byte]{jsFile.Call("bytes")}.ValueSync(func(v js.Value) ([]byte, error) {
-			var data []byte
+			data := make([]byte, v.Length())
 			js.CopyBytesToGo(data, v)
-			fmt.Println("data for", handle.Path(), data)
-			SetGlobal("fileData", v)
 			return data, nil // TODO error handling for copyBytesToGo
 		})
 		// TODO error handling
