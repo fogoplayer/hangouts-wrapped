@@ -57,11 +57,11 @@ func (handle DirectoryHandle) Entries() []FSHandle {
 func (handle DirectoryHandle) GetEntry(name string) (FSHandleInterface, error) {
 	parentPath := append(handle.parentPath, handle.Name())
 	directoryChannel := Promise[DirectoryHandle]{handle.jsValue.Call("getDirectoryHandle", name),
-		getJsToDirectoryHandleFunctionForParent(parentPath),
+		getDirectoryHandleFromJsFunctionForParent(parentPath),
 	}.ToChannel()
 	fileChannel := Promise[FileHandle]{
 		handle.jsValue.Call("getFileHandle", name),
-		getJsToFileHandleFunctionForParent(parentPath),
+		getFileHandleFromJsFunctionForParent(parentPath),
 	}.ToChannel()
 	for range 2 {
 		select {
@@ -80,12 +80,12 @@ func (handle DirectoryHandle) GetEntry(name string) (FSHandleInterface, error) {
 	return nil, errors.New("Entry does not exist")
 }
 
-func jsToDirectoryHandle(value js.Value, parentPath []string) (DirectoryHandle, error) {
+func directoryHandleFromJs(value js.Value, parentPath []string) (DirectoryHandle, error) {
 	return FSHandle{value, parentPath}.AsDirectoryHandle()
 }
 
-func getJsToDirectoryHandleFunctionForParent(parentPath []string) func(value js.Value) (DirectoryHandle, error) {
+func getDirectoryHandleFromJsFunctionForParent(parentPath []string) func(value js.Value) (DirectoryHandle, error) {
 	return func(value js.Value) (DirectoryHandle, error) {
-		return jsToDirectoryHandle(value, parentPath)
+		return directoryHandleFromJs(value, parentPath)
 	}
 }

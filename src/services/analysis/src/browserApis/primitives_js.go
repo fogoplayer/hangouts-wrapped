@@ -39,3 +39,13 @@ func SetGlobal(name string, x js.Value) {
 	globalsSet[name] = true
 	fmt.Println("Set", name)
 }
+
+func JsFromJsReturnValueUnchanged(v js.Value) (js.Value, error) {
+	return v, nil
+}
+
+func ByteArrayFromJs(v js.Value) ([]byte, error) {
+	data := make([]byte, v.Length())
+	js.CopyBytesToGo(data, v)
+	return data, nil // TODO error handling for copyBytesToGo
+}

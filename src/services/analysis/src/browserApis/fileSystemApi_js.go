@@ -10,7 +10,7 @@ func ShowDirectoryPicker(channels ...chan PromiseResult[DirectoryHandle]) chan P
 	jsDirectoryHandlePromise := js.Global().Call("showDirectoryPicker")
 	directoryHandlePromise := Promise[DirectoryHandle]{
 		jsDirectoryHandlePromise,
-		getJsToDirectoryHandleFunctionForParent([]string{}),
+		getDirectoryHandleFromJsFunctionForParent([]string{}),
 	}
 	switch len(channels) {
 	case 0:
