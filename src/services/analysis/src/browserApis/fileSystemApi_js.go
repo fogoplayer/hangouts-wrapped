@@ -78,13 +78,11 @@ func (handle DirectoryHandle) GetEntry(name string) (FSHandleInterface, error) {
 		select {
 		case directoryResult := <-directoryChannel:
 			directoryHandle, err := directoryResult.Value()
-			fmt.Println("directory result", directoryHandle, err)
 			if err == nil {
 				return directoryHandle, nil
 			}
 		case fileResult := <-fileChannel:
 			fileHandle, err := fileResult.Value()
-			fmt.Println("file result", fileResult, err)
 			if err == nil {
 				return fileHandle, nil
 			}
@@ -114,7 +112,6 @@ type FileHandle struct {
 func (handle FileHandle) Bytes() chan []byte {
 	bytesChannel := make(chan []byte)
 	go func() {
-		fmt.Println("Get bytes for ", handle.Name())
 		jsFile, _ := Promise[js.Value]{handle.jsValue.Call("getFile")}.ValueSync(func(v js.Value) (js.Value, error) { return v, nil })
 
 		bytes, _ := Promise[[]byte]{jsFile.Call("bytes")}.ValueSync(func(v js.Value) ([]byte, error) {
@@ -204,7 +201,7 @@ func (handle FSHandle) StoreAsGlobalVariable(varName string) {
 	js.Global().Set(varName, handle.jsValue)
 }
 
-var _ FSHandleInterface = FSHandle{} // Compile-time inheritance check TODO formatting consistency
+var _ FSHandleInterface = FSHandle{} // Compile-time inheritance check
 
 // /////// //
 // FSEntry //

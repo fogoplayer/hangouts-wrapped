@@ -13,11 +13,7 @@ var PathToFSHandle map[string]model.FSAgnosticHandle = make(map[string]model.FSA
 func ShowDirectoryPicker() {
 	go func() {
 		jsDirectoryResult := <-browserApis.ShowDirectoryPicker()
-		fmt.Println("result", jsDirectoryResult)
 		jsDirectoryHandle, err := jsDirectoryResult.Value()
-		fmt.Println("resultHandle", jsDirectoryResult)
-
-		fmt.Println("checking result of directory picker")
 		if err != nil {
 			fmt.Println("directory picker cancelled")
 			return
@@ -27,7 +23,6 @@ func ShowDirectoryPicker() {
 		dirHandle := DirectoryHandle{fsHandle}
 		PathToFSHandle[jsDirectoryHandle.Path()] = dirHandle
 
-		fmt.Println("Sending to channel")
 		model.FilePathsToIngestChannel <- jsDirectoryHandle.Path()
 	}()
 }
@@ -66,10 +61,7 @@ func (handle DirectoryHandle) Entries() []model.FSAgnosticHandle {
 }
 
 func (handle DirectoryHandle) GetEntry(name string) (model.FSAgnosticHandle, error) {
-	directoryHandle, err := handle.BrowserHandle.AsDirectoryHandle()
-	if err != nil {
-		fmt.Println("not directory handle")
-	}
+	directoryHandle, _ := handle.BrowserHandle.AsDirectoryHandle()
 	// TODO error handling
 	entry, err := directoryHandle.GetEntry(name)
 	return DirectoryHandle{FSHandle{entry}}, err
@@ -93,7 +85,6 @@ func (handle FSHandle) Path() string {
 }
 
 func (handle FSHandle) IsDirectory() bool {
-	browserApis.SetGlobal("handle2", handle.BrowserHandle.JsValue())
 	return handle.BrowserHandle.IsDirectory()
 }
 

@@ -1,7 +1,6 @@
 package fsIo
 
 import (
-	"fmt"
 	"strings"
 
 	"zarinloosli.com/hangouts-wrapped/model"
@@ -38,7 +37,6 @@ func ProcessFile(
 	} else if fileHandle, err := fsHandle.AsFileHandle(); err == nil {
 		switch fileHandle.Name() {
 		case USER_INFO:
-			fmt.Println("bytes for", fileHandle.Name())
 			go func() { model.BytesChannel <- <-fileHandle.Bytes() }()
 		case GROUP_INFO:
 		case MESSAGES:
@@ -71,28 +69,14 @@ func handleChatDirectory(directoryHandle model.FSAgnosticDirectoryHandle) {
 	// TODO error handling
 	messagesBytesChannel := messagesFile.Bytes()
 
-	fmt.Println("Getting info file")
 	groupInfoEntry, _ := directoryHandle.GetEntry("group_info.json")
 	groupInfoFile, _ := groupInfoEntry.AsFileHandle()
 	// TODO error handling
 	groupInfoBytesChannel := groupInfoFile.Bytes()
 
-	// go func() {
-	// 	var messagesBytes []byte
-	// 	var groupInfoBytes []byte
-
-	// 	for range 2 {
-	// 		select {
-	// 		case messagesBytes = <-messagesBytesChannel:
-	// 		case groupInfoBytes = <-groupInfoBytesChannel:
-	// 		}
-	// 	}
 	model.ChatDirectoryHandleChannel <- model.ChatDirectoryHandle{
 		DirectoryHandle: directoryHandle,
 		Messages:        messagesBytesChannel,
 		GroupInfo:       groupInfoBytesChannel,
 	}
-
-	// }()
-
 }
