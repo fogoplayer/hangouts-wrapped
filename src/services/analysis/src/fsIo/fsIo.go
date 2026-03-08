@@ -25,7 +25,7 @@ func ProcessFile(
 	if directoryHandle, err := fsHandle.AsDirectoryHandle(); err == nil {
 		switch directoryHandle.Name() {
 		case CHAT_DATA_DIRECTORY:
-			go handleDirectory(directoryHandle)
+			go handleDirectory(directoryHandle) // TODO move the goroutines inside the handlers instead?
 		case USERS_DIRECTORY:
 			go handleDirectory(directoryHandle)
 		case GROUPS_DIRECTORY:
@@ -66,9 +66,32 @@ func handleDirectory(directoryHandle model.FSAgnosticDirectoryHandle) {
 }
 
 func handleChatDirectory(directoryHandle model.FSAgnosticDirectoryHandle) {
+	messagesEntry, _ := directoryHandle.GetEntry("messages.json")
+	messagesFile, _ := messagesEntry.AsFileHandle()
+	// TODO error handling
+	messagesBytesChannel := messagesFile.Bytes()
+
+	groupInfoEntry, _ := directoryHandle.GetEntry("group_info.json")
+	groupInfoFile, _ := groupInfoEntry.AsFileHandle()
+	// TODO error handling
+	groupInfoBytesChannel := groupInfoFile.Bytes()
+
+	// go func() {
+	// 	var messagesBytes []byte
+	// 	var groupInfoBytes []byte
+
+	// 	for range 2 {
+	// 		select {
+	// 		case messagesBytes = <-messagesBytesChannel:
+	// 		case groupInfoBytes = <-groupInfoBytesChannel:
+	// 		}
+	// 	}
 	model.ChatDirectoryHandleChannel <- model.ChatDirectoryHandle{
 		DirectoryHandle: directoryHandle,
-		Messages:        make(chan []byte),
-		GroupInfo:       make(chan []byte),
+		Messages:        messagesBytesChannel,
+		GroupInfo:       groupInfoBytesChannel,
 	}
+
+	// }()
+
 }
