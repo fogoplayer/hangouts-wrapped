@@ -2,11 +2,9 @@ package fsIo
 
 import (
 	"fmt"
-	"path/filepath"
 
 	"zarinloosli.com/hangouts-wrapped/browserApis"
 	"zarinloosli.com/hangouts-wrapped/model"
-	"zarinloosli.com/hangouts-wrapped/model/jsonSchema"
 	"zarinloosli.com/hangouts-wrapped/util"
 )
 
@@ -32,27 +30,6 @@ func ShowDirectoryPicker() {
 		fmt.Println("Sending to channel")
 		model.FilePathsToIngestChannel <- jsDirectoryHandle.Path()
 	}()
-}
-
-func IngestDirectory(
-	path string,
-	userInfoJsonChannel chan<- jsonSchema.UserInfo_JsonSchema,
-	groupInfoJsonChannel chan<- jsonSchema.GroupInfo_JsonSchema,
-	messagesJsonChannel chan<- jsonSchema.Messages_JsonSchema,
-) error {
-	fsHandle := PathToFSHandle[path]
-	if directoryHandle, err := fsHandle.AsDirectoryHandle(); err == nil {
-		for _, v := range directoryHandle.Entries() {
-			IngestDirectory(v.Path(), userInfoJsonChannel, groupInfoJsonChannel, messagesJsonChannel)
-		}
-	} else if fileHandle, err := fsHandle.AsFileHandle(); err == nil {
-		if filepath.Ext(fileHandle.Name()) == ".json" {
-			go func() {
-				model.BytesChannel <- <-fileHandle.Bytes()
-			}()
-		}
-	}
-	return nil
 }
 
 // ////////// //
