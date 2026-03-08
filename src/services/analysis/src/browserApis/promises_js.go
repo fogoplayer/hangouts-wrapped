@@ -8,8 +8,8 @@ import (
 )
 
 type Promise[T any] struct {
-	value           js.Value
-	jsToGoConverter func(js.Value) (T, error)
+	value      js.Value
+	jsToGoFunc func(js.Value) (T, error)
 }
 
 func (p Promise[T]) ToChannel(channels ...chan PromiseResult[T]) chan PromiseResult[T] {
@@ -27,7 +27,7 @@ func (p Promise[T]) ToChannel(channels ...chan PromiseResult[T]) chan PromiseRes
 		// Then
 		Call("then", js.FuncOf(func(this js.Value, args []js.Value) any {
 			promiseValue := args[0]
-			goValue, err := p.jsToGoConverter(promiseValue)
+			goValue, err := p.jsToGoFunc(promiseValue)
 			channel <- PromiseResult[T]{goValue, err}
 			return nil
 		})).

@@ -11,15 +11,14 @@ func (handle FileHandle) Bytes() chan []byte {
 	bytesChannel := make(chan []byte)
 	go func() {
 		jsFile, _ := Await(Promise[js.Value]{
-			handle.jsValue.Call("getFile"),
-			JsFromJsReturnValueUnchanged,
+			value:      handle.jsValue.Call("getFile"),
+			jsToGoFunc: JsFromJsReturnValueUnchanged,
 		})
 
 		bytes, _ := Await(
 			Promise[[]byte]{
-				jsFile.Call("bytes"),
-				// TODO pull out function
-				ByteArrayFromJs,
+				value:      jsFile.Call("bytes"),
+				jsToGoFunc: ByteArrayFromJs,
 			},
 		)
 

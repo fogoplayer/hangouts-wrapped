@@ -21,8 +21,8 @@ func (handle DirectoryHandle) Entries() []FSHandle {
 			// We need to know if we are `Done` to know if we are ending the loop or not... so there's no harm in getting the
 			// value synchronously. Plus, we're in a goroutine already
 			nextFile, _ := Await(Promise[Iterator[FSEntry]]{
-				jsHandleIter.Call("next"),
-				IteratorFromJs[FSEntry],
+				value:      jsHandleIter.Call("next"),
+				jsToGoFunc: IteratorFromJs[FSEntry],
 			})
 			// no error handling needed - this is a wrapper for a JS async iterator, so it *will* have a `next`` method that
 			// *will* return a value
@@ -56,12 +56,13 @@ func (handle DirectoryHandle) Entries() []FSHandle {
 
 func (handle DirectoryHandle) GetEntry(name string) (FSHandleInterface, error) {
 	parentPath := append(handle.parentPath, handle.Name())
-	directoryChannel := Promise[DirectoryHandle]{handle.jsValue.Call("getDirectoryHandle", name),
-		getDirectoryHandleFromJsFunctionForParent(parentPath),
+	directoryChannel := Promise[DirectoryHandle]{
+		value:      handle.jsValue.Call("getDirectoryHandle", name),
+		jsToGoFunc: getDirectoryHandleFromJsFunctionForParent(parentPath),
 	}.ToChannel()
 	fileChannel := Promise[FileHandle]{
-		handle.jsValue.Call("getFileHandle", name),
-		getFileHandleFromJsFunctionForParent(parentPath),
+		value:      handle.jsValue.Call("getFileHandle", name),
+		jsToGoFunc: getFileHandleFromJsFunctionForParent(parentPath),
 	}.ToChannel()
 	for range 2 {
 		select {
