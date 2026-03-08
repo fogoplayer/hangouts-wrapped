@@ -10,13 +10,26 @@ import (
 
 func main() {
 	setup.Setup()
+	go func() {
+		chatDataDirectory := promptForChatDataDirectory()
+		fmt.Println("chat directory", chatDataDirectory)
+		fsIo.ProcessFile(chatDataDirectory)
+	}()
 
-	chatDataDirectory := promptForChatDataDirectory()
-	fsIo.IngestDirectory(chatDataDirectory, model.UserInfoJsonChannel, model.GroupInfoJsonChannel, model.MessagesJsonChannel)
-
-	i := 0
-	for range model.BytesChannel {
-		i += 1
-		fmt.Println(i, "bytes recieved")
-	}
+	go func() {
+		for pathToIngest := range model.FilePathsToIngestChannel {
+			fsIo.ProcessFile(pathToIngest)
+		}
+	}()
+	go func() {
+		i := 0
+		for chatDirectoryHandle := range model.ChatDirectoryHandleChannel {
+			go func() {
+				i += 1
+				fmt.Println(i, "groups recieved")
+				fmt.Println(string((<-chatDirectoryHandle.GroupInfo)))
+			}()
+		}
+	}()
+	<-make(chan struct{})
 }

@@ -11,6 +11,7 @@ type FSAgnosticHandle interface {
 type FSAgnosticDirectoryHandle interface {
 	FSAgnosticHandle
 	Entries() []FSAgnosticHandle
+	GetEntry(string) (FSAgnosticHandle, error)
 }
 
 type FSAgnosticFileHandle interface {
