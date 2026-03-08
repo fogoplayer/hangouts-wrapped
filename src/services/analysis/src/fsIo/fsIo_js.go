@@ -1,6 +1,7 @@
 package fsIo
 
 import (
+	"fmt"
 	"path/filepath"
 
 	"zarinloosli.com/hangouts-wrapped/browserApis"
@@ -13,9 +14,13 @@ var PathToFSHandle map[string]model.FSAgnosticHandle = make(map[string]model.FSA
 
 func ShowDirectoryPicker() {
 	go func() {
-		data := <-browserApis.ShowDirectoryPicker()
-		handle := FSHandle{data}
-		model.ChatDataDirectoryChannel <- DirectoryHandle{handle}
+		jsDirectoryHandle := <-browserApis.ShowDirectoryPicker()
+
+		fsHandle := FSHandle{jsDirectoryHandle}
+		PathToFSHandle[jsDirectoryHandle.Path()] = DirectoryHandle{fsHandle}
+
+		fmt.Println("Sending to channel")
+		model.FilePathsToIngestChannel <- jsDirectoryHandle.Path()
 	}()
 }
 

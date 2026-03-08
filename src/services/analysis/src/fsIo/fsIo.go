@@ -1,14 +1,21 @@
 package fsIo
 
+import (
+	"fmt"
+	"strings"
+
+	"zarinloosli.com/hangouts-wrapped/model"
+)
+
 const (
-	CHAT_DATA_DIRECTORY = "Google Chat"
-	GROUPS_DIRECTORY    = "Groups"
-	USERS_DIRECTORY     = "Users"
-	USER_INFO           = "user_info.json"
-	DM_DIRECTORY        = "DM *"
-	SPACE_DIRECTORY     = "SPACE *"
-	GROUP_INFO          = "group_info.json"
-	MESSAGES            = "messages.json"
+	CHAT_DATA_DIRECTORY    = "Google Chat"
+	GROUPS_DIRECTORY       = "Groups"
+	USERS_DIRECTORY        = "Users"
+	USER_INFO              = "user_info.json"
+	DM_DIRECTORY_PREFIX    = "DM"
+	SPACE_DIRECTORY_PREFIX = "SPACE"
+	GROUP_INFO             = "group_info.json"
+	MESSAGES               = "messages.json"
 )
 
 func ProcessFile(
@@ -18,24 +25,21 @@ func ProcessFile(
 	if directoryHandle, err := fsHandle.AsDirectoryHandle(); err == nil {
 		switch directoryHandle.Name() {
 		case CHAT_DATA_DIRECTORY:
-			for _, v := range directoryHandle.Entries() {
-
-			}
-		case GROUPS_DIRECTORY:
+			go handleDirectory(directoryHandle)
 		case USERS_DIRECTORY:
+			go handleDirectory(directoryHandle)
+		case GROUPS_DIRECTORY:
+			go handleDirectory(directoryHandle)
 		default:
-			switch "" { // TODO properly handle regex
-			case DM_DIRECTORY:
-			case SPACE_DIRECTORY:
+			if startsWithWords(directoryHandle.Name(), DM_DIRECTORY_PREFIX, SPACE_DIRECTORY_PREFIX) {
+				go handleChatDirectory(directoryHandle)
 			}
-		}
-
-		for _, entry := range directoryHandle.Entries() {
-			ProcessFile(entry.Path())
 		}
 	} else if fileHandle, err := fsHandle.AsFileHandle(); err == nil {
 		switch fileHandle.Name() {
 		case USER_INFO:
+			fmt.Println("bytes for", fileHandle.Name())
+			go func() { model.BytesChannel <- <-fileHandle.Bytes() }()
 		case GROUP_INFO:
 		case MESSAGES:
 		default:
@@ -43,4 +47,28 @@ func ProcessFile(
 		}
 	}
 	return nil
+}
+
+func startsWithWords(candidate string, prefixes ...string) bool {
+	for _, prefix := range prefixes {
+		firstWord := strings.Split(candidate, " ")[0]
+		if firstWord == prefix {
+			return true
+		}
+	}
+	return false
+}
+
+func handleDirectory(directoryHandle model.FSAgnosticDirectoryHandle) {
+	for _, entry := range directoryHandle.Entries() {
+		go func() { model.FilePathsToIngestChannel <- entry.Path() }()
+	}
+}
+
+func handleChatDirectory(directoryHandle model.FSAgnosticDirectoryHandle) {
+	model.ChatDirectoryHandleChannel <- model.ChatDirectoryHandle{
+		DirectoryHandle: directoryHandle,
+		Messages:        make(chan []byte),
+		GroupInfo:       make(chan []byte),
+	}
 }
