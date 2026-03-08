@@ -23,9 +23,12 @@ func main() {
 	}()
 	go func() {
 		i := 0
-		for range model.ChatDirectoryHandleChannel {
-			i += 1
-			fmt.Println(i, "groups recieved")
+		for chatDirectoryHandle := range model.ChatDirectoryHandleChannel {
+			go func() {
+				i += 1
+				fmt.Println(i, "groups recieved")
+				fmt.Println(string((<-chatDirectoryHandle.GroupInfo)))
+			}()
 		}
 	}()
 	<-make(chan struct{})

@@ -88,7 +88,11 @@ func (handle DirectoryHandle) GetEntry(name string) (FSHandleInterface, error) {
 }
 
 func DirectoryHandleFromJs(value js.Value) DirectoryHandle {
-	return FSHandle{value, []string{}}.AsDirectoryHandle()
+	handle, err := FSHandle{value, []string{}}.AsDirectoryHandle()
+	if err != nil {
+		panic(err)
+	}
+	return handle
 }
 
 // ////////// //
@@ -99,7 +103,11 @@ type FileHandle struct {
 }
 
 func FileHandleFromJs(value js.Value) FileHandle {
-	return FSHandle{value, []string{}}.AsFileHandle()
+	handle, err := FSHandle{value, []string{}}.AsFileHandle()
+	if err != nil {
+		panic(err)
+	}
+	return handle
 }
 
 // TODO pass in a channel and make the whole thing a goRoutine so it return instantaneously?
@@ -127,8 +135,8 @@ type FSHandleInterface interface {
 	Name() string
 	Path() string
 	IsDirectory() bool
-	AsDirectoryHandle() DirectoryHandle
-	AsFileHandle() FileHandle
+	AsDirectoryHandle() (DirectoryHandle, error)
+	AsFileHandle() (FileHandle, error)
 }
 
 type FSHandle struct {
@@ -149,8 +157,7 @@ func (handle FSHandle) IsDirectory() bool {
 	case FILE:
 		return false
 	default:
-		TypeMismatchPanic[FSHandle_Kind](handle.jsValue.Get("kind"))
-		return false
+		panic(TypeMismatchError[FSHandle_Kind](handle.jsValue.Get("kind")))
 	}
 }
 
@@ -162,23 +169,25 @@ func (handle FSHandle) Path() string {
 	return strings.Join(append(handle.parentPath, handle.Name()), "/")
 }
 
-func (handle FSHandle) AsDirectoryHandle() DirectoryHandle {
+func (handle FSHandle) AsDirectoryHandle() (DirectoryHandle, error) {
 	if !handle.IsDirectory() {
-		TypeMismatchPanic[DirectoryHandle](handle.jsValue)
+		return DirectoryHandle{}, TypeMismatchError[DirectoryHandle](handle.jsValue)
 	}
-	return DirectoryHandle{handle}
+	return DirectoryHandle{handle}, nil
 }
 
-func (handle FSHandle) AsFileHandle() FileHandle {
+func (handle FSHandle) AsFileHandle() (FileHandle, error) {
 	if handle.IsDirectory() {
-		TypeMismatchPanic[FileHandle](handle.jsValue)
+		return FileHandle{}, TypeMismatchError[FileHandle](handle.jsValue)
 	}
-	return FileHandle{handle}
+	return FileHandle{handle}, nil
 }
 
 func (handle FSHandle) StoreAsGlobalVariable(varName string) {
 	js.Global().Set(varName, handle.jsValue)
 }
+
+var _ FSHandleInterface = FSHandle{} // Compile-time inheritance check TODO formatting consistency
 
 // /////// //
 // FSEntry //

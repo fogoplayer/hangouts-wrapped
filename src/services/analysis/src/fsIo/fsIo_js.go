@@ -57,7 +57,9 @@ type FileHandle struct {
 }
 
 func (handle FileHandle) Bytes() chan []byte {
-	return handle.browserHandle.AsFileHandle().Bytes()
+	fileHandle, _ := handle.browserHandle.AsFileHandle()
+	// TODO error handling
+	return fileHandle.Bytes()
 }
 
 var _ model.FSAgnosticFileHandle = FileHandle{} // Compile-time inheritance check
@@ -71,7 +73,9 @@ type DirectoryHandle struct {
 
 func (handle DirectoryHandle) Entries() []model.FSAgnosticHandle {
 	fsEntries := []model.FSAgnosticHandle{}
-	for _, browserEntry := range handle.browserHandle.AsDirectoryHandle().Entries() {
+	directoryHandle, _ := handle.browserHandle.AsDirectoryHandle()
+	// TODO error handling
+	for _, browserEntry := range directoryHandle.Entries() {
 		PathToFSHandle[browserEntry.Path()] = FSHandle{browserEntry}
 		fsEntries = append(fsEntries, FSHandle{browserEntry})
 	}
@@ -79,7 +83,9 @@ func (handle DirectoryHandle) Entries() []model.FSAgnosticHandle {
 }
 
 func (handle DirectoryHandle) GetEntry(name string) (model.FSAgnosticHandle, error) {
-	entry, err := handle.browserHandle.AsDirectoryHandle().GetEntry(name)
+	directoryHandle, _ := handle.browserHandle.AsDirectoryHandle()
+	// TODO error handling
+	entry, err := directoryHandle.GetEntry(name)
 	return DirectoryHandle{FSHandle{entry}}, err
 }
 
