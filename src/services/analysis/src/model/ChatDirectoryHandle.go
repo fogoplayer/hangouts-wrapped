@@ -24,6 +24,10 @@ func (handle ChatDirectoryHandle) Entries() []FSAgnosticHandle {
 	return handle.DirectoryHandle.Entries()
 }
 
+func (handle ChatDirectoryHandle) GetEntry(name string) (FSAgnosticHandle, error) {
+	return handle.DirectoryHandle.GetEntry(name)
+}
+
 func (handle ChatDirectoryHandle) IsDirectory() bool {
 	return handle.DirectoryHandle.IsDirectory()
 }

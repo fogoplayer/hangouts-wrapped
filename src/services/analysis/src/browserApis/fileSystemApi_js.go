@@ -1,13 +1,14 @@
 package browserApis
 
 import (
+	"errors"
 	"strings"
 	"syscall/js"
 
 	"zarinloosli.com/hangouts-wrapped/util"
 )
 
-func ShowDirectoryPicker(channels ...chan DirectoryHandle) chan DirectoryHandle {
+func ShowDirectoryPicker(channels ...chan PromiseResult[DirectoryHandle]) chan PromiseResult[DirectoryHandle] {
 	jsDirectoryHandlePromise := js.Global().Call("showDirectoryPicker")
 	directoryHandlePromise := Promise[DirectoryHandle]{jsDirectoryHandlePromise}
 	switch len(channels) {
@@ -35,9 +36,11 @@ func (handle DirectoryHandle) Entries() []FSHandle {
 	loopChannel := make(chan struct{}, 1)
 	loopChannel <- struct{}{} // push one item for the equivalent of a do...while loop
 
-	go func() { // TODO is this goroutine necessary?
+	go func() { // TODO is this goroutine necessary? Should it be moved inside?
+		// I don't think so, but I'm not sure how next works
 		for range loopChannel {
-			nextFile := <-Promise[Iterator[FSEntry]]{jsHandleIter.Call("next")}.ToChannel(IteratorFromJs)
+			nextFile, _ := Promise[Iterator[FSEntry]]{jsHandleIter.Call("next")}.ValueSync(IteratorFromJs)
+			// TODO error handling
 			if nextFile.Done() {
 				close(loopChannel)
 				close(entriesChannel)
@@ -64,6 +67,26 @@ func (handle DirectoryHandle) Entries() []FSHandle {
 	return entriesList
 }
 
+func (handle DirectoryHandle) GetEntry(name string) (FSHandleInterface, error) {
+	directoryChannel := Promise[DirectoryHandle]{handle.jsValue.Call("getDirectoryHandle", name)}.ToChannel(DirectoryHandleFromJs)
+	fileChannel := Promise[DirectoryHandle]{handle.jsValue.Call("getFileHandle", name)}.ToChannel(DirectoryHandleFromJs)
+	for range 2 {
+		select {
+		case directoryResult := <-directoryChannel:
+			directoryHandle, err := directoryResult.Value()
+			if err == nil {
+				return directoryHandle, nil
+			}
+		case fileResult := <-fileChannel:
+			fileHandle, err := fileResult.Value()
+			if err == nil {
+				return fileHandle, nil
+			}
+		}
+	}
+	return nil, errors.New("Entry does not exist")
+}
+
 func DirectoryHandleFromJs(value js.Value) DirectoryHandle {
 	return FSHandle{value, []string{}}.AsDirectoryHandle()
 }
@@ -79,14 +102,21 @@ func FileHandleFromJs(value js.Value) FileHandle {
 	return FSHandle{value, []string{}}.AsFileHandle()
 }
 
+// TODO pass in a channel and make the whole thing a goRoutine so it return instantaneously?
 func (handle FileHandle) Bytes() chan []byte {
-	js.Global().Set("handle", handle.jsValue)
-	jsFile := <-Promise[js.Value]{handle.jsValue.Call("getFile")}.ToChannel(func(v js.Value) js.Value { return v })
-	return Promise[[]byte]{jsFile.Call("bytes")}.ToChannel(func(v js.Value) []byte {
-		var data []byte
-		js.CopyBytesToGo(data, v)
-		return data
-	})
+	bytesChannel := make(chan []byte)
+	go func() {
+		jsFile, _ := Promise[js.Value]{handle.jsValue.Call("getFile")}.ValueSync(func(v js.Value) js.Value { return v })
+
+		bytes, _ := Promise[[]byte]{jsFile.Call("bytes")}.ValueSync(func(v js.Value) []byte {
+			var data []byte
+			js.CopyBytesToGo(data, v)
+			return data
+		})
+		// TODO error handling
+		bytesChannel <- bytes
+	}()
+	return bytesChannel
 }
 
 // //////// //

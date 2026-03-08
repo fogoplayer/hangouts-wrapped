@@ -14,7 +14,11 @@ var PathToFSHandle map[string]model.FSAgnosticHandle = make(map[string]model.FSA
 
 func ShowDirectoryPicker() {
 	go func() {
-		jsDirectoryHandle := <-browserApis.ShowDirectoryPicker()
+		jsDirectoryResult := <-browserApis.ShowDirectoryPicker()
+		jsDirectoryHandle, err := jsDirectoryResult.Value()
+		if err != nil {
+			return
+		}
 
 		fsHandle := FSHandle{jsDirectoryHandle}
 		PathToFSHandle[jsDirectoryHandle.Path()] = DirectoryHandle{fsHandle}
@@ -72,6 +76,11 @@ func (handle DirectoryHandle) Entries() []model.FSAgnosticHandle {
 		fsEntries = append(fsEntries, FSHandle{browserEntry})
 	}
 	return fsEntries
+}
+
+func (handle DirectoryHandle) GetEntry(name string) (model.FSAgnosticHandle, error) {
+	entry, err := handle.browserHandle.AsDirectoryHandle().GetEntry(name)
+	return DirectoryHandle{FSHandle{entry}}, err
 }
 
 var _ model.FSAgnosticDirectoryHandle = DirectoryHandle{} // Compile-time inheritance check

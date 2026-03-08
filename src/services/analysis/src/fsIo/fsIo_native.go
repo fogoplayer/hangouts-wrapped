@@ -134,6 +134,17 @@ func (handle DirectoryHandle) Entries() []model.FSAgnosticHandle {
 	return result
 }
 
+func (handle DirectoryHandle) GetEntry(name string) (model.FSAgnosticHandle, error) {
+	entryPath := filepath.Join(handle.Path(), name)
+
+	_, err := os.Stat(entryPath)
+	if err != nil {
+		return nil, err
+	}
+
+	return FSHandle{entryPath}, nil
+}
+
 var _ model.FSAgnosticDirectoryHandle = DirectoryHandle{} // Compile-time inheritance check
 
 // //////// //
