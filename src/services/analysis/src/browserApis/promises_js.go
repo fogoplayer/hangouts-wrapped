@@ -55,6 +55,5 @@ type PromiseResult[T any] struct {
 
 func (result PromiseResult[T]) Value() (T, error) {
 	fmt.Println("PromiseResult", result.value, result.err)
-	// debug.PrintStack()
 	return result.value, result.err
 }

@@ -14,9 +14,9 @@ func ShowDirectoryPicker(channels ...chan PromiseResult[DirectoryHandle]) chan P
 	directoryHandlePromise := Promise[DirectoryHandle]{jsDirectoryHandlePromise}
 	switch len(channels) {
 	case 0:
-		return directoryHandlePromise.ToChannel(DirectoryHandleFromJs)
+		return directoryHandlePromise.ToChannel(getJsToDirectoryHandleFunctionForParent([]string{}))
 	case 1:
-		return directoryHandlePromise.ToChannel(DirectoryHandleFromJs, channels[0])
+		return directoryHandlePromise.ToChannel(getJsToDirectoryHandleFunctionForParent([]string{}), channels[0])
 	default:
 		util.WrongNumberOfArgumentsPanic(len(channels))
 		return nil
@@ -69,8 +69,11 @@ func (handle DirectoryHandle) Entries() []FSHandle {
 }
 
 func (handle DirectoryHandle) GetEntry(name string) (FSHandleInterface, error) {
-	directoryChannel := Promise[DirectoryHandle]{handle.jsValue.Call("getDirectoryHandle", name)}.ToChannel(DirectoryHandleFromJs)
-	fileChannel := Promise[FileHandle]{handle.jsValue.Call("getFileHandle", name)}.ToChannel(FileHandleFromJs)
+	parentPath := append(handle.parentPath, handle.Name())
+	directoryChannel := Promise[DirectoryHandle]{handle.jsValue.Call("getDirectoryHandle", name)}.
+		ToChannel(getJsToDirectoryHandleFunctionForParent(parentPath))
+	fileChannel := Promise[FileHandle]{handle.jsValue.Call("getFileHandle", name)}.
+		ToChannel(getJsToFileHandleFunctionForParent(parentPath))
 	for range 2 {
 		select {
 		case directoryResult := <-directoryChannel:
@@ -90,8 +93,14 @@ func (handle DirectoryHandle) GetEntry(name string) (FSHandleInterface, error) {
 	return nil, errors.New("Entry does not exist")
 }
 
-func DirectoryHandleFromJs(value js.Value) (DirectoryHandle, error) {
-	return FSHandle{value, []string{}}.AsDirectoryHandle()
+func jsToDirectoryHandle(value js.Value, parentPath []string) (DirectoryHandle, error) {
+	return FSHandle{value, parentPath}.AsDirectoryHandle()
+}
+
+func getJsToDirectoryHandleFunctionForParent(parentPath []string) func(value js.Value) (DirectoryHandle, error) {
+	return func(value js.Value) (DirectoryHandle, error) {
+		return jsToDirectoryHandle(value, parentPath)
+	}
 }
 
 // ////////// //
@@ -101,26 +110,34 @@ type FileHandle struct {
 	FSHandle
 }
 
-func FileHandleFromJs(value js.Value) (FileHandle, error) {
-	return FSHandle{value, []string{}}.AsFileHandle()
-
-}
-
 // TODO pass in a channel and make the whole thing a goRoutine so it return instantaneously?
 func (handle FileHandle) Bytes() chan []byte {
 	bytesChannel := make(chan []byte)
 	go func() {
+		fmt.Println("Get bytes for ", handle.Name())
 		jsFile, _ := Promise[js.Value]{handle.jsValue.Call("getFile")}.ValueSync(func(v js.Value) (js.Value, error) { return v, nil })
 
 		bytes, _ := Promise[[]byte]{jsFile.Call("bytes")}.ValueSync(func(v js.Value) ([]byte, error) {
 			var data []byte
 			js.CopyBytesToGo(data, v)
+			fmt.Println("data for", handle.Path(), data)
+			SetGlobal("fileData", v)
 			return data, nil // TODO error handling for copyBytesToGo
 		})
 		// TODO error handling
 		bytesChannel <- bytes
 	}()
 	return bytesChannel
+}
+
+func jsToFileHandle(value js.Value, parentPath []string) (FileHandle, error) {
+	return FSHandle{value, parentPath}.AsFileHandle()
+}
+
+func getJsToFileHandleFunctionForParent(parentPath []string) func(value js.Value) (FileHandle, error) {
+	return func(value js.Value) (FileHandle, error) {
+		return jsToFileHandle(value, parentPath)
+	}
 }
 
 // //////// //
