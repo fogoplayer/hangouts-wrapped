@@ -14,4 +14,7 @@ func (iterator Iterator[T]) Value(jsToGoConverter func(js.Value) T) T {
 	return jsToGoConverter(iterator.value.Get("value"))
 }
 
-func IteratorFromJs[T any](v js.Value) Iterator[T] { return Iterator[T]{v} }
+func IteratorFromJs[T any](v js.Value) (Iterator[T], error) {
+	// TODO some way to check if its an iterator?
+	return Iterator[T]{v}, nil
+}

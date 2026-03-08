@@ -15,13 +15,19 @@ var PathToFSHandle map[string]model.FSAgnosticHandle = make(map[string]model.FSA
 func ShowDirectoryPicker() {
 	go func() {
 		jsDirectoryResult := <-browserApis.ShowDirectoryPicker()
+		fmt.Println("result", jsDirectoryResult)
 		jsDirectoryHandle, err := jsDirectoryResult.Value()
+		fmt.Println("resultHandle", jsDirectoryResult)
+
+		fmt.Println("checking result of directory picker")
 		if err != nil {
+			fmt.Println("directory picker cancelled")
 			return
 		}
 
 		fsHandle := FSHandle{jsDirectoryHandle}
-		PathToFSHandle[jsDirectoryHandle.Path()] = DirectoryHandle{fsHandle}
+		dirHandle := DirectoryHandle{fsHandle}
+		PathToFSHandle[jsDirectoryHandle.Path()] = dirHandle
 
 		fmt.Println("Sending to channel")
 		model.FilePathsToIngestChannel <- jsDirectoryHandle.Path()
@@ -57,7 +63,7 @@ type FileHandle struct {
 }
 
 func (handle FileHandle) Bytes() chan []byte {
-	fileHandle, _ := handle.browserHandle.AsFileHandle()
+	fileHandle, _ := handle.BrowserHandle.AsFileHandle()
 	// TODO error handling
 	return fileHandle.Bytes()
 }
@@ -73,7 +79,7 @@ type DirectoryHandle struct {
 
 func (handle DirectoryHandle) Entries() []model.FSAgnosticHandle {
 	fsEntries := []model.FSAgnosticHandle{}
-	directoryHandle, _ := handle.browserHandle.AsDirectoryHandle()
+	directoryHandle, _ := handle.BrowserHandle.AsDirectoryHandle()
 	// TODO error handling
 	for _, browserEntry := range directoryHandle.Entries() {
 		PathToFSHandle[browserEntry.Path()] = FSHandle{browserEntry}
@@ -83,7 +89,10 @@ func (handle DirectoryHandle) Entries() []model.FSAgnosticHandle {
 }
 
 func (handle DirectoryHandle) GetEntry(name string) (model.FSAgnosticHandle, error) {
-	directoryHandle, _ := handle.browserHandle.AsDirectoryHandle()
+	directoryHandle, err := handle.BrowserHandle.AsDirectoryHandle()
+	if err != nil {
+		fmt.Println("not directory handle")
+	}
 	// TODO error handling
 	entry, err := directoryHandle.GetEntry(name)
 	return DirectoryHandle{FSHandle{entry}}, err
@@ -95,19 +104,20 @@ var _ model.FSAgnosticDirectoryHandle = DirectoryHandle{} // Compile-time inheri
 // FSHandle //
 // //////// //
 type FSHandle struct {
-	browserHandle browserApis.FSHandleInterface
+	BrowserHandle browserApis.FSHandleInterface
 }
 
 func (handle FSHandle) Name() string {
-	return handle.browserHandle.Name()
+	return handle.BrowserHandle.Name()
 }
 
 func (handle FSHandle) Path() string {
-	return handle.browserHandle.Path()
+	return handle.BrowserHandle.Path()
 }
 
 func (handle FSHandle) IsDirectory() bool {
-	return handle.browserHandle.IsDirectory()
+	browserApis.SetGlobal("handle2", handle.BrowserHandle.JsValue())
+	return handle.BrowserHandle.IsDirectory()
 }
 
 func (handle FSHandle) AsDirectoryHandle() (model.FSAgnosticDirectoryHandle, error) {

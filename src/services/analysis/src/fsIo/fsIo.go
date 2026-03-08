@@ -71,6 +71,7 @@ func handleChatDirectory(directoryHandle model.FSAgnosticDirectoryHandle) {
 	// TODO error handling
 	messagesBytesChannel := messagesFile.Bytes()
 
+	fmt.Println("Getting info file")
 	groupInfoEntry, _ := directoryHandle.GetEntry("group_info.json")
 	groupInfoFile, _ := groupInfoEntry.AsFileHandle()
 	// TODO error handling

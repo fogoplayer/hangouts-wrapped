@@ -26,3 +26,16 @@ func TypeMismatchError[T any](value js.Value) error {
 type JSWrapper interface {
 	StoreAsGlobalVariable(string)
 }
+
+var globalsSet = make(map[string]bool)
+
+func SetGlobal(name string, x js.Value) {
+	if globalsSet[name] {
+		fmt.Println("overwriting", name)
+	} else {
+		fmt.Println("Setting", name)
+	}
+	js.Global().Set(name, x)
+	globalsSet[name] = true
+	fmt.Println("Set", name)
+}

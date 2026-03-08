@@ -2,6 +2,7 @@ package browserApis
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"syscall/js"
 
@@ -69,16 +70,18 @@ func (handle DirectoryHandle) Entries() []FSHandle {
 
 func (handle DirectoryHandle) GetEntry(name string) (FSHandleInterface, error) {
 	directoryChannel := Promise[DirectoryHandle]{handle.jsValue.Call("getDirectoryHandle", name)}.ToChannel(DirectoryHandleFromJs)
-	fileChannel := Promise[DirectoryHandle]{handle.jsValue.Call("getFileHandle", name)}.ToChannel(DirectoryHandleFromJs)
+	fileChannel := Promise[FileHandle]{handle.jsValue.Call("getFileHandle", name)}.ToChannel(FileHandleFromJs)
 	for range 2 {
 		select {
 		case directoryResult := <-directoryChannel:
 			directoryHandle, err := directoryResult.Value()
+			fmt.Println("directory result", directoryHandle, err)
 			if err == nil {
 				return directoryHandle, nil
 			}
 		case fileResult := <-fileChannel:
 			fileHandle, err := fileResult.Value()
+			fmt.Println("file result", fileResult, err)
 			if err == nil {
 				return fileHandle, nil
 			}
@@ -87,12 +90,8 @@ func (handle DirectoryHandle) GetEntry(name string) (FSHandleInterface, error) {
 	return nil, errors.New("Entry does not exist")
 }
 
-func DirectoryHandleFromJs(value js.Value) DirectoryHandle {
-	handle, err := FSHandle{value, []string{}}.AsDirectoryHandle()
-	if err != nil {
-		panic(err)
-	}
-	return handle
+func DirectoryHandleFromJs(value js.Value) (DirectoryHandle, error) {
+	return FSHandle{value, []string{}}.AsDirectoryHandle()
 }
 
 // ////////// //
@@ -102,24 +101,21 @@ type FileHandle struct {
 	FSHandle
 }
 
-func FileHandleFromJs(value js.Value) FileHandle {
-	handle, err := FSHandle{value, []string{}}.AsFileHandle()
-	if err != nil {
-		panic(err)
-	}
-	return handle
+func FileHandleFromJs(value js.Value) (FileHandle, error) {
+	return FSHandle{value, []string{}}.AsFileHandle()
+
 }
 
 // TODO pass in a channel and make the whole thing a goRoutine so it return instantaneously?
 func (handle FileHandle) Bytes() chan []byte {
 	bytesChannel := make(chan []byte)
 	go func() {
-		jsFile, _ := Promise[js.Value]{handle.jsValue.Call("getFile")}.ValueSync(func(v js.Value) js.Value { return v })
+		jsFile, _ := Promise[js.Value]{handle.jsValue.Call("getFile")}.ValueSync(func(v js.Value) (js.Value, error) { return v, nil })
 
-		bytes, _ := Promise[[]byte]{jsFile.Call("bytes")}.ValueSync(func(v js.Value) []byte {
+		bytes, _ := Promise[[]byte]{jsFile.Call("bytes")}.ValueSync(func(v js.Value) ([]byte, error) {
 			var data []byte
 			js.CopyBytesToGo(data, v)
-			return data
+			return data, nil // TODO error handling for copyBytesToGo
 		})
 		// TODO error handling
 		bytesChannel <- bytes
@@ -137,6 +133,7 @@ type FSHandleInterface interface {
 	IsDirectory() bool
 	AsDirectoryHandle() (DirectoryHandle, error)
 	AsFileHandle() (FileHandle, error)
+	JsValue() js.Value
 }
 
 type FSHandle struct {
@@ -157,8 +154,13 @@ func (handle FSHandle) IsDirectory() bool {
 	case FILE:
 		return false
 	default:
+		fmt.Println("can't get kind")
 		panic(TypeMismatchError[FSHandle_Kind](handle.jsValue.Get("kind")))
 	}
+}
+
+func (handle FSHandle) JsValue() js.Value {
+	return handle.jsValue
 }
 
 func (handle FSHandle) Name() string {
