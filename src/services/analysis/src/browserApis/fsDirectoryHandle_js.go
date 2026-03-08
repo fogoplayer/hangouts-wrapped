@@ -16,8 +16,7 @@ func (handle DirectoryHandle) Entries() []FSHandle {
 	loopChannel := make(chan struct{}, 1)
 	loopChannel <- struct{}{} // push one item for the equivalent of a do...while loop
 
-	go func() { // TODO is this goroutine necessary? Should it be moved inside?
-		// I don't think so, but I'm not sure how next works
+	go func() { // loop in a goroutine so that we can immediately start listening for entries, too
 		for range loopChannel {
 			nextFile, _ := Promise[Iterator[FSEntry]]{jsHandleIter.Call("next")}.ValueSync(IteratorFromJs)
 			// TODO error handling
