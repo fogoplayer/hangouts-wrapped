@@ -12,7 +12,8 @@ func main() {
 	setup.Setup()
 
 	chatDataDirectory := promptForChatDataDirectory()
-	fsIo.IngestDirectory(chatDataDirectory, model.UserInfoJsonChannel, model.GroupInfoJsonChannel, model.MessagesJsonChannel)
+	fmt.Println(chatDataDirectory)
+	fsIo.ProcessFile(chatDataDirectory)
 
 	i := 0
 	for range model.BytesChannel {
