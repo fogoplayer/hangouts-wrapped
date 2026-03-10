@@ -20,3 +20,5 @@ func PanicIfError(err error) {
 		panic(err)
 	}
 }
+
+func UseVar(any) {}
