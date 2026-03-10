@@ -6,7 +6,6 @@ type FileHandle struct {
 	FSHandle
 }
 
-// TODO pass in a channel and make the whole thing a goRoutine so it return instantaneously?
 func (handle FileHandle) Bytes() chan []byte {
 	bytesChannel := make(chan []byte)
 	go func() {
@@ -15,14 +14,16 @@ func (handle FileHandle) Bytes() chan []byte {
 			jsToGoFunc: JsFromJsReturnValueUnchanged,
 		})
 
-		bytes, _ := Await(
+		bytes, err := Await(
 			Promise[[]byte]{
 				value:      jsFile.Call("bytes"),
 				jsToGoFunc: ByteArrayFromJs,
 			},
 		)
+		if err != nil {
+			panic(TypeMismatchError[FileHandle](handle.JsValue()))
+		}
 
-		// TODO error handling
 		bytesChannel <- bytes
 	}()
 	return bytesChannel
