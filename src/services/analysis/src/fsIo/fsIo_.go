@@ -1,6 +1,7 @@
 package fsIo
 
 import (
+	"fmt"
 	"strings"
 
 	"zarinloosli.com/hangouts-wrapped/model"
@@ -72,6 +73,13 @@ func handleDirectoryInGoRoutine(directoryHandle model.FSAgnosticDirectoryHandle)
 
 func handleChatDirectoryInGoRoutine(directoryHandle model.FSAgnosticDirectoryHandle) {
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				// have to inline the \n to make this atomic, otherwise other goroutines will print in between
+				fmt.Println("Unable to read in", directoryHandle.Path(), "\n", r)
+			}
+		}()
+
 		messagesEntry, err := directoryHandle.GetEntry("messages.json")
 		util.PanicIfError(err)
 		messagesFile, err := messagesEntry.AsFileHandle()
@@ -93,5 +101,8 @@ func handleChatDirectoryInGoRoutine(directoryHandle model.FSAgnosticDirectoryHan
 }
 
 func handleUserInfoInGoRoutine(fileHandle model.FSAgnosticFileHandle) {
-	go func() { model.BytesChannel <- <-fileHandle.Bytes() }()
+	go func() {
+		model.UserInfoChannel <- <-fileHandle.Bytes()
+		close(model.UserInfoChannel)
+	}()
 }
