@@ -11,9 +11,10 @@ const (
 	CHAT_DATA_DIRECTORY    = "Google Chat"
 	GROUPS_DIRECTORY       = "Groups"
 	USERS_DIRECTORY        = "Users"
+	USER_PREFIX            = "User"
 	USER_INFO              = "user_info.json"
 	DM_DIRECTORY_PREFIX    = "DM"
-	SPACE_DIRECTORY_PREFIX = "SPACE"
+	SPACE_DIRECTORY_PREFIX = "Space"
 	GROUP_INFO             = "group_info.json"
 	MESSAGES               = "messages.json"
 )
@@ -33,6 +34,9 @@ func ProcessFile(
 		default:
 			if startsWithWords(directoryHandle.Name(), DM_DIRECTORY_PREFIX, SPACE_DIRECTORY_PREFIX) {
 				handleChatDirectoryInGoRoutine(directoryHandle)
+			}
+			if startsWithWords(directoryHandle.Name(), USER_PREFIX) {
+				handleDirectoryInGoRoutine(directoryHandle)
 			}
 		}
 	} else if fileHandle, err := fsHandle.AsFileHandle(); err == nil {
