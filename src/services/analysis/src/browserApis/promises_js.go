@@ -8,10 +8,11 @@ import (
 )
 
 type Promise[T any] struct {
-	value js.Value
+	value      js.Value
+	jsToGoFunc func(js.Value) (T, error)
 }
 
-func (p Promise[T]) ToChannel(jsToGoConverter func(js.Value) (T, error), channels ...chan PromiseResult[T]) chan PromiseResult[T] {
+func (p Promise[T]) ToChannel(channels ...chan PromiseResult[T]) chan PromiseResult[T] {
 
 	var channel chan PromiseResult[T]
 	switch len(channels) {
@@ -26,7 +27,7 @@ func (p Promise[T]) ToChannel(jsToGoConverter func(js.Value) (T, error), channel
 		// Then
 		Call("then", js.FuncOf(func(this js.Value, args []js.Value) any {
 			promiseValue := args[0]
-			goValue, err := jsToGoConverter(promiseValue)
+			goValue, err := p.jsToGoFunc(promiseValue)
 			channel <- PromiseResult[T]{goValue, err}
 			return nil
 		})).
@@ -42,11 +43,6 @@ func (p Promise[T]) ToChannel(jsToGoConverter func(js.Value) (T, error), channel
 	return channel
 }
 
-func (p Promise[T]) ValueSync(jsToGoConverter func(js.Value) (T, error), channels ...chan PromiseResult[T]) (T, error) {
-	result := <-p.ToChannel(jsToGoConverter)
-	return result.Value()
-}
-
 type PromiseResult[T any] struct {
 	value T
 	err   error
@@ -54,4 +50,9 @@ type PromiseResult[T any] struct {
 
 func (result PromiseResult[T]) Value() (T, error) {
 	return result.value, result.err
+}
+
+func Await[T any](p Promise[T]) (T, error) {
+	result := <-p.ToChannel()
+	return result.Value()
 }

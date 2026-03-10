@@ -14,3 +14,9 @@ type UnableToCastHandleError error
 func CreateUnableToCastFromAToBError[T any, U any](handle T) UnableToCastHandleError {
 	return fmt.Errorf("Unable to cast %v to %s", handle, reflect.TypeFor[U]().Name())
 }
+
+func PanicIfError(err error) {
+	if err != nil {
+		panic(err)
+	}
+}
