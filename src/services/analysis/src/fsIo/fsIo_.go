@@ -24,20 +24,20 @@ func ProcessFile(
 	if directoryHandle, err := fsHandle.AsDirectoryHandle(); err == nil {
 		switch directoryHandle.Name() {
 		case CHAT_DATA_DIRECTORY:
-			go handleDirectory(directoryHandle) // TODO move the goroutines inside the handlers instead?
+			handleDirectoryInGoRoutine(directoryHandle)
 		case USERS_DIRECTORY:
-			go handleDirectory(directoryHandle)
+			handleDirectoryInGoRoutine(directoryHandle)
 		case GROUPS_DIRECTORY:
-			go handleDirectory(directoryHandle)
+			handleDirectoryInGoRoutine(directoryHandle)
 		default:
 			if startsWithWords(directoryHandle.Name(), DM_DIRECTORY_PREFIX, SPACE_DIRECTORY_PREFIX) {
-				go handleChatDirectory(directoryHandle)
+				handleChatDirectoryInGoRoutine(directoryHandle)
 			}
 		}
 	} else if fileHandle, err := fsHandle.AsFileHandle(); err == nil {
 		switch fileHandle.Name() {
 		case USER_INFO:
-			go func() { model.BytesChannel <- <-fileHandle.Bytes() }()
+			handleUserInfoInGoRoutine(fileHandle)
 		case GROUP_INFO:
 		case MESSAGES:
 		default:
@@ -57,26 +57,44 @@ func startsWithWords(candidate string, prefixes ...string) bool {
 	return false
 }
 
-func handleDirectory(directoryHandle model.FSAgnosticDirectoryHandle) {
-	for _, entry := range directoryHandle.Entries() {
-		go func() { model.FilePathsToIngestChannel <- entry.Path() }()
-	}
+func handleDirectoryInGoRoutine(directoryHandle model.FSAgnosticDirectoryHandle) {
+	go func() {
+		for _, entry := range directoryHandle.Entries() {
+			go func() { model.FilePathsToIngestChannel <- entry.Path() }()
+		}
+	}()
 }
 
-func handleChatDirectory(directoryHandle model.FSAgnosticDirectoryHandle) {
-	messagesEntry, _ := directoryHandle.GetEntry("messages.json")
-	messagesFile, _ := messagesEntry.AsFileHandle()
-	// TODO error handling
-	messagesBytesChannel := messagesFile.Bytes()
+func handleChatDirectoryInGoRoutine(directoryHandle model.FSAgnosticDirectoryHandle) {
+	go func() {
+		messagesEntry, err := directoryHandle.GetEntry("messages.json")
+		if err != nil {
+			panic(err)
+		}
+		messagesFile, err := messagesEntry.AsFileHandle()
+		if err != nil {
+			panic(err)
+		}
+		messagesBytesChannel := messagesFile.Bytes()
 
-	groupInfoEntry, _ := directoryHandle.GetEntry("group_info.json")
-	groupInfoFile, _ := groupInfoEntry.AsFileHandle()
-	// TODO error handling
-	groupInfoBytesChannel := groupInfoFile.Bytes()
+		groupInfoEntry, err := directoryHandle.GetEntry("group_info.json")
+		if err != nil {
+			panic(err)
+		}
+		groupInfoFile, err := groupInfoEntry.AsFileHandle()
+		if err != nil {
+			panic(err)
+		}
+		groupInfoBytesChannel := groupInfoFile.Bytes()
 
-	model.ChatDirectoryHandleChannel <- model.ChatDirectoryHandle{
-		DirectoryHandle: directoryHandle,
-		Messages:        messagesBytesChannel,
-		GroupInfo:       groupInfoBytesChannel,
-	}
+		model.ChatDirectoryHandleChannel <- model.ChatDirectoryHandle{
+			DirectoryHandle: directoryHandle,
+			Messages:        messagesBytesChannel,
+			GroupInfo:       groupInfoBytesChannel,
+		}
+	}()
+}
+
+func handleUserInfoInGoRoutine(fileHandle model.FSAgnosticFileHandle) {
+	go func() { model.BytesChannel <- <-fileHandle.Bytes() }()
 }
