@@ -24,9 +24,7 @@ func (handle FSHandle) Path() string {
 
 func (handle FSHandle) IsDirectory() bool {
 	fileInfo, err := os.Stat(handle.path)
-	if err != nil {
-		panic(err)
-	}
+	util.PanicIfError(err)
 
 	return fileInfo.IsDir()
 }

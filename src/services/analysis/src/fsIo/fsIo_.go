@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"zarinloosli.com/hangouts-wrapped/model"
+	"zarinloosli.com/hangouts-wrapped/util"
 )
 
 const (
@@ -68,23 +69,15 @@ func handleDirectoryInGoRoutine(directoryHandle model.FSAgnosticDirectoryHandle)
 func handleChatDirectoryInGoRoutine(directoryHandle model.FSAgnosticDirectoryHandle) {
 	go func() {
 		messagesEntry, err := directoryHandle.GetEntry("messages.json")
-		if err != nil {
-			panic(err)
-		}
+		util.PanicIfError(err)
 		messagesFile, err := messagesEntry.AsFileHandle()
-		if err != nil {
-			panic(err)
-		}
+		util.PanicIfError(err)
 		messagesBytesChannel := messagesFile.Bytes()
 
 		groupInfoEntry, err := directoryHandle.GetEntry("group_info.json")
-		if err != nil {
-			panic(err)
-		}
+		util.PanicIfError(err)
 		groupInfoFile, err := groupInfoEntry.AsFileHandle()
-		if err != nil {
-			panic(err)
-		}
+		util.PanicIfError(err)
 		groupInfoBytesChannel := groupInfoFile.Bytes()
 
 		model.ChatDirectoryHandleChannel <- model.ChatDirectoryHandle{

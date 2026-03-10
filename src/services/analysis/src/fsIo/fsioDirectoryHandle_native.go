@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"zarinloosli.com/hangouts-wrapped/model"
+	"zarinloosli.com/hangouts-wrapped/util"
 )
 
 type DirectoryHandle struct {
@@ -15,9 +16,7 @@ type DirectoryHandle struct {
 
 func (handle DirectoryHandle) Entries() []model.FSAgnosticHandle {
 	contents, err := getDirectoryContentsPaths(handle.path)
-	if err != nil {
-		panic(err)
-	}
+	util.PanicIfError(err)
 
 	result := []model.FSAgnosticHandle{}
 	for _, entry := range contents {

@@ -1,6 +1,9 @@
 package fsIo
 
-import "zarinloosli.com/hangouts-wrapped/model"
+import (
+	"zarinloosli.com/hangouts-wrapped/model"
+	"zarinloosli.com/hangouts-wrapped/util"
+)
 
 // ////////// //
 // FileHandle //
@@ -11,9 +14,7 @@ type FileHandle struct {
 
 func (handle FileHandle) Bytes() chan []byte {
 	fileHandle, err := handle.BrowserHandle.AsFileHandle()
-	if err != nil {
-		panic(err)
-	}
+	util.PanicIfError(err)
 	return fileHandle.Bytes()
 }
 
