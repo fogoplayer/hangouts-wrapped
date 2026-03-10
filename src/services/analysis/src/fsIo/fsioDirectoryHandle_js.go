@@ -8,8 +8,11 @@ type DirectoryHandle struct {
 
 func (handle DirectoryHandle) Entries() []model.FSAgnosticHandle {
 	fsEntries := []model.FSAgnosticHandle{}
-	directoryHandle, _ := handle.BrowserHandle.AsDirectoryHandle()
-	// TODO error handling
+	directoryHandle, err := handle.BrowserHandle.AsDirectoryHandle()
+	if err != nil {
+		panic(err)
+	}
+
 	for _, browserEntry := range directoryHandle.Entries() {
 		PathToFSHandle[browserEntry.Path()] = FSHandle{browserEntry}
 		fsEntries = append(fsEntries, FSHandle{browserEntry})
@@ -18,8 +21,11 @@ func (handle DirectoryHandle) Entries() []model.FSAgnosticHandle {
 }
 
 func (handle DirectoryHandle) GetEntry(name string) (model.FSAgnosticHandle, error) {
-	directoryHandle, _ := handle.BrowserHandle.AsDirectoryHandle()
-	// TODO error handling
+	directoryHandle, err := handle.BrowserHandle.AsDirectoryHandle()
+	if err != nil {
+		return nil, err
+	}
+
 	entry, err := directoryHandle.GetEntry(name)
 	return DirectoryHandle{FSHandle{entry}}, err
 }

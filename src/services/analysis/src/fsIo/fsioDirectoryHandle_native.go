@@ -14,8 +14,11 @@ type DirectoryHandle struct {
 }
 
 func (handle DirectoryHandle) Entries() []model.FSAgnosticHandle {
-	contents, _ := getDirectoryContentsPaths(handle.path)
-	// TODO handle error
+	contents, err := getDirectoryContentsPaths(handle.path)
+	if err != nil {
+		panic(err)
+	}
+
 	result := []model.FSAgnosticHandle{}
 	for _, entry := range contents {
 		result = append(result, FSHandle{entry})
