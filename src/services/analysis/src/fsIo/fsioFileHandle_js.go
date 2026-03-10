@@ -10,8 +10,10 @@ type FileHandle struct {
 }
 
 func (handle FileHandle) Bytes() chan []byte {
-	fileHandle, _ := handle.BrowserHandle.AsFileHandle()
-	// TODO error handling
+	fileHandle, err := handle.BrowserHandle.AsFileHandle()
+	if err != nil {
+		panic(err)
+	}
 	return fileHandle.Bytes()
 }
 
