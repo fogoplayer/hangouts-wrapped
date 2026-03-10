@@ -1,5 +1,7 @@
 package jsonSchema
 
+// TODO remove underscores
+
 type UserInfo_JsonSchema struct {
 	User                UserInfo_User_JsonSchema             `json:"user"`
 	Membership_Info     []UserInfo_MembershipInfo_JsonSchema `json:"membership_info"`
