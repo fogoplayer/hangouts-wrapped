@@ -4,16 +4,13 @@
     "optional": [],
     "messages": [
       {
-        "required": [],
+        "required": ["creator", "topic_id", "message_id"],
         "optional": [
-          "creator",
-          "created_date",
           "text",
-          "annotations",
-          "topic_id",
-          "message_id",
           "attached_files",
+          "annotations",
           "reactions",
+          "created_date",
           "updated_date",
           "previous_message_versions",
           "quoted_message_metadata",
@@ -39,12 +36,10 @@
         "text": "string",
         "annotations": [
           {
-            "required": [],
+            "required": ["start_index", "length"],
             "optional": [
-              "start_index",
-              "length",
-              "url_metadata",
               "youtube_metadata",
+              "url_metadata",
               "video_call_metadata",
               "format_metadata",
               "gsuite_integration_metadata",
@@ -174,16 +169,16 @@
         "message_id": "string",
         "attached_files": [
           {
-            "required": [],
-            "optional": ["original_name", "export_name"],
+            "required": ["export_name"],
+            "optional": ["original_name"],
             "original_name": "string",
             "export_name": "string"
           }
         ],
         "reactions": [
           {
-            "required": [],
-            "optional": ["emoji", "reactor_emails"],
+            "required": ["emoji", "reactor_emails"],
+            "optional": [],
             "emoji": {
               "required": ["unicode"],
               "optional": [],
@@ -220,8 +215,7 @@
                 "26": "string",
                 "27": "string",
                 "28": "string",
-                "required": [],
-                "optional": [
+                "required": [
                   "0",
                   "1",
                   "2",
@@ -239,10 +233,9 @@
                   "14",
                   "15",
                   "16",
-                  "17",
-                  "18",
-                  "19",
-                  "20",
+                  "17"
+                ],
+                "optional": [
                   "21",
                   "22",
                   "23",
@@ -250,7 +243,10 @@
                   "25",
                   "26",
                   "27",
-                  "28"
+                  "28",
+                  "20",
+                  "18",
+                  "19"
                 ]
               }
             ]
@@ -261,10 +257,10 @@
           {
             "required": [],
             "optional": [
-              "created_date",
               "text",
               "annotations",
               "updated_date",
+              "created_date",
               "attached_files",
               "quoted_message_metadata"
             ],
@@ -272,10 +268,8 @@
             "text": "string",
             "annotations": [
               {
-                "required": [],
+                "required": ["start_index", "length"],
                 "optional": [
-                  "start_index",
-                  "length",
                   "gsuite_integration_metadata",
                   "url_metadata",
                   "format_metadata",
@@ -331,8 +325,8 @@
             "updated_date": "string",
             "attached_files": [
               {
-                "required": [],
-                "optional": ["original_name", "export_name"],
+                "required": ["original_name", "export_name"],
+                "optional": [],
                 "original_name": "string",
                 "export_name": "string"
               }
@@ -350,21 +344,16 @@
               "text": "string",
               "attached_files": [
                 {
-                  "required": [],
-                  "optional": ["original_name", "export_name"],
+                  "required": ["original_name", "export_name"],
+                  "optional": [],
                   "original_name": "string",
                   "export_name": "string"
                 }
               ],
               "annotations": [
                 {
-                  "required": [],
-                  "optional": [
-                    "start_index",
-                    "length",
-                    "format_metadata",
-                    "youtube_metadata"
-                  ],
+                  "required": ["start_index", "length"],
+                  "optional": ["format_metadata", "youtube_metadata"],
                   "start_index": "number",
                   "length": "number",
                   "format_metadata": {
@@ -403,18 +392,16 @@
           "text": "string",
           "attached_files": [
             {
-              "required": [],
-              "optional": ["original_name", "export_name"],
+              "required": ["original_name", "export_name"],
+              "optional": [],
               "original_name": "string",
               "export_name": "string"
             }
           ],
           "annotations": [
             {
-              "required": [],
+              "required": ["start_index", "length"],
               "optional": [
-                "start_index",
-                "length",
                 "format_metadata",
                 "url_metadata",
                 "gsuite_integration_metadata",

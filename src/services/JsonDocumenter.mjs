@@ -133,15 +133,10 @@ function documentValue(value) {
  */
 function documentArray(array) {
   // TODO I think they all come out optional
-  const schema = newJsonSchema();
+  const schema = documentJson(array[0] ?? {}, newJsonSchema());
   array.forEach((value) => {
     const singleSchema = documentJson(value, newJsonSchema());
-    for (const [key, value] of Object.entries(singleSchema)) {
-      if (!(value instanceof Set)) {
-        // set properties are their own thing
-        addToSchema(schema, key, value);
-      }
-    }
+    unionSchema(schema, singleSchema);
   });
 
   return [schema];
