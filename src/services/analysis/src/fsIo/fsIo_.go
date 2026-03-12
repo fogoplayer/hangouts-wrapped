@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"zarinloosli.com/hangouts-wrapped/browserApis"
 	"zarinloosli.com/hangouts-wrapped/model"
 	"zarinloosli.com/hangouts-wrapped/util"
 )
@@ -85,6 +86,7 @@ func handleChatDirectoryInGoRoutine(directoryHandle model.FSAgnosticDirectoryHan
 		messagesFile, err := messagesEntry.AsFileHandle()
 		util.PanicIfError(err)
 		messagesBytesChannel := messagesFile.Bytes()
+		browserApis.GenerateSchema(messagesFile)
 
 		groupInfoEntry, err := directoryHandle.GetEntry("group_info.json")
 		util.PanicIfError(err)
