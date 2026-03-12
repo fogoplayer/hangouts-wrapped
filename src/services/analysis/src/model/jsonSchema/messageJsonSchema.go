@@ -8,6 +8,7 @@ type Message struct {
 	Creator    Creator `json:"creator"`
 	Topic_Id   string  `json:"topic_id"`
 	Message_Id string  `json:"message_id"`
+
 	// optional
 
 	Created_Date_              string                   `json:"created_date"`
@@ -26,6 +27,7 @@ type Message struct {
 type Creator struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
+
 	// optional
 
 	User_type_   string     `json:"user_type"`
@@ -42,6 +44,7 @@ type ActingUser struct {
 type Annotation struct {
 	Start_index int `json:"start_index "`
 	Length      int `json:"length"`
+
 	// optional
 
 	Youtube_metadata_            YoutubeMetadata           `json:"youtube_metadata"`
@@ -80,6 +83,7 @@ type VideoCallMetadata struct {
 
 type FormatMetadata struct {
 	Format_type string `json:"format_type"`
+
 	// optional
 
 	Font_color_ uint `json:"font_color"`
@@ -117,6 +121,7 @@ type CalendarEventData struct {
 
 type TasksData struct {
 	Task_properties TaskProperties `json:"task_properties"`
+
 	// optional
 
 	Creation_          struct{} `json:"creation"`
@@ -136,6 +141,7 @@ type TaskProperties struct {
 	Completed   bool   `json:"completed"`
 	Deleted     bool   `json:"deleted"`
 	Description string `json:"description"`
+
 	// optional
 
 	Assignee_ struct {
@@ -157,6 +163,7 @@ type InteractionData struct {
 
 type AttachedFile struct {
 	Export_name string `json:"export_name"`
+
 	// optional
 
 	Original_name_ string `json:"original_name"`
@@ -176,10 +183,10 @@ type Reaction struct {
 type PreviousMessageVersion struct {
 	// optional
 
-	Created_date string       `json:"created_date"`
-	Text         string       `json:"text"`
-	Updated_date string       `json:"updated_date"`
-	Annotations  []Annotation `json:"annotations"`
+	Created_date_ string       `json:"created_date"`
+	Text_         string       `json:"text"`
+	Updated_date_ string       `json:"updated_date"`
+	Annotations_  []Annotation `json:"annotations"`
 
 	// For the following two fields, the computed schema is missing some "optional" fields. This is not a problem; they
 	// are optional
@@ -195,100 +202,16 @@ type PreviousMessageVersion struct {
 }
 
 type QuotedMessageMetadata struct {
-	//       quoted_message_metadata {
-	//         required [creator text]
-	//         optional [attached_files annotations]
-	//         creator {
-	//           required [name user_type]
-	//           optional [acting_user email]
-	//           name string
-	//           email string
-	//           user_type string
-	//           acting_user {
-	//             required [name user_id user_type]
-	//             name string
-	//             user_id string
-	//             user_type string
-	//           }
-	//         }
-	//         text string
-	//         attached_files [
-	//           {
-	//             required [original_name export_name]
-	//             original_name string
-	//             export_name string
-	//           }
-	//         ]
-	//         annotations [
-	//           {
-	//             required [start_index length]
-	//             optional [
-	//               format_metadata
-	//               url_metadata
-	//               gsuite_integration_metadata
-	//               youtube_metadata
-	//               drive_metadata
-	//             ]
-	//             start_index number
-	//             length number
-	//             format_metadata {
-	//               required [format_type]
-	//               optional [font_color]
-	//               format_type string
-	//               font_color number
-	//             }
-	//             url_metadata {
-	//               required [title snippet image_url url]
-	//               title string
-	//               snippet string
-	//               image_url string
-	//               url {
-	//                 required [
-	//                   private_do_not_access_or_else_safe_url_wrapped_value
-	//                 ]
+	Creator Creator `json:"creator"`
+	Text    string  `json:"text"`
 
-	//                 private_do_not_access_or_else_safe_url_wrapped_value string
-	//               }
-	//             }
-	//             gsuite_integration_metadata {
-	//               required [tasks_data]
+	// optional
 
-	//               tasks_data {
-	//                 required [task_properties creation]
-
-	//                 task_properties {
-	//                   required [title completed deleted description]
-
-	//                   title string
-	//                   completed boolean
-	//                   deleted boolean
-	//                   description string
-	//                 }
-	//                 creation { required [] optional [] }
-	//               }
-	//             }
-	//             youtube_metadata {
-	//               required [id start_time]
-
-	//               id string
-	//               start_time number
-	//             }
-	//             drive_metadata {
-	//               required [id title thumbnail_url]
-
-	//	        id string
-	//	        title string
-	//	        thumbnail_url string
-	//	      }
-	//	    }
-	//	  ]
-	//	}
+	Attached_files_ []AttachedFile `json:"attached_files"`
+	Annotations_    []Annotation   `json:"annotations"`
 }
 
 type DeletionMetadata struct {
-	//       deletion_metadata {
-	//         required [deletion_type]
-
-	//	  deletion_type string
-	//	}
+	Deletion_type string `json:"deletion_type"`
+	// optional
 }
