@@ -83,7 +83,9 @@ type YoutubeMetadata struct {
 type VideoCallMetadata struct {
 	MeetingSpace struct {
 		MeetingUrl string `json:"meeting_url"`
+		//optional
 	} `json:"meeting_space"`
+	//optional
 }
 
 type FormatMetadata struct {
@@ -182,8 +184,6 @@ type Reaction struct {
 	Reactor_emails []string `json:"reactor_emails"`
 	// optional
 }
-
-// OPTIONAL CHECK //
 
 type PreviousMessageVersion struct {
 	// optional
