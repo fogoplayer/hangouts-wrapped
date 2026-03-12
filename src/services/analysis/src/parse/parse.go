@@ -12,14 +12,21 @@ import (
 
 func ParseChatDirectoryHandle(handle model.ChatDirectoryHandle) {
 	groupInfoJson := jsonSchema.GroupInfo_JsonSchema{}
-	// messagesJson := jsonSchema.Messages_JsonSchema{}
+	messagesJson := jsonSchema.Messages_JsonSchema{}
 
 	// TODO parallelize
 	parseJson(<-handle.GroupInfo, &groupInfoJson)
 	chat := parseGroupInfo(groupInfoJson)
-	fmt.Println(chat.Name)
+	// fmt.Println(chat.Name)
 
-	// parseJson(<-handle.Messages, &messagesJson)
+	parseJson(<-handle.Messages, &messagesJson)
+
+	message := "no messages"
+	if len(messagesJson.Messages) > 0 {
+		message = messagesJson.Messages[0].Text_
+	}
+	fmt.Println(chat.Name)
+	fmt.Println("\t", message)
 }
 
 func ParseUserInfo(bytes []byte) {

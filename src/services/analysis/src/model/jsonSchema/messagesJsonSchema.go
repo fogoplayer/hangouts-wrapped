@@ -1,8 +1,13 @@
 package jsonSchema
 
 // TODO remove underscores
+// TODO add _JsonSchema to types
 
-// Convention properties with a trailing underscore (_) are optional
+// Convention: properties with a trailing underscore (_) are optional
+
+type Messages_JsonSchema struct {
+	Messages []Message `json:"messages"`
+}
 
 type Message struct {
 	Creator    Creator `json:"creator"`
@@ -12,7 +17,7 @@ type Message struct {
 	// optional
 
 	Created_Date_              string                   `json:"created_date"`
-	Text_                      string                   `json:"text_"`
+	Text_                      string                   `json:"text"`
 	Annotations_               []Annotation             `json:"annotations"`
 	Attached_Files_            []AttachedFile           `json:"attached_files"`
 	Reactions_                 []Reaction               `json:"reactions"`

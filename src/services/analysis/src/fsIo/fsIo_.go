@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"zarinloosli.com/hangouts-wrapped/browserApis"
 	"zarinloosli.com/hangouts-wrapped/model"
 	"zarinloosli.com/hangouts-wrapped/util"
 )
@@ -45,10 +44,10 @@ func ProcessFile(
 		switch fileHandle.Name() {
 		case USER_INFO:
 			handleUserInfoInGoRoutine(fileHandle)
-		case GROUP_INFO:
-		case MESSAGES:
+		case GROUP_INFO: // handled by ChatDirectory
+		case MESSAGES: // handled by ChatDirectory
 		default:
-			// TODO probably an image file
+			// TODO probably an attachment file
 		}
 	}
 	return nil
@@ -86,7 +85,6 @@ func handleChatDirectoryInGoRoutine(directoryHandle model.FSAgnosticDirectoryHan
 		messagesFile, err := messagesEntry.AsFileHandle()
 		util.PanicIfError(err)
 		messagesBytesChannel := messagesFile.Bytes()
-		browserApis.GenerateSchema(messagesFile)
 
 		groupInfoEntry, err := directoryHandle.GetEntry("group_info.json")
 		util.PanicIfError(err)
@@ -102,9 +100,9 @@ func handleChatDirectoryInGoRoutine(directoryHandle model.FSAgnosticDirectoryHan
 	}()
 }
 
-func handleUserInfoInGoRoutine(fileHandle model.FSAgnosticFileHandle) {
+func handleUserInfoInGoRoutine(userInfoFileHandle model.FSAgnosticFileHandle) {
 	go func() {
-		model.UserInfoChannel <- <-fileHandle.Bytes()
+		model.UserInfoChannel <- <-userInfoFileHandle.Bytes()
 		close(model.UserInfoChannel)
 	}()
 }
