@@ -2,13 +2,14 @@ package jsonSchema
 
 // TODO remove underscores
 
-// Convention: properties with a trailing underscore (_) are optional
+// Convention properties with a trailing underscore (_) are optional
 
 type Message struct {
 	Creator    Creator `json:"creator"`
 	Topic_Id   string  `json:"topic_id"`
 	Message_Id string  `json:"message_id"`
 	// optional
+
 	Created_Date_              string                   `json:"created_date"`
 	Text_                      string                   `json:"text_"`
 	Annotations_               []Annotation             `json:"annotations"`
@@ -26,6 +27,7 @@ type Creator struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
 	// optional
+
 	User_type_   string     `json:"user_type"`
 	Acting_user_ ActingUser `json:"acting_user"`
 }
@@ -41,6 +43,7 @@ type Annotation struct {
 	Start_index int `json:"start_index "`
 	Length      int `json:"length"`
 	// optional
+
 	Youtube_metadata_            YoutubeMetadata           `json:"youtube_metadata"`
 	Url_metadata_                UrlMetadata               `json:"url_metadata"`
 	Video_call_metadata_         VideoCallMetadata         `json:"video_call_metadata"`
@@ -78,12 +81,14 @@ type VideoCallMetadata struct {
 type FormatMetadata struct {
 	Format_type string `json:"format_type"`
 	// optional
+
 	Font_color_ uint `json:"font_color"`
 }
 
 // TODO parsed type should return an enum of what it is
 type GsuiteIntegrationMetadata struct {
 	// optional
+
 	Call_data_           CallData          `json:"call_data"`
 	Calendar_event_data_ CalendarEventData `json:"calendar_event_data"`
 	Tasks_data_          TasksData         `json:"tasks_data"`
@@ -99,7 +104,8 @@ type CalendarEventData struct {
 		Title      string `json:"title"`
 		Start_time struct {
 			Timed string `json:"timed"`
-			// optional`json:"start_time"`
+			// optional
+			// `json:"start_time"`
 		}
 		End_time struct {
 			Timed string `json:"timed"`
@@ -110,309 +116,169 @@ type CalendarEventData struct {
 }
 
 type TasksData struct {
-	//	tasks_data: {
-	//	  required: [task_properties]
-	//
+	Task_properties TaskProperties `json:"task_properties"`
 	// optional
-	//
-	//	  creation
-	//	  completion_change
-	//	  assignee_change
-	//	  deletion_change
-	//	]
 
-	//          task_properties: {
-	//            required: [title completed deleted description]
-	//            optional: [assignee]
-	//            title: string
-	//            completed: boolean
-	//            deleted: boolean
-	//            description: string
-	//            assignee: {
-	//              required: [id]
+	Creation_          struct{} `json:"creation"`
+	Completion_change_ struct{} `json:"completion_change"`
+	Deletion_change_   struct{} `json:"deletion_change"`
+	Assignee_change_   struct {
+		Old_assignee struct {
+			Id string `json:"id"`
+			// optional
+		} `json:"old_assignee"`
+		// optional
+	} `json:"assignee_change"`
+}
 
-	//              id: string
-	//            }
-	//          }
-	//          creation: { required: [] optional: [] }
-	//          completion_change: { required: [] optional: [] }
-	//          assignee_change: {
-	//            required: [old_assignee]
+type TaskProperties struct {
+	Title       string `json:"title"`
+	Completed   bool   `json:"completed"`
+	Deleted     bool   `json:"deleted"`
+	Description string `json:"description"`
+	// optional
 
-	//            old_assignee: {
-	//              required: [id]
-
-	//              id: string
-	//            }
-	//          }
-	//          deletion_change: { required: [] optional: [] }
-	//        }
-	//      }
+	Assignee_ struct {
+		Id string `json:"id"`
+		// optional
+	} `json:"assignee"`
 }
 
 type DriveMetadata struct {
-	//      drive_metadata: {
-	//        required: [id title thumbnail_url]
-
-	//        id: string
-	//        title: string
-	//        thumbnail_url: string
-	//      }
-	//      interaction_data: {
-	//        required: [url]
-
-	//        url: {
-	//          required: [
-	//            private_do_not_access_or_else_safe_url_wrapped_value
-	//          ]
-
-	//	      private_do_not_access_or_else_safe_url_wrapped_value: string
-	//	    }
-	//	  }
-	//	}
-	//
-	// ]
+	Id            string `json:"id"`
+	Title         string `json:"title"`
+	Thumbnail_url string `json:"thumbnail_url"`
+	// optional
+}
+type InteractionData struct {
+	Url Url
+	// optional
 }
 
 type AttachedFile struct {
-	// attached_files: [
-	//
-	//	{
-	//	  required: [export_name]
-	//	  optional: [original_name]
-	//	  original_name: string
-	//	  export_name: string
-	//	}
-	//
-	// ]
+	Export_name string `json:"export_name"`
+	// optional
+
+	Original_name_ string `json:"original_name"`
 }
 
 type Reaction struct {
-	// reactions: [
-	//
-	//	{
-	//	  required: [emoji reactor_emails]
-	//	  emoji: {
-	//	    required: [unicode]
-	//	    unicode: string
-	//	  }
-	//	  reactor_emails: [string]
-	//	}
-	//
-	// ]
+	Emoji struct {
+		Unicode string `json:"unicode"`
+		// optional
+	} `json:"emoji"`
+	Reactor_emails []string `json:"reactor_emails"`
+	// optional
 }
 
+// OPTIONAL CHECK //
+
 type PreviousMessageVersion struct {
-	//       previous_message_versions: [
-	//         {
-	//           required: []
-	//           optional: [
-	//             text
-	//             annotations
-	//             updated_date
-	//             created_date
-	//             attached_files
-	//             quoted_message_metadata
-	//           ]
-	//           created_date: string
-	//           text: string
-	//           annotations: [
-	//             {
-	//               required: [start_index length]
-	//               optional: [
-	//                 gsuite_integration_metadata
-	//                 url_metadata
-	//                 format_metadata
-	//                 youtube_metadata
-	//                 drive_metadata
-	//               ]
-	//               start_index: number
-	//               length: number
-	//               gsuite_integration_metadata: {
-	//                 required: [call_data]
+	// optional
 
-	//                 call_data: {
-	//                   required: [call_status]
+	Created_date string       `json:"created_date"`
+	Text         string       `json:"text"`
+	Updated_date string       `json:"updated_date"`
+	Annotations  []Annotation `json:"annotations"`
 
-	//                   call_status: string
-	//                 }
-	//               }
-	//               url_metadata: {
-	//                 required: [title snippet image_url url]
+	// For the following two fields, the computed schema is missing some "optional" fields. This is not a problem; they
+	// are optional
+	// For the following two fields, the computed schema marks some "optional" fields as "required". This is not a
+	// problem; since these are input types rather than output types, considering a required field optional just means
+	// that in this case the optional field will always be populated
+	// In both cases, the schema was computed from real-world data. Just because none of the ingested examples always did
+	// or did not include optional fields does not mean we won't be grateful later for being prepared for those
+	// possibilities.
 
-	//                 title: string
-	//                 snippet: string
-	//                 image_url: string
-	//                 url: {
-	//                   required: [
-	//                     private_do_not_access_or_else_safe_url_wrapped_value
-	//                   ]
-
-	//                   private_do_not_access_or_else_safe_url_wrapped_value: string
-	//                 }
-	//               }
-	//               format_metadata: {
-	//                 required: [format_type]
-	//                 optional: [font_color]
-	//                 format_type: string
-	//                 font_color: number
-	//               }
-	//               youtube_metadata: {
-	//                 required: [id start_time]
-
-	//                 id: string
-	//                 start_time: number
-	//               }
-	//               drive_metadata: {
-	//                 required: [id title thumbnail_url]
-
-	//                 id: string
-	//                 title: string
-	//                 thumbnail_url: string
-	//               }
-	//             }
-	//           ]
-	//           updated_date: string
-	//           attached_files: [
-	//             {
-	//               required: [original_name export_name]
-
-	//               original_name: string
-	//               export_name: string
-	//             }
-	//           ]
-	//           quoted_message_metadata: {
-	//             required: [creator text]
-	//             optional: [attached_files annotations]
-	//             creator: {
-	//               required: [name user_type]
-	//               optional: [email]
-	//               name: string
-	//               email: string
-	//               user_type: string
-	//             }
-	//             text: string
-	//             attached_files: [
-	//               {
-	//                 required: [original_name export_name]
-
-	//                 original_name: string
-	//                 export_name: string
-	//               }
-	//             ]
-	//             annotations: [
-	//               {
-	//                 required: [start_index length]
-	//                 optional: [format_metadata youtube_metadata]
-	//                 start_index: number
-	//                 length: number
-	//                 format_metadata: {
-	//                   required: [format_type]
-
-	//                   format_type: string
-	//                 }
-	//                 youtube_metadata: {
-	//                   required: [id start_time]
-
-	//	          id: string
-	//	          start_time: number
-	//	        }
-	//	      }
-	//	    ]
-	//	  }
-	//	}
-	//
-	// ]
+	Attached_files_          []AttachedFile          `json:"attached_files"`
+	Quoted_message_metadata_ []QuotedMessageMetadata `json:"quoted_message_metadata"`
 }
 
 type QuotedMessageMetadata struct {
-	//       quoted_message_metadata: {
-	//         required: [creator text]
-	//         optional: [attached_files annotations]
-	//         creator: {
-	//           required: [name user_type]
-	//           optional: [acting_user email]
-	//           name: string
-	//           email: string
-	//           user_type: string
-	//           acting_user: {
-	//             required: [name user_id user_type]
-
-	//             name: string
-	//             user_id: string
-	//             user_type: string
+	//       quoted_message_metadata {
+	//         required [creator text]
+	//         optional [attached_files annotations]
+	//         creator {
+	//           required [name user_type]
+	//           optional [acting_user email]
+	//           name string
+	//           email string
+	//           user_type string
+	//           acting_user {
+	//             required [name user_id user_type]
+	//             name string
+	//             user_id string
+	//             user_type string
 	//           }
 	//         }
-	//         text: string
-	//         attached_files: [
+	//         text string
+	//         attached_files [
 	//           {
-	//             required: [original_name export_name]
-
-	//             original_name: string
-	//             export_name: string
+	//             required [original_name export_name]
+	//             original_name string
+	//             export_name string
 	//           }
 	//         ]
-	//         annotations: [
+	//         annotations [
 	//           {
-	//             required: [start_index length]
-	//             optional: [
+	//             required [start_index length]
+	//             optional [
 	//               format_metadata
 	//               url_metadata
 	//               gsuite_integration_metadata
 	//               youtube_metadata
 	//               drive_metadata
 	//             ]
-	//             start_index: number
-	//             length: number
-	//             format_metadata: {
-	//               required: [format_type]
-	//               optional: [font_color]
-	//               format_type: string
-	//               font_color: number
+	//             start_index number
+	//             length number
+	//             format_metadata {
+	//               required [format_type]
+	//               optional [font_color]
+	//               format_type string
+	//               font_color number
 	//             }
-	//             url_metadata: {
-	//               required: [title snippet image_url url]
-
-	//               title: string
-	//               snippet: string
-	//               image_url: string
-	//               url: {
-	//                 required: [
+	//             url_metadata {
+	//               required [title snippet image_url url]
+	//               title string
+	//               snippet string
+	//               image_url string
+	//               url {
+	//                 required [
 	//                   private_do_not_access_or_else_safe_url_wrapped_value
 	//                 ]
 
-	//                 private_do_not_access_or_else_safe_url_wrapped_value: string
+	//                 private_do_not_access_or_else_safe_url_wrapped_value string
 	//               }
 	//             }
-	//             gsuite_integration_metadata: {
-	//               required: [tasks_data]
+	//             gsuite_integration_metadata {
+	//               required [tasks_data]
 
-	//               tasks_data: {
-	//                 required: [task_properties creation]
+	//               tasks_data {
+	//                 required [task_properties creation]
 
-	//                 task_properties: {
-	//                   required: [title completed deleted description]
+	//                 task_properties {
+	//                   required [title completed deleted description]
 
-	//                   title: string
-	//                   completed: boolean
-	//                   deleted: boolean
-	//                   description: string
+	//                   title string
+	//                   completed boolean
+	//                   deleted boolean
+	//                   description string
 	//                 }
-	//                 creation: { required: [] optional: [] }
+	//                 creation { required [] optional [] }
 	//               }
 	//             }
-	//             youtube_metadata: {
-	//               required: [id start_time]
+	//             youtube_metadata {
+	//               required [id start_time]
 
-	//               id: string
-	//               start_time: number
+	//               id string
+	//               start_time number
 	//             }
-	//             drive_metadata: {
-	//               required: [id title thumbnail_url]
+	//             drive_metadata {
+	//               required [id title thumbnail_url]
 
-	//	        id: string
-	//	        title: string
-	//	        thumbnail_url: string
+	//	        id string
+	//	        title string
+	//	        thumbnail_url string
 	//	      }
 	//	    }
 	//	  ]
@@ -420,9 +286,9 @@ type QuotedMessageMetadata struct {
 }
 
 type DeletionMetadata struct {
-	//       deletion_metadata: {
-	//         required: [deletion_type]
+	//       deletion_metadata {
+	//         required [deletion_type]
 
-	//	  deletion_type: string
+	//	  deletion_type string
 	//	}
 }
