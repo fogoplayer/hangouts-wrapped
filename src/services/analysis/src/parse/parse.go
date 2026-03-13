@@ -126,7 +126,6 @@ func parseTime(dateTime string) time.Time {
 	var CALENDAR = time.RFC3339
 
 	if dateTime == "" {
-
 		return time.Time{}
 	}
 
