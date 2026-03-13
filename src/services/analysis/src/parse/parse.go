@@ -126,11 +126,8 @@ func parseTime(dateTime string) time.Time {
 	var CALENDAR = time.RFC3339
 
 	if dateTime == "" {
-		zero := time.Time{}
-		if !zero.IsZero() {
-			fmt.Println("zero is not zero") // TODO remove if you never hit this breakpoint
-		}
-		return zero
+
+		return time.Time{}
 	}
 
 	dateTime = strings.ReplaceAll(dateTime, "\xe2\x80\xaf", "") // handle non-Ascii spaces Google inserts for some reason
