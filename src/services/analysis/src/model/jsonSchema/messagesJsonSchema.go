@@ -202,8 +202,8 @@ type PreviousMessageVersion struct {
 	// or did not include optional fields does not mean we won't be grateful later for being prepared for those
 	// possibilities.
 
-	Attached_files_          []AttachedFile          `json:"attached_files"`
-	Quoted_message_metadata_ []QuotedMessageMetadata `json:"quoted_message_metadata"`
+	Attached_files_          []AttachedFile        `json:"attached_files"`
+	Quoted_message_metadata_ QuotedMessageMetadata `json:"quoted_message_metadata"`
 }
 
 type QuotedMessageMetadata struct {

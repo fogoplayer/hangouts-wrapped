@@ -5,13 +5,13 @@ import (
 )
 
 type Message struct {
-	Creator    Creator
-	Topic_Id   string
-	Message_Id string
+	Creator   Creator
+	TopicId   string
+	MessageId string
 
 	// optional
 
-	Created_Date_              Time
+	CreatedDate_               Time
 	Text_                      string
 	Message_State_             *MessageState
 	Deleted_Date_              Time
@@ -31,7 +31,7 @@ type Message struct {
 type MessageState int
 
 const (
-	DELETED MessageState = iota
+	DELETED MessageState = iota + 1
 )
 
 type Creator struct {
@@ -59,7 +59,7 @@ type Annotation struct {
 
 	YoutubeMetadata_           *YoutubeMetadata
 	UrlMetadata_               *UrlMetadata
-	VideoCallMetadata_         *VideoCallMetadata
+	VideoCallUrl_              string
 	FormatMetadata_            *FormatMetadata
 	GsuiteIntegrationMetadata_ *GsuiteIntegrationMetadata
 	DriveMetadata_             *DriveMetadata
@@ -85,7 +85,7 @@ type VideoCallMetadata struct {
 }
 
 type FormatMetadata struct {
-	FormatType string
+	FormatType FormatTypeEnum
 
 	// optional
 
@@ -96,7 +96,7 @@ type FormatMetadata struct {
 type FormatTypeEnum int
 
 const (
-	BOLD FormatTypeEnum = iota
+	BOLD FormatTypeEnum = iota + 1
 	HIDDEN
 	ITALIC
 	BULLETED_LIST
@@ -123,8 +123,22 @@ type GsuiteIntegrationMetadata struct {
 }
 
 type CallData struct {
-	CallStatus string
+	CallStatus CallStatusEnum
 	// optional
+}
+
+type CallStatusEnum int
+
+const (
+	CALL_STARTED CallStatusEnum = 1 // TODO iota + 1
+	CALL_ENDED   CallStatusEnum = 2
+	CALL_MISSED  CallStatusEnum = 3
+)
+
+var CallStatus = map[string]CallStatusEnum{
+	"CALL_STARTED": CALL_STARTED,
+	"CALL_ENDED":   CALL_ENDED,
+	"CALL_MISSED":  CALL_MISSED,
 }
 
 type CalendarEventData struct {
@@ -184,7 +198,7 @@ type PreviousMessageVersion struct {
 	// possibilities.
 
 	Attached_files_         []AttachedFile
-	QuotedMessage_metadata_ []QuotedMessageMetadata
+	QuotedMessage_metadata_ *QuotedMessageMetadata
 }
 
 type QuotedMessageMetadata struct {
@@ -200,7 +214,7 @@ type QuotedMessageMetadata struct {
 type DeletionTypeEnum int
 
 const (
-	CREATOR DeletionTypeEnum = iota
+	CREATOR DeletionTypeEnum = iota + 1
 )
 
 var DeletionType = map[string]DeletionTypeEnum{
