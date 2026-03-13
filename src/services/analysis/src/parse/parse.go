@@ -22,12 +22,18 @@ func ParseChatDirectoryHandle(handle model.ChatDirectoryHandle) {
 
 	parseJson(<-handle.Messages, &messagesJson)
 
-	message := "no messages"
-	if len(messagesJson.Messages) > 0 {
-		message = messagesJson.Messages[0].Text_
+	messages := []model.Message{}
+	for _, message := range messagesJson.Messages {
+		messages = append(messages, parseMessage(message))
 	}
 	fmt.Println(chat.Name)
-	fmt.Println("\t", message)
+	for _, message := range messages {
+		if message.Text_ != "" {
+			fmt.Println("\t", message.Text_)
+			return
+		}
+	}
+	fmt.Println("no messages")
 }
 
 func ParseUserInfo(bytes []byte) {
@@ -114,16 +120,35 @@ func parseActingUser(actingUser jsonSchema.ActingUser) *model.ActingUser {
 	}
 }
 
-// 2006-01-02T15:04:05 -070000
-var CREATED_DATE = "Monday, January 2 at 3:04:05PM UTC"
+func parseTime(dateTime string) time.Time {
+	// Layout strings, based on  "01/02 03:04:05PM '06 -0700"
+	var HANGOUTS = "Monday, January 2, 2006 at 3:04:05PM UTC"
+	var CALENDAR = time.RFC3339
 
-func parseTime(datetime string) time.Time {
-	time, err := time.Parse(CREATED_DATE, datetime)
-	if err != nil {
-		fmt.Println("unable to parse time")
-		panic(err)
+	if dateTime == "" {
+		zero := time.Time{}
+		if !zero.IsZero() {
+			fmt.Println("zero is not zero") // TODO remove if you never hit this breakpoint
+		}
+		return zero
 	}
-	return time
+
+	dateTime = strings.ReplaceAll(dateTime, "\xe2\x80\xaf", "") // handle non-Ascii spaces Google inserts for some reason
+	parsedTime, err := time.Parse(HANGOUTS, dateTime)
+	if err == nil {
+		return parsedTime
+	}
+
+	parsedTime, err = time.Parse(CALENDAR, dateTime)
+	if err == nil {
+		return parsedTime
+	}
+
+	fmt.Println("unable to parse time", dateTime)
+	fmt.Println("1:", dateTime)
+	fmt.Println("2:", HANGOUTS)
+	panic(err)
+
 }
 
 func parseMessageState(messageState string) *model.MessageState {
@@ -150,13 +175,16 @@ func parseQuotedMessageMetadata(quotedMessageMetadata jsonSchema.QuotedMessageMe
 }
 
 func parseDeletedMetadata(deletedMetadata jsonSchema.DeletionMetadata) *model.DeletionTypeEnum {
+	if deletedMetadata.Deletion_type == "" {
+		return nil
+	}
+
 	switch model.DeletionType[deletedMetadata.Deletion_type] {
 	case model.CREATOR:
 		v := model.CREATOR
 		return &v
 	default:
-		fmt.Println(deletedMetadata)
-		panic(fmt.Errorf("Probably not actually an error. What does empty deletion metadata look like?"))
+		panic(fmt.Errorf("Unexpeced deletionType %s", deletedMetadata.Deletion_type))
 	}
 }
 
