@@ -101,6 +101,7 @@ func handleChatDirectoryInGoRoutine(directoryHandle model.FSAgnosticDirectoryHan
 }
 
 func handleUserInfoInGoRoutine(userInfoFileHandle model.FSAgnosticFileHandle) {
+	// TODO do we actually use userInfo for anything?
 	go func() {
 		model.UserInfoChannel <- <-userInfoFileHandle.Bytes()
 		close(model.UserInfoChannel)

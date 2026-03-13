@@ -22,3 +22,11 @@ func PanicIfError(err error) {
 }
 
 func UseVar(any) {}
+
+func ListMap[T any, U any](array []T, converter func(T) U) []U {
+	result := make([]U, len(array))
+	for i, v := range array {
+		result[i] = converter(v)
+	}
+	return result
+}

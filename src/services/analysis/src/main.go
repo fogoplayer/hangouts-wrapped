@@ -28,6 +28,7 @@ func ingestChatDirectory(chatDataDirectory string) {
 	}()
 }
 
+// TODO inline goroutines
 func parseIngestedFiles() {
 	go func() {
 		for chatDirectoryHandle := range model.ChatDirectoryHandleChannel {

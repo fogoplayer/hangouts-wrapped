@@ -9,25 +9,33 @@ import (
 
 	"zarinloosli.com/hangouts-wrapped/model"
 	"zarinloosli.com/hangouts-wrapped/model/jsonSchema"
+	"zarinloosli.com/hangouts-wrapped/util"
 )
 
 func ParseChatDirectoryHandle(handle model.ChatDirectoryHandle) {
 	groupInfoJson := jsonSchema.GroupInfo_JsonSchema{}
 	messagesJson := jsonSchema.Messages_JsonSchema{}
 
-	// TODO parallelize
-	parseJson(<-handle.GroupInfo, &groupInfoJson)
-	chat := parseGroupInfo(groupInfoJson)
-	// fmt.Println(chat.Name)
+	groupInfoChannel := make(chan model.Chat)
+	messagesChannel := make(chan []model.Message)
 
-	parseJson(<-handle.Messages, &messagesJson)
+	go func() {
+		parseJson(<-handle.GroupInfo, &groupInfoJson)
+		groupInfoChannel <- parseGroupInfo(groupInfoJson)
+		close(groupInfoChannel)
+	}()
 
-	messages := []model.Message{}
-	for _, message := range messagesJson.Messages {
-		messages = append(messages, parseMessage(message))
-	}
+	go func() {
+		parseJson(<-handle.Messages, &messagesJson)
+		messagesChannel <- util.ListMap(messagesJson.Messages, parseMessage)
+		close(messagesChannel)
+	}()
+
+	chat := <-groupInfoChannel
+	chat.Messages = <-messagesChannel
+
 	fmt.Println(chat.Name)
-	for _, message := range messages {
+	for _, message := range chat.Messages {
 		if message.Text_ != "" {
 			fmt.Println("\t", message.Text_)
 			return
