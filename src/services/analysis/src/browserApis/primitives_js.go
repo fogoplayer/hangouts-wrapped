@@ -29,9 +29,9 @@ func SetGlobal(name string, x js.Value) {
 	fmt.Println("Set", name)
 }
 
-// ////////////////// //
-// GoFromJSConverters //
-// ////////////////// //
+// /////////////////// //
+// GoFromJS Converters //
+// /////////////////// //
 
 func JsFromJsReturnValueUnchanged(v js.Value) (js.Value, error) {
 	return v, nil
@@ -57,3 +57,66 @@ func GetIntFromJsValue(jsValue js.Value) (int64, error) {
 	}
 	return value, nil
 }
+
+// /////////////////// //
+// JSFromGo Converters //
+// /////////////////// //
+
+func CreateJsObject(name string, args ...any) js.Value { // TODO
+	return js.Global().Get(name).New(args...)
+}
+
+// Uint8Array
+
+type Uint8Array struct {
+	js.Value
+}
+
+func Uint8ArrayFromGo(bytes []byte) js.Value /* Uint8Array */ {
+	jsUint8Array := CreateUint8Array(len(bytes))
+	js.CopyBytesToJS(jsUint8Array /* .Value */, bytes)
+	return /* Uint8Array( */ jsUint8Array /* ) */
+}
+
+func CreateUint8Array(len int) js.Value /* Uint8Array */ {
+	return /* Uint8Array{ */ CreateJsObject("Uint8Array", len) /* } */
+}
+
+// String
+
+type JSString struct {
+	js.Value
+}
+
+func StringFromGoBytes(bytes []byte) JSString {
+	jsUint8Array := Uint8ArrayFromGo(bytes)
+	textDecoder := CreateTextDecoder()
+	return textDecoder.Decode(jsUint8Array)
+}
+
+func StringFromGoString(value string) JSString {
+	return JSString{js.ValueOf(value)}
+}
+
+// TextDecoder
+
+type TextDecoder struct {
+	js.Value
+}
+
+func (textDecoder TextDecoder) Decode(bytes js.Value /* Uint8Array */) JSString {
+	return JSString{textDecoder.Value.Call("decode", bytes)}
+}
+
+func CreateTextDecoder() TextDecoder {
+	return TextDecoder{CreateJsObject("TextDecoder")}
+}
+
+// new TextDecoder().decode(uint8array);
+
+// ////////////////////// //
+// JS Object Constructors //
+// ////////////////////// //
+
+// TODO is there a way to use type aliases or embedded types to allow passing a JS type where a JS value is accepted?
+// TODO make the types private so you have to use constructors, then use InstanceOf to make sure they are what they say they are?

@@ -47,6 +47,7 @@ func (handle FSHandle) Name() string {
 	return handle.jsValue.Get("name").String()
 }
 
+// TODO can't you get paths from the FS API? Won't that allow us to look up arbitrary files without the map?
 func (handle FSHandle) Path() string {
 	return strings.Join(append(handle.parentPath, handle.Name()), "/")
 }

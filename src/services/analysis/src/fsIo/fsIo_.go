@@ -1,6 +1,7 @@
 package fsIo
 
 import (
+	"fmt"
 	"strings"
 
 	"zarinloosli.com/hangouts-wrapped/model"
@@ -11,9 +12,10 @@ const (
 	CHAT_DATA_DIRECTORY    = "Google Chat"
 	GROUPS_DIRECTORY       = "Groups"
 	USERS_DIRECTORY        = "Users"
+	USER_PREFIX            = "User"
 	USER_INFO              = "user_info.json"
 	DM_DIRECTORY_PREFIX    = "DM"
-	SPACE_DIRECTORY_PREFIX = "SPACE"
+	SPACE_DIRECTORY_PREFIX = "Space"
 	GROUP_INFO             = "group_info.json"
 	MESSAGES               = "messages.json"
 )
@@ -34,15 +36,18 @@ func ProcessFile(
 			if startsWithWords(directoryHandle.Name(), DM_DIRECTORY_PREFIX, SPACE_DIRECTORY_PREFIX) {
 				handleChatDirectoryInGoRoutine(directoryHandle)
 			}
+			if startsWithWords(directoryHandle.Name(), USER_PREFIX) {
+				handleDirectoryInGoRoutine(directoryHandle)
+			}
 		}
 	} else if fileHandle, err := fsHandle.AsFileHandle(); err == nil {
 		switch fileHandle.Name() {
 		case USER_INFO:
 			handleUserInfoInGoRoutine(fileHandle)
-		case GROUP_INFO:
-		case MESSAGES:
+		case GROUP_INFO: // handled by ChatDirectory
+		case MESSAGES: // handled by ChatDirectory
 		default:
-			// TODO probably an image file
+			// TODO probably an attachment file
 		}
 	}
 	return nil
@@ -68,6 +73,13 @@ func handleDirectoryInGoRoutine(directoryHandle model.FSAgnosticDirectoryHandle)
 
 func handleChatDirectoryInGoRoutine(directoryHandle model.FSAgnosticDirectoryHandle) {
 	go func() {
+		defer func() {
+			if r := recover(); r != nil {
+				// have to inline the \n to make this atomic, otherwise other goroutines will print in between
+				fmt.Println("Unable to read in", directoryHandle.Path(), "\n", r)
+			}
+		}()
+
 		messagesEntry, err := directoryHandle.GetEntry("messages.json")
 		util.PanicIfError(err)
 		messagesFile, err := messagesEntry.AsFileHandle()
@@ -88,6 +100,10 @@ func handleChatDirectoryInGoRoutine(directoryHandle model.FSAgnosticDirectoryHan
 	}()
 }
 
-func handleUserInfoInGoRoutine(fileHandle model.FSAgnosticFileHandle) {
-	go func() { model.BytesChannel <- <-fileHandle.Bytes() }()
+func handleUserInfoInGoRoutine(userInfoFileHandle model.FSAgnosticFileHandle) {
+	// TODO do we actually use userInfo for anything?
+	go func() {
+		model.UserInfoChannel <- <-userInfoFileHandle.Bytes()
+		close(model.UserInfoChannel)
+	}()
 }

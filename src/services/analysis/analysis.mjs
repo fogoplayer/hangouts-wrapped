@@ -1,4 +1,5 @@
 import "../../libs/go-wasm-runtime.js";
+import { documentJsonString as documentJsonFunc } from "../JsonDocumenter.mjs";
 
 const go = new Go();
 await WebAssembly.instantiateStreaming(
@@ -9,5 +10,7 @@ await WebAssembly.instantiateStreaming(
 });
 
 export function selectDirectoryForAnalysis() {
-  showWasmDirectoryPicker();
+  window.showWasmDirectoryPicker();
 }
+
+window.documentJson = documentJsonFunc;
