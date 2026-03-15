@@ -17,18 +17,18 @@ func ParseChatDirectoryHandle(handle model.ChatDirectoryHandle) {
 	messagesJson := jsonSchema.Messages_JsonSchema{}
 
 	parseJson(<-handle.GroupInfo, &groupInfoJson)
-	model.IngestStats.ChatsParsed += 1
+	model.IngestStats[model.ChatsParsed] += 1
 	chat := parseGroupInfo(groupInfoJson)
 
 	parseJson(<-handle.Messages, &messagesJson)
-	model.IngestStats.MessagesParsed += len(messagesJson.Messages)
+	model.IngestStats[model.MessagesParsed] += len(messagesJson.Messages)
 	// TODO parse each message in its own goroutine
 	for _, parsedMessage := range util.ListMap(messagesJson.Messages, parseMessage) {
 		chat.Messages.Insert(parsedMessage)
-		model.IngestStats.MessagesIngested += 1
+		model.IngestStats[model.MessagesIngested] += 1
 	}
 
-	model.IngestStats.ChatsIngested += 1
+	model.IngestStats[model.ChatsIngested] += 1
 }
 
 func ParseUserInfo(bytes []byte) {
@@ -46,7 +46,7 @@ func parseJson(bytes []byte, destinationPointer any) error {
 		return errors.New("invalid json")
 	}
 	json.Unmarshal(bytes, destinationPointer)
-	model.IngestStats.FilesParsed += 1
+	model.IngestStats[model.FilesParsed] += 1
 	return nil
 }
 
@@ -82,7 +82,7 @@ func parseMember(member jsonSchema.GroupInfo_Members_JsonSchema) model.User {
 /////////////
 
 func parseMessage(message jsonSchema.Message) model.Message {
-	model.IngestStats.MessagesIngested += 1
+	model.IngestStats[model.MessagesIngested] += 1
 	return model.Message{
 		Creator:   parseCreator(message.Creator),
 		TopicId:   message.Topic_Id,

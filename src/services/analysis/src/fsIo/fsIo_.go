@@ -70,7 +70,7 @@ func handleDirectoryInGoRoutine(directoryHandle model.FSAgnosticDirectoryHandle)
 				model.FilePathsToIngestChannel <- entry.Path()
 			}()
 		}
-		model.IngestStats.FilesParsed += 1 // handing a directory counts as "parsing" it
+		model.IngestStats[model.FilesParsed] += 1 // handing a directory counts as "parsing" it
 	}()
 }
 
@@ -102,7 +102,7 @@ func handleChatDirectoryInGoRoutine(directoryHandle model.FSAgnosticDirectoryHan
 				GroupInfo:       groupInfoBytesChannel,
 			}
 		}()
-		model.IngestStats.FilesParsed += 1 // handing a directory counts as "parsing" it
+		model.IngestStats[model.FilesParsed] += 1 // handing a directory counts as "parsing" it
 	}()
 }
 
