@@ -5,7 +5,7 @@ import (
 	"sync"
 )
 
-type IngestStatsType map[string]int
+type IngestStatsType map[IngestStatsKey]int
 type IngestStatsKey string
 
 const (
@@ -45,7 +45,7 @@ func IncrementStat(ingestStatsKey IngestStatsKey) {
 	ingestStats[ingestStatsKey] += 1
 }
 
-func GetIngestStats() map[IngestStatsKey]int {
+func GetIngestStats() IngestStatsType {
 	ingestStatsMutex.RLock()
 	defer func() { ingestStatsMutex.RUnlock() }()
 	return ingestStats
