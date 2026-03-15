@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"time"
+
 	"zarinloosli.com/hangouts-wrapped/fsIo"
 	"zarinloosli.com/hangouts-wrapped/model"
 	"zarinloosli.com/hangouts-wrapped/parse"
@@ -13,6 +16,13 @@ func main() {
 	ingestChatDirectory(chatDataDirectory)
 
 	parseIngestedFiles()
+
+	go func() {
+		for {
+			time.Sleep(time.Millisecond * 100)
+			fmt.Println(model.IngestStats)
+		}
+	}()
 
 	<-make(chan struct{})
 }

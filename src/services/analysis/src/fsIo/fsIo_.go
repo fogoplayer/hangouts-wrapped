@@ -66,8 +66,11 @@ func startsWithWords(candidate string, prefixes ...string) bool {
 func handleDirectoryInGoRoutine(directoryHandle model.FSAgnosticDirectoryHandle) {
 	go func() {
 		for _, entry := range directoryHandle.Entries() {
-			go func() { model.FilePathsToIngestChannel <- entry.Path() }()
+			go func() {
+				model.FilePathsToIngestChannel <- entry.Path()
+			}()
 		}
+		model.IngestStats.FilesParsed += 1 // handing a directory counts as "parsing" it
 	}()
 }
 
@@ -92,11 +95,14 @@ func handleChatDirectoryInGoRoutine(directoryHandle model.FSAgnosticDirectoryHan
 		util.PanicIfError(err)
 		groupInfoBytesChannel := groupInfoFile.Bytes()
 
-		model.ChatDirectoryHandleChannel <- model.ChatDirectoryHandle{
-			DirectoryHandle: directoryHandle,
-			Messages:        messagesBytesChannel,
-			GroupInfo:       groupInfoBytesChannel,
-		}
+		go func() {
+			model.ChatDirectoryHandleChannel <- model.ChatDirectoryHandle{
+				DirectoryHandle: directoryHandle,
+				Messages:        messagesBytesChannel,
+				GroupInfo:       groupInfoBytesChannel,
+			}
+		}()
+		model.IngestStats.FilesParsed += 1 // handing a directory counts as "parsing" it
 	}()
 }
 

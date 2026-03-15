@@ -20,6 +20,7 @@ func (handle DirectoryHandle) Entries() []model.FSAgnosticHandle {
 
 	result := []model.FSAgnosticHandle{}
 	for _, entry := range contents {
+		model.IngestStats.FilesFound += 1
 		result = append(result, FSHandle{entry})
 	}
 	return result
@@ -33,6 +34,7 @@ func (handle DirectoryHandle) GetEntry(name string) (model.FSAgnosticHandle, err
 		return nil, err
 	}
 
+	model.IngestStats.FilesFound += 1
 	return FSHandle{entryPath}, nil
 }
 

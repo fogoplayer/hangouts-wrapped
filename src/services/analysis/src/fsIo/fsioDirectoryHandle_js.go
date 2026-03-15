@@ -15,6 +15,7 @@ func (handle DirectoryHandle) Entries() []model.FSAgnosticHandle {
 	util.PanicIfError(err)
 
 	for _, browserEntry := range directoryHandle.Entries() {
+		model.IngestStats.FilesFound += 1
 		PathToFSHandle[browserEntry.Path()] = FSHandle{browserEntry}
 		fsEntries = append(fsEntries, FSHandle{browserEntry})
 	}
@@ -28,6 +29,7 @@ func (handle DirectoryHandle) GetEntry(name string) (model.FSAgnosticHandle, err
 	}
 
 	entry, err := directoryHandle.GetEntry(name)
+	model.IngestStats.FilesFound += 1
 	return DirectoryHandle{FSHandle{entry}}, err
 }
 
