@@ -20,10 +20,10 @@ var showDirectoryPicker js.Func = js.FuncOf(func(this js.Value, args []js.Value)
 })
 
 var getIngestStats js.Func = js.FuncOf(func(this js.Value, args []js.Value) any {
-	jsReadyMap := util.MapMap(
-		model.GetIngestStats(),
-		func(k model.IngestStatsKey, v int) (string, int) {
-			return string(k), v
-		})
+	convertToStringKeys := func(k model.IngestStatsKey, v int) (string, int) {
+		return string(k), v
+	}
+
+	jsReadyMap := util.MapMap(model.GetIngestStats(), convertToStringKeys)
 	return browserApis.ObjectFromGo(jsReadyMap)
 })
