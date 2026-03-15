@@ -1,7 +1,7 @@
 package model
 
 import (
-	. "time"
+	"time"
 )
 
 type Message struct {
@@ -11,11 +11,11 @@ type Message struct {
 
 	// optional
 
-	CreatedDate_               Time
+	CreatedDate_               time.Time
 	Text_                      string
 	Message_State_             *MessageState
-	Deleted_Date_              Time
-	Updated_Date_              Time
+	Deleted_Date_              time.Time
+	Updated_Date_              time.Time
 	Quoted_Message_Metadata_   *QuotedMessageMetadata
 	DeletionType_              *DeletionTypeEnum
 	Annotations_               []Annotation
@@ -143,8 +143,8 @@ var CallStatus = map[string]CallStatusEnum{
 
 type CalendarEventData struct {
 	Title     string
-	StartTime Time
-	EndTime   Time
+	StartTime time.Time
+	EndTime   time.Time
 }
 
 type TasksData struct {
@@ -183,9 +183,9 @@ type Reaction struct {
 type PreviousMessageVersion struct {
 	// optional
 
-	CreatedDate_  Time
+	CreatedDate_  time.Time
 	Text_         string
-	Updated_date_ Time
+	Updated_date_ time.Time
 	Annotations_  []Annotation
 
 	// For the following two fields, the computed schema is missing some "optional" fields. This is not a problem; they

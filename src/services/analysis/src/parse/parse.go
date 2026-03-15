@@ -16,27 +16,18 @@ func ParseChatDirectoryHandle(handle model.ChatDirectoryHandle) {
 	groupInfoJson := jsonSchema.GroupInfo_JsonSchema{}
 	messagesJson := jsonSchema.Messages_JsonSchema{}
 
-	groupInfoChannel := make(chan model.Chat)
-	messagesChannel := make(chan []model.Message)
+	parseJson(<-handle.GroupInfo, &groupInfoJson)
+	chat := parseGroupInfo(groupInfoJson)
 
-	go func() {
-		parseJson(<-handle.GroupInfo, &groupInfoJson)
-		groupInfoChannel <- parseGroupInfo(groupInfoJson)
-		close(groupInfoChannel)
-	}()
+	parseJson(<-handle.Messages, &messagesJson)
+	// TODO parse each message in its own goroutine
+	for _, parsedMessage := range util.ListMap(messagesJson.Messages, parseMessage) {
+		chat.Messages.Insert(parsedMessage)
+	}
 
-	go func() {
-		parseJson(<-handle.Messages, &messagesJson)
-		messagesChannel <- util.ListMap(messagesJson.Messages, parseMessage)
-		close(messagesChannel)
-	}()
-
-	chat := <-groupInfoChannel
-	chat.Messages = <-messagesChannel
-
-	fmt.Println(chat.Name)
-	for _, message := range chat.Messages {
+	for _, message := range chat.Messages.Values() {
 		if message.Text_ != "" {
+			fmt.Println(chat.Name)
 			fmt.Println("\t", message.Text_)
 			return
 		}
@@ -63,7 +54,9 @@ func parseJson(bytes []byte, destinationPointer any) error {
 }
 
 func parseGroupInfo(groupInfo jsonSchema.GroupInfo_JsonSchema) model.Chat {
-	chat := model.Chat{}
+	chat := model.Chat{
+		Messages: model.YearTreeList{},
+	}
 
 	for _, member := range groupInfo.Members {
 		chat.Members = append(chat.Members, parseMember(member))
