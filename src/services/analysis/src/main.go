@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"runtime"
 	"time"
 
 	"zarinloosli.com/hangouts-wrapped/fsIo"
@@ -17,12 +18,14 @@ func main() {
 
 	parseIngestedFiles()
 
-	go func() {
-		for {
-			time.Sleep(time.Millisecond * 100)
-			fmt.Println(model.IngestStats)
-		}
-	}()
+	if runtime.GOOS != "js" {
+		go func() {
+			for {
+				time.Sleep(time.Millisecond * 100)
+				fmt.Println(model.GetIngestStats())
+			}
+		}()
+	}
 
 	<-make(chan struct{})
 }

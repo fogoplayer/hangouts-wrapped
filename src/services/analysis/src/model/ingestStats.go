@@ -1,6 +1,9 @@
 package model
 
-import "fmt"
+import (
+	"fmt"
+	"sync"
+)
 
 type IngestStatsType map[string]int
 type IngestStatsKey string
@@ -17,15 +20,13 @@ const (
 // Found - has been returned as the result of a directory call
 // Parsed - has been turned into a JsonSchema object
 // Ingested - has been turned into a model object
-var IngestStats = map[string]int{
+var ingestStats = map[IngestStatsKey]int{
 	FilesFound:       0,
 	FilesParsed:      0,
 	ChatsParsed:      0,
 	ChatsIngested:    0,
 	MessagesParsed:   0,
 	MessagesIngested: 0,
-	// Found uint
-	// Ingested uint
 }
 
 func (ingestStats IngestStatsType) String() string {
@@ -34,4 +35,18 @@ func (ingestStats IngestStatsType) String() string {
 		"Chats:", ingestStats[ChatsParsed], "/", ingestStats[ChatsIngested], "\n",
 		"Messages:", ingestStats[MessagesParsed], "/", ingestStats[MessagesIngested], "\n",
 	)
+}
+
+var ingestStatsMutex = sync.RWMutex{}
+
+func IncrementStat(ingestStatsKey IngestStatsKey) {
+	ingestStatsMutex.Lock()
+	defer func() { ingestStatsMutex.Unlock() }()
+	ingestStats[ingestStatsKey] += 1
+}
+
+func GetIngestStats() map[IngestStatsKey]int {
+	ingestStatsMutex.RLock()
+	defer func() { ingestStatsMutex.RUnlock() }()
+	return ingestStats
 }
