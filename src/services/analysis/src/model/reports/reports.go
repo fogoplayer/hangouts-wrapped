@@ -2,10 +2,10 @@ package reports
 
 type report func(...[]any) any // TODO narrow this
 
-type reportName int
+type ReportName int
 
 const (
-	CountByPerson reportName = iota //Post count by person
+	CountByPerson ReportName = iota //Post count by person
 	// CountByDay reportName // Post count by day (month?)
 	CountByMonth
 	CountByYear
@@ -25,8 +25,8 @@ const (
 	WordCountByUser
 )
 
-var Reports = map[reportName]report{}
+var Reports = map[ReportName]report{}
 
-var ReportDescriptions = map[reportName]string{
+var ReportDescriptions = map[ReportName]string{
 	CountByPerson: "Number of messages sent by each user",
 }

@@ -6,6 +6,8 @@ import (
 	"strings"
 )
 
+// TODO break this file up
+
 func WrongNumberOfArgumentsPanic(numberOfArguments int) {
 	panic(fmt.Errorf("Wrong number of arguments passed: %d", numberOfArguments))
 }
@@ -58,4 +60,20 @@ func MapMap[
 		result[newKey] = newValue
 	}
 	return result
+}
+
+func GetMapKeys[InputKey comparable, OutputKey any](m map[InputKey]OutputKey) []InputKey {
+	keys := make([]InputKey, 0, len(m))
+	for key := range m {
+		keys = append(keys, key)
+	}
+	return keys
+}
+
+func GetMapVals[InputKey comparable, OutputKey any](m map[InputKey]OutputKey) []OutputKey {
+	values := make([]OutputKey, 0, len(m))
+	for _, value := range m {
+		values = append(values, value)
+	}
+	return values
 }
