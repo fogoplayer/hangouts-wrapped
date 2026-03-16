@@ -5,6 +5,7 @@ import (
 
 	"zarinloosli.com/hangouts-wrapped/browserApis"
 	"zarinloosli.com/hangouts-wrapped/model"
+	"zarinloosli.com/hangouts-wrapped/state"
 )
 
 var PathToFSHandle map[string]model.FSAgnosticHandle = make(map[string]model.FSAgnosticHandle)
@@ -22,6 +23,6 @@ func ShowDirectoryPicker() {
 		dirHandle := DirectoryHandle{fsHandle}
 		PathToFSHandle[jsDirectoryHandle.Path()] = dirHandle
 
-		model.FilePathsToIngestChannel <- jsDirectoryHandle.Path()
+		state.FilePathsToIngestChannel <- jsDirectoryHandle.Path()
 	}()
 }

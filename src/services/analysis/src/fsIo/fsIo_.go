@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"zarinloosli.com/hangouts-wrapped/model"
+	"zarinloosli.com/hangouts-wrapped/state"
 	"zarinloosli.com/hangouts-wrapped/util"
 )
 
@@ -23,7 +24,7 @@ const (
 func ProcessFileInWaitGoRoutine(
 	path string,
 ) {
-	model.IngestWaitGroup.Go(func() {
+	state.IngestWaitGroup.Go(func() {
 		fsHandle := GetFSHandleFromPath(path)
 		if directoryHandle, err := fsHandle.AsDirectoryHandle(); err == nil {
 			switch directoryHandle.Name() {
@@ -65,18 +66,18 @@ func startsWithWords(candidate string, prefixes ...string) bool {
 }
 
 func handleDirectoryInGoRoutine(directoryHandle model.FSAgnosticDirectoryHandle) {
-	model.IngestWaitGroup.Go(func() {
+	state.IngestWaitGroup.Go(func() {
 		for _, entry := range directoryHandle.Entries() {
-			model.IngestWaitGroup.Go(func() { // TODO is it necessary for this to be in a GoRoutine?
-				model.FilePathsToIngestChannel <- entry.Path()
+			state.IngestWaitGroup.Go(func() { // TODO is it necessary for this to be in a GoRoutine?
+				state.FilePathsToIngestChannel <- entry.Path()
 			})
 		}
-		model.IncrementStat(model.FilesParsed) // handing a directory counts as "parsing" it
+		state.IncrementStat(state.FilesParsed) // handing a directory counts as "parsing" it
 	})
 }
 
 func handleChatDirectoryInWaitGoRoutine(directoryHandle model.FSAgnosticDirectoryHandle) {
-	model.IngestWaitGroup.Go(func() {
+	state.IngestWaitGroup.Go(func() {
 		defer func() {
 			if r := recover(); r != nil {
 				// have to inline the \n to make this atomic, otherwise other goroutines will print in between
@@ -96,21 +97,21 @@ func handleChatDirectoryInWaitGoRoutine(directoryHandle model.FSAgnosticDirector
 		util.PanicIfError(err)
 		groupInfoBytesChannel := groupInfoFile.Bytes()
 
-		model.IngestWaitGroup.Go(func() {
-			model.ChatDirectoryHandleChannel <- model.ChatDirectoryHandle{
+		state.IngestWaitGroup.Go(func() {
+			state.ChatDirectoryHandleChannel <- model.ChatDirectoryHandle{
 				DirectoryHandle: directoryHandle,
 				Messages:        messagesBytesChannel,
 				GroupInfo:       groupInfoBytesChannel,
 			}
 		})
-		model.IncrementStat(model.FilesParsed) // handing a directory counts as "parsing" it
+		state.IncrementStat(state.FilesParsed) // handing a directory counts as "parsing" it
 	})
 }
 
 func handleUserInfoInWaitGoRoutine(userInfoFileHandle model.FSAgnosticFileHandle) {
 	// TODO do we actually use userInfo for anything?
-	model.IngestWaitGroup.Go(func() {
-		model.UserInfoChannel <- <-userInfoFileHandle.Bytes()
-		close(model.UserInfoChannel)
+	state.IngestWaitGroup.Go(func() {
+		state.UserInfoChannel <- <-userInfoFileHandle.Bytes()
+		close(state.UserInfoChannel)
 	})
 }

@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"zarinloosli.com/hangouts-wrapped/model"
+	"zarinloosli.com/hangouts-wrapped/state"
 	"zarinloosli.com/hangouts-wrapped/util"
 )
 
@@ -20,7 +21,7 @@ func (handle DirectoryHandle) Entries() []model.FSAgnosticHandle {
 
 	result := []model.FSAgnosticHandle{}
 	for _, entry := range contents {
-		model.IncrementStat(model.FilesFound)
+		state.IncrementStat(state.FilesFound)
 		result = append(result, FSHandle{entry})
 	}
 	return result
@@ -34,7 +35,7 @@ func (handle DirectoryHandle) GetEntry(name string) (model.FSAgnosticHandle, err
 		return nil, err
 	}
 
-	model.IncrementStat(model.FilesFound)
+	state.IncrementStat(state.FilesFound)
 	return FSHandle{entryPath}, nil
 }
 

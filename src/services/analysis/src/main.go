@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"zarinloosli.com/hangouts-wrapped/fsIo"
-	"zarinloosli.com/hangouts-wrapped/model"
 	"zarinloosli.com/hangouts-wrapped/parse"
 	"zarinloosli.com/hangouts-wrapped/setup"
 	"zarinloosli.com/hangouts-wrapped/state"
@@ -24,13 +23,13 @@ func main() {
 		go func() {
 			for state.ApplicationPhase == state.Ingesting {
 				time.Sleep(time.Millisecond * 100)
-				fmt.Println(model.GetIngestStats())
+				fmt.Println(state.GetIngestStats())
 			}
 		}()
 	}
-	model.IngestWaitGroup.Wait()
+	state.IngestWaitGroup.Wait()
 	state.ApplicationPhase = state.WaitingForReport
-	fmt.Println(model.GetIngestStats())
+	fmt.Println(state.GetIngestStats())
 }
 
 // TODO is this really the right place for these functions?
@@ -39,7 +38,7 @@ func ingestChatDirectory(chatDataDirectory string) {
 	fsIo.ProcessFileInWaitGoRoutine(chatDataDirectory)
 
 	go func() { // not WaitGroup goroutines because the waitgroup is how we know to close these channels
-		for pathToIngest := range model.FilePathsToIngestChannel {
+		for pathToIngest := range state.FilePathsToIngestChannel {
 			fsIo.ProcessFileInWaitGoRoutine(pathToIngest)
 		}
 	}()
@@ -47,13 +46,13 @@ func ingestChatDirectory(chatDataDirectory string) {
 
 func parseIngestedFiles() {
 	go func() {
-		for chatDirectoryHandle := range model.ChatDirectoryHandleChannel {
+		for chatDirectoryHandle := range state.ChatDirectoryHandleChannel {
 			parse.ParseChatDirectoryHandleInWaitGoRoutine(chatDirectoryHandle)
 		}
 	}()
 
-	model.IngestWaitGroup.Go(func() {
-		for userInfoBytes := range model.UserInfoChannel {
+	state.IngestWaitGroup.Go(func() {
+		for userInfoBytes := range state.UserInfoChannel {
 			go parse.ParseUserInfoInWaitGoRoutine(userInfoBytes)
 		}
 	})
