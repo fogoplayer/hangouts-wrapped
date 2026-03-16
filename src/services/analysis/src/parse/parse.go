@@ -12,33 +12,37 @@ import (
 	"zarinloosli.com/hangouts-wrapped/util"
 )
 
-func ParseChatDirectoryHandle(handle model.ChatDirectoryHandle) {
-	groupInfoJson := jsonSchema.GroupInfo_JsonSchema{}
-	messagesJson := jsonSchema.Messages_JsonSchema{}
+func ParseChatDirectoryHandleInWaitGoRoutine(handle model.ChatDirectoryHandle) {
+	model.IngestWaitGroup.Go(func() {
+		groupInfoJson := jsonSchema.GroupInfo_JsonSchema{}
+		messagesJson := jsonSchema.Messages_JsonSchema{}
 
-	parseJson(<-handle.GroupInfo, &groupInfoJson)
-	model.IncrementStat(model.ChatsParsed)
-	chat := parseGroupInfo(groupInfoJson)
+		parseJson(<-handle.GroupInfo, &groupInfoJson)
+		model.IncrementStat(model.ChatsParsed)
+		chat := parseGroupInfo(groupInfoJson)
 
-	parseJson(<-handle.Messages, &messagesJson)
-	model.IncrementStat(model.MessagesParsed, len(messagesJson.Messages))
-	// TODO parse each message in its own goroutine
-	for _, parsedMessage := range util.ListMap(messagesJson.Messages, parseMessage) {
-		chat.Messages.Insert(parsedMessage)
-		model.IncrementStat(model.MessagesIngested)
-	}
+		parseJson(<-handle.Messages, &messagesJson)
+		model.IncrementStat(model.MessagesParsed, len(messagesJson.Messages))
+		// TODO parse each message in its own goroutine
+		for _, parsedMessage := range util.ListMap(messagesJson.Messages, parseMessage) {
+			chat.Messages.Insert(parsedMessage)
+			model.IncrementStat(model.MessagesIngested)
+		}
 
-	model.IncrementStat(model.ChatsIngested)
+		model.IncrementStat(model.ChatsIngested)
+	})
 }
 
-func ParseUserInfo(bytes []byte) {
-	userInfoJson := jsonSchema.UserInfo_JsonSchema{}
-	err := parseJson(bytes, &userInfoJson)
-	if err != nil {
-		fmt.Println("Error parsing user info:", err)
-	} else {
-		fmt.Println(userInfoJson.User.Name)
-	}
+func ParseUserInfoInWaitGoRoutine(bytes []byte) {
+	model.IngestWaitGroup.Go(func() {
+		userInfoJson := jsonSchema.UserInfo_JsonSchema{}
+		err := parseJson(bytes, &userInfoJson)
+		if err != nil {
+			fmt.Println("Error parsing user info:", err)
+		} else {
+			fmt.Println(userInfoJson.User.Name)
+		}
+	})
 }
 
 func parseJson(bytes []byte, destinationPointer any) error {

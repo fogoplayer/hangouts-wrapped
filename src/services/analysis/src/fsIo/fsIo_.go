@@ -20,37 +20,38 @@ const (
 	MESSAGES               = "messages.json"
 )
 
-func ProcessFile(
+func ProcessFileInWaitGoRoutine(
 	path string,
-) error {
-	fsHandle := GetFSHandleFromPath(path)
-	if directoryHandle, err := fsHandle.AsDirectoryHandle(); err == nil {
-		switch directoryHandle.Name() {
-		case CHAT_DATA_DIRECTORY:
-			handleDirectoryInGoRoutine(directoryHandle)
-		case USERS_DIRECTORY:
-			handleDirectoryInGoRoutine(directoryHandle)
-		case GROUPS_DIRECTORY:
-			handleDirectoryInGoRoutine(directoryHandle)
-		default:
-			if startsWithWords(directoryHandle.Name(), DM_DIRECTORY_PREFIX, SPACE_DIRECTORY_PREFIX) {
-				handleChatDirectoryInGoRoutine(directoryHandle)
-			}
-			if startsWithWords(directoryHandle.Name(), USER_PREFIX) {
+) {
+	model.IngestWaitGroup.Go(func() {
+		fsHandle := GetFSHandleFromPath(path)
+		if directoryHandle, err := fsHandle.AsDirectoryHandle(); err == nil {
+			switch directoryHandle.Name() {
+			case CHAT_DATA_DIRECTORY:
 				handleDirectoryInGoRoutine(directoryHandle)
+			case USERS_DIRECTORY:
+				handleDirectoryInGoRoutine(directoryHandle)
+			case GROUPS_DIRECTORY:
+				handleDirectoryInGoRoutine(directoryHandle)
+			default:
+				if startsWithWords(directoryHandle.Name(), DM_DIRECTORY_PREFIX, SPACE_DIRECTORY_PREFIX) {
+					handleChatDirectoryInWaitGoRoutine(directoryHandle)
+				}
+				if startsWithWords(directoryHandle.Name(), USER_PREFIX) {
+					handleDirectoryInGoRoutine(directoryHandle)
+				}
+			}
+		} else if fileHandle, err := fsHandle.AsFileHandle(); err == nil {
+			switch fileHandle.Name() {
+			case USER_INFO:
+				handleUserInfoInWaitGoRoutine(fileHandle)
+			case GROUP_INFO: // handled by ChatDirectory
+			case MESSAGES: // handled by ChatDirectory
+			default:
+				// TODO probably an attachment file
 			}
 		}
-	} else if fileHandle, err := fsHandle.AsFileHandle(); err == nil {
-		switch fileHandle.Name() {
-		case USER_INFO:
-			handleUserInfoInGoRoutine(fileHandle)
-		case GROUP_INFO: // handled by ChatDirectory
-		case MESSAGES: // handled by ChatDirectory
-		default:
-			// TODO probably an attachment file
-		}
-	}
-	return nil
+	})
 }
 
 func startsWithWords(candidate string, prefixes ...string) bool {
@@ -64,18 +65,18 @@ func startsWithWords(candidate string, prefixes ...string) bool {
 }
 
 func handleDirectoryInGoRoutine(directoryHandle model.FSAgnosticDirectoryHandle) {
-	go func() {
+	model.IngestWaitGroup.Go(func() {
 		for _, entry := range directoryHandle.Entries() {
-			go func() {
+			model.IngestWaitGroup.Go(func() { // TODO is it necessary for this to be in a GoRoutine?
 				model.FilePathsToIngestChannel <- entry.Path()
-			}()
+			})
 		}
 		model.IncrementStat(model.FilesParsed) // handing a directory counts as "parsing" it
-	}()
+	})
 }
 
-func handleChatDirectoryInGoRoutine(directoryHandle model.FSAgnosticDirectoryHandle) {
-	go func() {
+func handleChatDirectoryInWaitGoRoutine(directoryHandle model.FSAgnosticDirectoryHandle) {
+	model.IngestWaitGroup.Go(func() {
 		defer func() {
 			if r := recover(); r != nil {
 				// have to inline the \n to make this atomic, otherwise other goroutines will print in between
@@ -95,21 +96,21 @@ func handleChatDirectoryInGoRoutine(directoryHandle model.FSAgnosticDirectoryHan
 		util.PanicIfError(err)
 		groupInfoBytesChannel := groupInfoFile.Bytes()
 
-		go func() {
+		model.IngestWaitGroup.Go(func() {
 			model.ChatDirectoryHandleChannel <- model.ChatDirectoryHandle{
 				DirectoryHandle: directoryHandle,
 				Messages:        messagesBytesChannel,
 				GroupInfo:       groupInfoBytesChannel,
 			}
-		}()
+		})
 		model.IncrementStat(model.FilesParsed) // handing a directory counts as "parsing" it
-	}()
+	})
 }
 
-func handleUserInfoInGoRoutine(userInfoFileHandle model.FSAgnosticFileHandle) {
+func handleUserInfoInWaitGoRoutine(userInfoFileHandle model.FSAgnosticFileHandle) {
 	// TODO do we actually use userInfo for anything?
-	go func() {
+	model.IngestWaitGroup.Go(func() {
 		model.UserInfoChannel <- <-userInfoFileHandle.Bytes()
 		close(model.UserInfoChannel)
-	}()
+	})
 }

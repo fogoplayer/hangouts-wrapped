@@ -15,7 +15,6 @@ func main() {
 	setup.Setup()
 	chatDataDirectory := promptForChatDataDirectory()
 	ingestChatDirectory(chatDataDirectory)
-
 	parseIngestedFiles()
 
 	if runtime.GOOS != "js" {
@@ -30,28 +29,28 @@ func main() {
 	<-make(chan struct{})
 }
 
+// TODO is this really the right place for these functions?
 func ingestChatDirectory(chatDataDirectory string) {
 
-	go fsIo.ProcessFile(chatDataDirectory)
+	fsIo.ProcessFileInWaitGoRoutine(chatDataDirectory)
 
-	go func() {
+	model.IngestWaitGroup.Go(func() {
 		for pathToIngest := range model.FilePathsToIngestChannel {
-			fsIo.ProcessFile(pathToIngest)
+			fsIo.ProcessFileInWaitGoRoutine(pathToIngest)
 		}
-	}()
+	})
 }
 
-// TODO inline goroutines
 func parseIngestedFiles() {
-	go func() {
+	model.IngestWaitGroup.Go(func() {
 		for chatDirectoryHandle := range model.ChatDirectoryHandleChannel {
-			go parse.ParseChatDirectoryHandle(chatDirectoryHandle)
+			parse.ParseChatDirectoryHandleInWaitGoRoutine(chatDirectoryHandle)
 		}
-	}()
+	})
 
-	go func() {
+	model.IngestWaitGroup.Go(func() {
 		for userInfoBytes := range model.UserInfoChannel {
-			go parse.ParseUserInfo(userInfoBytes)
+			go parse.ParseUserInfoInWaitGoRoutine(userInfoBytes)
 		}
-	}()
+	})
 }
