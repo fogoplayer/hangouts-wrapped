@@ -1,11 +1,8 @@
 package main
 
 import (
-	"fmt"
-
 	"zarinloosli.com/hangouts-wrapped/state"
 	"zarinloosli.com/hangouts-wrapped/subroutines"
-	"zarinloosli.com/hangouts-wrapped/userInteractionIo"
 )
 
 func main() {
@@ -22,9 +19,6 @@ func main() {
 
 	state.ApplicationPhase.Set(state.WaitingForReport)
 	subroutines.PostIngest()
-	fmt.Println(state.GetIngestStats())
 
-	userInteractionIo.SelectReport()
-
-	<-make(chan struct{})
+	// subroutines.SelectReport()
 }

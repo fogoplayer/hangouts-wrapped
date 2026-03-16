@@ -12,10 +12,15 @@ import (
 func Setup() {}
 
 func WhileIngesting() {
-	go func() {
-		for state.ApplicationPhase.Value() == state.Ingesting {
+	progressPrintingWaitGroup.Go(func() {
+		for {
+			// do...
 			time.Sleep(time.Millisecond * 100)
 			fmt.Println(state.GetIngestStats())
+			// ..while
+			if state.ApplicationPhase.Value() != state.Ingesting {
+				return
+			}
 		}
-	}()
+	})
 }
