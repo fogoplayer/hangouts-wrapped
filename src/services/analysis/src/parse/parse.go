@@ -17,22 +17,18 @@ func ParseChatDirectoryHandle(handle model.ChatDirectoryHandle) {
 	messagesJson := jsonSchema.Messages_JsonSchema{}
 
 	parseJson(<-handle.GroupInfo, &groupInfoJson)
+	model.IncrementStat(model.ChatsParsed)
 	chat := parseGroupInfo(groupInfoJson)
 
 	parseJson(<-handle.Messages, &messagesJson)
+	model.IncrementStat(model.MessagesParsed, len(messagesJson.Messages))
 	// TODO parse each message in its own goroutine
 	for _, parsedMessage := range util.ListMap(messagesJson.Messages, parseMessage) {
 		chat.Messages.Insert(parsedMessage)
+		model.IncrementStat(model.MessagesIngested)
 	}
 
-	for _, message := range chat.Messages.Values() {
-		if message.Text_ != "" {
-			fmt.Println(chat.Name)
-			fmt.Println("\t", message.Text_)
-			return
-		}
-	}
-	fmt.Println("no messages")
+	model.IncrementStat(model.ChatsIngested)
 }
 
 func ParseUserInfo(bytes []byte) {
@@ -50,6 +46,7 @@ func parseJson(bytes []byte, destinationPointer any) error {
 		return errors.New("invalid json")
 	}
 	json.Unmarshal(bytes, destinationPointer)
+	model.IncrementStat(model.FilesParsed)
 	return nil
 }
 

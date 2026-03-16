@@ -47,7 +47,7 @@ func ByteArrayFromJs(v js.Value) ([]byte, error) {
 	return data, nil
 }
 
-func GetIntFromJsValue(jsValue js.Value) (int64, error) {
+func GetIntFromJs(jsValue js.Value) (int64, error) {
 	valueBytes := []byte{}
 	js.CopyBytesToGo(valueBytes, jsValue)
 
@@ -62,7 +62,7 @@ func GetIntFromJsValue(jsValue js.Value) (int64, error) {
 // JSFromGo Converters //
 // /////////////////// //
 
-func CreateJsObject(name string, args ...any) js.Value { // TODO
+func CreateJsClassInstance(name string, args ...any) js.Value { // TODO
 	return js.Global().Get(name).New(args...)
 }
 
@@ -79,7 +79,7 @@ func Uint8ArrayFromGo(bytes []byte) js.Value /* Uint8Array */ {
 }
 
 func CreateUint8Array(len int) js.Value /* Uint8Array */ {
-	return /* Uint8Array{ */ CreateJsObject("Uint8Array", len) /* } */
+	return /* Uint8Array{ */ CreateJsClassInstance("Uint8Array", len) /* } */
 }
 
 // String
@@ -109,10 +109,19 @@ func (textDecoder TextDecoder) Decode(bytes js.Value /* Uint8Array */) JSString 
 }
 
 func CreateTextDecoder() TextDecoder {
-	return TextDecoder{CreateJsObject("TextDecoder")}
+	return TextDecoder{CreateJsClassInstance("TextDecoder")}
 }
 
-// new TextDecoder().decode(uint8array);
+// Object
+func ObjectFromGo[
+	T js.Value | js.Func | bool | int | float32 | string | []any | map[string]any,
+](goMap map[string]T) js.Value {
+	result := make(map[string]any)
+	for key, value := range goMap {
+		result[key] = js.ValueOf(value)
+	}
+	return js.ValueOf(result)
+}
 
 // ////////////////////// //
 // JS Object Constructors //

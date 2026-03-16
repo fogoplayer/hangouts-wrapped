@@ -1,6 +1,10 @@
 package main
 
 import (
+	"fmt"
+	"runtime"
+	"time"
+
 	"zarinloosli.com/hangouts-wrapped/fsIo"
 	"zarinloosli.com/hangouts-wrapped/model"
 	"zarinloosli.com/hangouts-wrapped/parse"
@@ -13,6 +17,15 @@ func main() {
 	ingestChatDirectory(chatDataDirectory)
 
 	parseIngestedFiles()
+
+	if runtime.GOOS != "js" {
+		go func() {
+			for {
+				time.Sleep(time.Millisecond * 100)
+				fmt.Println(model.GetIngestStats())
+			}
+		}()
+	}
 
 	<-make(chan struct{})
 }

@@ -30,3 +30,17 @@ func ListMap[T any, U any](array []T, converter func(T) U) []U {
 	}
 	return result
 }
+
+func MapMap[
+	InputKey comparable, InputValue any, OutputKey comparable, OutputValue any,
+](
+	value map[InputKey]InputValue,
+	converter func(key InputKey, value InputValue) (OutputKey, OutputValue),
+) map[OutputKey]OutputValue {
+	result := make(map[OutputKey]OutputValue)
+	for key, value := range value {
+		newKey, newValue := converter(key, value)
+		result[newKey] = newValue
+	}
+	return result
+}
