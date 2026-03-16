@@ -18,15 +18,20 @@ func main() {
 	parseIngestedFiles()
 
 	if runtime.GOOS != "js" {
+		stillIngesting := true
 		go func() {
-			for {
+			for stillIngesting {
 				time.Sleep(time.Millisecond * 100)
 				fmt.Println(model.GetIngestStats())
 			}
 		}()
+		model.IngestWaitGroup.Wait()
+		stillIngesting = false
+		fmt.Println("done looping")
 	}
 
-	<-make(chan struct{})
+	model.IngestWaitGroup.Wait()
+	fmt.Println("done ingesting")
 }
 
 // TODO is this really the right place for these functions?
