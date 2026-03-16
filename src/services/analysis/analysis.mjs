@@ -13,4 +13,8 @@ export function selectDirectoryForAnalysis() {
   window.showWasmDirectoryPicker();
 }
 
+export function getIngestStats() {
+  return window.getIngestStats();
+}
+
 window.documentJson = documentJsonFunc;
