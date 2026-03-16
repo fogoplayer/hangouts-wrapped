@@ -9,4 +9,12 @@ const (
 	GeneratingReport
 )
 
-var ApplicationPhase = WaitingForDirectory
+var applicationPhase = WaitingForDirectory
+
+func GetApplicationPhase() applicationPhaseType {
+	return applicationPhase
+}
+
+func SetApplicationPhase(newPhase applicationPhaseType) {
+	applicationPhase = newPhase
+}
