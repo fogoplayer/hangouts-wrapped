@@ -22,7 +22,7 @@ func ParseChatDirectoryHandleInWaitGoRoutine(handle model.ChatDirectoryHandle) {
 		chat := parseGroupInfo(groupInfoJson)
 
 		parseJson(<-handle.Messages, &messagesJson)
-		model.IncrementStat(model.MessagesParsed, len(messagesJson.Messages))
+		model.IncrementStat(model.MessagesParsed, len(messagesJson.Messages)) // TODO move incrementstats into actual parseMessage method
 		// TODO parse each message in its own goroutine
 		for _, parsedMessage := range util.ListMap(messagesJson.Messages, parseMessage) {
 			chat.Messages.Insert(parsedMessage)
