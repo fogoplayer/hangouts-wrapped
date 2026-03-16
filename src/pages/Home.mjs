@@ -9,7 +9,7 @@ import { documentJsonFile } from "../services/JsonDocumenter.mjs";
 
 export default class Home extends LitElement {
   static properties = {
-    progress: { type: Object, state: true },
+    progress: { type: Object, state: true, default: undefined },
   };
 
   constructor() {
@@ -32,7 +32,7 @@ export default class Home extends LitElement {
     super.connectedCallback();
     this.statsInterval = setInterval(() => {
       this.progress = getIngestStats();
-    }, 100);
+    }, 50);
     // TODO isDoneIngesting? then clear
   }
 
@@ -46,7 +46,7 @@ export default class Home extends LitElement {
       <main>Welcome to my app!</main>
       <button @click=${this.selectDirectory}>Select Directory</button>
       <button @click=${this.selectFile}>Select file</button>
-      <output>${JSON.stringify(this.progress)}</output>`;
+      <output>${this.progress?.toString()}</output>`;
   }
 
   static styles = [globalCss, css``];

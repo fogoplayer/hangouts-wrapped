@@ -25,5 +25,11 @@ var getIngestStats js.Func = js.FuncOf(func(this js.Value, args []js.Value) any 
 	}
 
 	jsReadyMap := util.MapMap(model.GetIngestStats(), convertToStringKeys)
-	return browserApis.ObjectFromGo(jsReadyMap)
+	jsObject := browserApis.ObjectFromGo(jsReadyMap)
+	jsObject.Set("toString", js.FuncOf(func(this js.Value, args []js.Value) any {
+		// TODO this only works because we mark the return value as Readonly
+		// Might be worth using code gen to get a more robus solution
+		return js.ValueOf(model.GetIngestStats().String())
+	}))
+	return jsObject
 })
