@@ -30,19 +30,25 @@ var ingestStats = map[IngestStatsKey]int{
 }
 
 func (ingestStats IngestStatsType) String() string {
+	ingestStatsMutex.RLock()
+	defer func() { ingestStatsMutex.RUnlock() }()
 	return fmt.Sprint(
-		"Files:", ingestStats[FilesFound], "/", ingestStats[FilesParsed], "\n",
-		"Chats:", ingestStats[ChatsParsed], "/", ingestStats[ChatsIngested], "\n",
-		"Messages:", ingestStats[MessagesParsed], "/", ingestStats[MessagesIngested], "\n",
+		"Files:", ingestStats[FilesParsed], "/", ingestStats[FilesFound], "\n",
+		"Chats:", ingestStats[ChatsIngested], "/", ingestStats[ChatsParsed], "\n",
+		"Messages:", ingestStats[MessagesIngested], "/", ingestStats[MessagesParsed], "\n",
 	)
 }
 
 var ingestStatsMutex = sync.RWMutex{}
 
-func IncrementStat(ingestStatsKey IngestStatsKey) {
+func IncrementStat(key IngestStatsKey, amounts ...int) {
 	ingestStatsMutex.Lock()
 	defer func() { ingestStatsMutex.Unlock() }()
-	ingestStats[ingestStatsKey] += 1
+	if len(amounts) >= 1 {
+		ingestStats[key] += amounts[0]
+	} else {
+		ingestStats[key] += 1
+	}
 }
 
 func GetIngestStats() IngestStatsType {
