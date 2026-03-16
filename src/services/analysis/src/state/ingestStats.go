@@ -1,5 +1,7 @@
 package state
 
+// TODO create model/stats subpackage
+
 import (
 	"fmt"
 	"sync"

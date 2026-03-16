@@ -1,4 +1,4 @@
-package model
+package reports
 
 type report func(...[]any) any // TODO narrow this
 
