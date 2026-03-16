@@ -13,22 +13,22 @@ import (
 
 func main() {
 	setup.Setup()
-	state.SetApplicationPhase(state.WaitingForDirectory)
+	state.ApplicationPhase.Set(state.WaitingForDirectory)
 	chatDataDirectory := promptForChatDataDirectory()
 	ingestChatDirectory(chatDataDirectory)
 	parseIngestedFiles()
 
-	state.SetApplicationPhase(state.Ingesting)
+	state.ApplicationPhase.Set(state.Ingesting)
 	if runtime.GOOS != "js" {
 		go func() {
-			for state.GetApplicationPhase() == state.Ingesting {
+			for state.ApplicationPhase.Value() == state.Ingesting {
 				time.Sleep(time.Millisecond * 100)
 				fmt.Println(state.GetIngestStats())
 			}
 		}()
 	}
 	state.IngestWaitGroup.Wait()
-	state.SetApplicationPhase(state.WaitingForReport)
+	state.ApplicationPhase.Set(state.WaitingForReport)
 	fmt.Println(state.GetIngestStats())
 }
 
