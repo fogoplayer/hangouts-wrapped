@@ -2,6 +2,7 @@ import { LitElement, html, css } from "../libs/lit-all@2.7.6.js";
 import globalCss from "../global-styles/global.css.mjs";
 import "../services/analysis/analysis.mjs";
 import {
+  getApplicationPhase,
   getIngestStats,
   selectDirectoryForAnalysis,
 } from "../services/analysis/analysis.mjs";
@@ -30,10 +31,19 @@ export default class Home extends LitElement {
 
   connectedCallback() {
     super.connectedCallback();
-    this.statsInterval = setInterval(() => {
-      this.progress = getIngestStats();
-    }, 50);
-    // TODO isDoneIngesting? then clear
+
+    const phaseState = getApplicationPhase();
+    phaseState.onChange(() => {
+      const secondPhase = getApplicationPhase();
+      switch (secondPhase.value) {
+        case "Ingesting":
+          this.statsInterval = setInterval(() => {
+            this.progress = getIngestStats();
+          }, 50);
+        default:
+          clearInterval(this.statsInterval);
+      }
+    });
   }
 
   disconnectedCallback() {

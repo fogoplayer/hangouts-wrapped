@@ -9,32 +9,33 @@ import (
 
 	"zarinloosli.com/hangouts-wrapped/model"
 	"zarinloosli.com/hangouts-wrapped/model/jsonSchema"
+	"zarinloosli.com/hangouts-wrapped/state"
 	"zarinloosli.com/hangouts-wrapped/util"
 )
 
 func ParseChatDirectoryHandleInWaitGoRoutine(handle model.ChatDirectoryHandle) {
-	model.IngestWaitGroup.Go(func() {
+	state.IngestWaitGroup.Go(func() {
 		groupInfoJson := jsonSchema.GroupInfo_JsonSchema{}
 		messagesJson := jsonSchema.Messages_JsonSchema{}
 
 		parseJson(<-handle.GroupInfo, &groupInfoJson)
-		model.IncrementStat(model.ChatsParsed)
+		state.IncrementStat(state.ChatsParsed)
 		chat := parseGroupInfo(groupInfoJson)
 
 		parseJson(<-handle.Messages, &messagesJson)
-		model.IncrementStat(model.MessagesParsed, len(messagesJson.Messages)) // TODO move incrementstats into actual parseMessage method
+		state.IncrementStat(state.MessagesParsed, len(messagesJson.Messages)) // TODO move incrementstats into actual parseMessage method
 		// TODO parse each message in its own goroutine
 		for _, parsedMessage := range util.ListMap(messagesJson.Messages, parseMessage) {
 			chat.Messages.Insert(parsedMessage)
-			model.IncrementStat(model.MessagesIngested)
+			state.IncrementStat(state.MessagesIngested)
 		}
 
-		model.IncrementStat(model.ChatsIngested)
+		state.IncrementStat(state.ChatsIngested)
 	})
 }
 
 func ParseUserInfoInWaitGoRoutine(bytes []byte) {
-	model.IngestWaitGroup.Go(func() {
+	state.IngestWaitGroup.Go(func() {
 		userInfoJson := jsonSchema.UserInfo_JsonSchema{}
 		err := parseJson(bytes, &userInfoJson)
 		if err != nil {
@@ -50,7 +51,7 @@ func parseJson(bytes []byte, destinationPointer any) error {
 		return errors.New("invalid json")
 	}
 	json.Unmarshal(bytes, destinationPointer)
-	model.IncrementStat(model.FilesParsed)
+	state.IncrementStat(state.FilesParsed)
 	return nil
 }
 

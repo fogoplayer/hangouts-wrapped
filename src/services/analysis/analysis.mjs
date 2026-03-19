@@ -17,4 +17,8 @@ export function getIngestStats() {
   return window.getIngestStats();
 }
 
+export function getApplicationPhase() {
+  return window.getApplicationPhase();
+}
+
 window.documentJson = documentJsonFunc;

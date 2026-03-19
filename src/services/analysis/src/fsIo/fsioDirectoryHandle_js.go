@@ -2,6 +2,7 @@ package fsIo
 
 import (
 	"zarinloosli.com/hangouts-wrapped/model"
+	"zarinloosli.com/hangouts-wrapped/state"
 	"zarinloosli.com/hangouts-wrapped/util"
 )
 
@@ -15,7 +16,7 @@ func (handle DirectoryHandle) Entries() []model.FSAgnosticHandle {
 	util.PanicIfError(err)
 
 	for _, browserEntry := range directoryHandle.Entries() {
-		model.IncrementStat(model.FilesFound)
+		state.IncrementStat(state.FilesFound)
 		PathToFSHandle[browserEntry.Path()] = FSHandle{browserEntry}
 		fsEntries = append(fsEntries, FSHandle{browserEntry})
 	}
@@ -29,7 +30,7 @@ func (handle DirectoryHandle) GetEntry(name string) (model.FSAgnosticHandle, err
 	}
 
 	entry, err := directoryHandle.GetEntry(name)
-	model.IncrementStat(model.FilesFound)
+	state.IncrementStat(state.FilesFound)
 	return DirectoryHandle{FSHandle{entry}}, err
 }
 
