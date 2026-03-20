@@ -3,6 +3,7 @@ package util
 import (
 	"fmt"
 	"reflect"
+	"strings"
 )
 
 func WrongNumberOfArgumentsPanic(numberOfArguments int) {
@@ -22,6 +23,20 @@ func PanicIfError(err error) {
 }
 
 func UseVar(any) {}
+
+func StartsWithWords(candidate string, prefixes ...string) bool {
+	for _, prefix := range prefixes {
+		firstWord := strings.Split(candidate, " ")[0]
+		if firstWord == prefix {
+			return true
+		}
+	}
+	return false
+}
+
+// /////// //
+// Mapping //
+// /////// //
 
 func ListMap[T any, U any](array []T, converter func(T) U) []U {
 	result := make([]U, len(array))
