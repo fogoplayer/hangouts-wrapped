@@ -86,6 +86,8 @@ func parseMember(member jsonSchema.GroupInfo_Members_JsonSchema) model.User {
 // Message //
 /////////////
 
+// TODO this should probably be its own file(s)
+
 func parseMessage(message jsonSchema.Message) model.Message {
 	return model.Message{
 		Creator:   parseCreator(message.Creator),

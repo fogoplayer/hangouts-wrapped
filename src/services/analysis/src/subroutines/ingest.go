@@ -1,13 +1,38 @@
-package fsIo
+package subroutines
 
 import (
 	"fmt"
-	"strings"
 
+	"zarinloosli.com/hangouts-wrapped/fsIo"
 	"zarinloosli.com/hangouts-wrapped/model"
+	"zarinloosli.com/hangouts-wrapped/parse"
 	"zarinloosli.com/hangouts-wrapped/state"
 	"zarinloosli.com/hangouts-wrapped/util"
 )
+
+func IngestChatDirectory(chatDataDirectory string) {
+	ProcessFileInWaitGoRoutine(chatDataDirectory)
+
+	go func() { // not WaitGroup goroutines because the waitgroup is how we know to close these channels
+		for pathToIngest := range state.FilePathsToIngestChannel {
+			ProcessFileInWaitGoRoutine(pathToIngest)
+		}
+	}()
+}
+
+func ParseIngestedFiles() {
+	go func() {
+		for chatDirectoryHandle := range state.ChatDirectoryHandleChannel {
+			parse.ParseChatDirectoryHandleInWaitGoRoutine(chatDirectoryHandle)
+		}
+	}()
+
+	state.IngestWaitGroup.Go(func() {
+		for userInfoBytes := range state.UserInfoChannel {
+			go parse.ParseUserInfoInWaitGoRoutine(userInfoBytes)
+		}
+	})
+}
 
 const (
 	CHAT_DATA_DIRECTORY    = "Google Chat"
@@ -25,7 +50,7 @@ func ProcessFileInWaitGoRoutine(
 	path string,
 ) {
 	state.IngestWaitGroup.Go(func() {
-		fsHandle := GetFSHandleFromPath(path)
+		fsHandle := fsIo.GetFSHandleFromPath(path)
 		if directoryHandle, err := fsHandle.AsDirectoryHandle(); err == nil {
 			switch directoryHandle.Name() {
 			case CHAT_DATA_DIRECTORY:
@@ -35,10 +60,10 @@ func ProcessFileInWaitGoRoutine(
 			case GROUPS_DIRECTORY:
 				handleDirectoryInGoRoutine(directoryHandle)
 			default:
-				if startsWithWords(directoryHandle.Name(), DM_DIRECTORY_PREFIX, SPACE_DIRECTORY_PREFIX) {
+				if util.StartsWithWords(directoryHandle.Name(), DM_DIRECTORY_PREFIX, SPACE_DIRECTORY_PREFIX) {
 					handleChatDirectoryInWaitGoRoutine(directoryHandle)
 				}
-				if startsWithWords(directoryHandle.Name(), USER_PREFIX) {
+				if util.StartsWithWords(directoryHandle.Name(), USER_PREFIX) {
 					handleDirectoryInGoRoutine(directoryHandle)
 				}
 			}
@@ -53,16 +78,6 @@ func ProcessFileInWaitGoRoutine(
 			}
 		}
 	})
-}
-
-func startsWithWords(candidate string, prefixes ...string) bool {
-	for _, prefix := range prefixes {
-		firstWord := strings.Split(candidate, " ")[0]
-		if firstWord == prefix {
-			return true
-		}
-	}
-	return false
 }
 
 func handleDirectoryInGoRoutine(directoryHandle model.FSAgnosticDirectoryHandle) {

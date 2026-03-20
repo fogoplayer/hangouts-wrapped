@@ -1,4 +1,4 @@
-package setup
+package subroutines
 
 import (
 	"zarinloosli.com/hangouts-wrapped/jsInterface"
@@ -7,3 +7,5 @@ import (
 func Setup() {
 	jsInterface.Initialize()
 }
+
+func WhileIngesting() {}
