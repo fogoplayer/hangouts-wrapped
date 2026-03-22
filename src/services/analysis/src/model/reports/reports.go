@@ -1,5 +1,7 @@
 package reports
 
+import "fmt"
+
 type report func(...[]any) any // TODO narrow this
 
 type ReportName int
@@ -29,4 +31,10 @@ var Reports = map[ReportName]report{}
 
 var ReportDescriptions = map[ReportName]string{
 	CountByPerson: "Number of messages sent by each user",
+}
+
+func RunReport(report ReportName) any { // TODO what is the format of report results? Some sort of table?
+	fmt.Println("Running", report)
+	fmt.Println(ReportDescriptions[report])
+	return nil
 }
