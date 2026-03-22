@@ -8,22 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
-
-	"zarinloosli.com/hangouts-wrapped/model/reports"
-	"zarinloosli.com/hangouts-wrapped/util"
 )
-
-func SelectReport() reports.ReportName { // TODO is this the right package for this function?
-	keys := util.GetMapKeys(reports.ReportDescriptions)
-	values := util.GetMapVals(reports.ReportDescriptions)
-
-	selection := Prompt("Choose a report by typing a number:", values)
-	if !(selection >= 0 && selection < len(keys)) {
-		panic(fmt.Errorf("Prompting for report returned an invalid value: %d", selection))
-	}
-	selectedReport := keys[selection]
-	return selectedReport
-}
 
 func Prompt(message string, options []string) int {
 	reader := bufio.NewReader(os.Stdin) // TODO 	bufio.NewScanner()

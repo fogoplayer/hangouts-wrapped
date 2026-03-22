@@ -1,11 +1,18 @@
 package subroutines
 
 import (
-	"zarinloosli.com/hangouts-wrapped/jsInterface"
+	"zarinloosli.com/hangouts-wrapped/model/reports"
 )
 
-func Setup() {
-	jsInterface.Initialize()
+func WhileIngesting() {}
+
+var reportToRunChannel = make(chan reports.ReportName, 1)
+
+func PromptForReport() reports.ReportName {
+	return <-reportToRunChannel
 }
 
-func WhileIngesting() {}
+func SelectReport(selectedReport reports.ReportName) {
+	reportToRunChannel <- selectedReport
+	close(reportToRunChannel)
+}
