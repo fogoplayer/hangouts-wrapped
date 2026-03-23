@@ -1,4 +1,4 @@
-package model
+package parsed
 
 var ChatsById = make(map[string]Chat)
 

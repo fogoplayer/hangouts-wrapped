@@ -1,4 +1,4 @@
-package model
+package parsed
 
 // TODO tree-list-experiments create a general form of this data structure
 
