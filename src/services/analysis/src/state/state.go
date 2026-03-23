@@ -1,5 +1,7 @@
 package state
 
+import "zarinloosli.com/hangouts-wrapped/util"
+
 // A function that takes the new state as an argument and returns a cleanup function
 type ApplicationStateInterface[T comparable] interface {
 	OnChange(func()) func()
@@ -41,6 +43,59 @@ func (applicationState *ApplicationState[T]) OnChange(callback func()) func() {
 		delete(applicationState.listeners, &callback)
 	}
 	return cleanup
+}
+
+// /////////////////// //
+// SetApplicationState //
+// /////////////////// //
+
+// TODO is there a way to keep users from calling state.Value().Add? Or state.Set()
+
+type SetApplicationState[T comparable] struct {
+	ApplicationState[*util.Set[T]]
+}
+
+func (applicationState *SetApplicationState[T]) getInternalSet() *util.Set[T] {
+	set := applicationState.getInternalSet()
+	if set == nil {
+		set = &util.Set[T]{}
+		applicationState.value = set // do not update listeners for initializing internal data structure
+	}
+	return set
+}
+
+func (applicationState *SetApplicationState[T]) Add(newValue T) {
+	set := applicationState.getInternalSet()
+	exists := set.Includes(newValue)
+	if exists {
+		return
+	}
+
+	set.Add(newValue)
+
+	applicationState.updateListeners()
+}
+
+func (applicationState *SetApplicationState[T]) Delete(newValue T) {
+	set := applicationState.value
+	exists := set.Includes(newValue)
+	if !exists {
+		return
+	}
+
+	set.Delete(newValue)
+
+	applicationState.updateListeners()
+}
+
+func (applicationState *SetApplicationState[T]) updateListeners() {
+	for listener := range applicationState.listeners {
+		(*listener)() // TODO is there a reason I might regret multiple listeners firing at once?
+	}
+}
+
+func (applicationState *SetApplicationState[T]) Value() util.Set[T] {
+	return *applicationState.value
 }
 
 // ///////////////// //
