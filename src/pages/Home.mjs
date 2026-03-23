@@ -13,11 +13,9 @@ import { documentJsonFile } from "../services/JsonDocumenter.mjs";
 export default class Home extends LitElement {
   static properties = {
     progress: { type: Object, state: true, default: undefined },
+    applicationPhase: { type: String, state: true },
+    showReports: { type: String, state: true, default: false },
   };
-
-  constructor() {
-    super();
-  }
 
   /** @type {NodeJS.Timeout | undefined} */ // TODO ? is null in this repo, for some reason?
   statsInterval = undefined;
@@ -37,22 +35,31 @@ export default class Home extends LitElement {
     this.reports = getReports();
 
     const phaseState = getApplicationPhase();
+    this.applicationPhase = phaseState.value;
     phaseState.onChange(() => {
-      const secondPhase = getApplicationPhase();
-      switch (secondPhase.value) {
-        case "Ingesting":
-          this.statsInterval = setInterval(() => {
-            this.progress = getIngestStats();
-          }, 50);
-        default:
-          clearInterval(this.statsInterval);
-      }
+      this.applicationPhase = getApplicationPhase().value;
     });
   }
 
   disconnectedCallback() {
     super.connectedCallback();
     clearInterval(this.statsInterval);
+  }
+
+  /** @param {Map<string, boolean>} changedProperties  */
+  updated(changedProperties) {
+    if (changedProperties.get("applicationPhase")) {
+      if (this.applicationPhase === "Ingesting") {
+        // TODO this currently does nothing because ingesting blocks the main thread. Seek ways around this.
+        this.statsInterval = setInterval(() => {
+          this.progress = getIngestStats();
+        }, 50);
+      } else clearInterval(this.statsInterval);
+
+      if (this.applicationPhase === "WaitingForReport") {
+        this.showReports = true;
+      } else this.showReports = false;
+    }
   }
 
   render() {
@@ -62,7 +69,8 @@ export default class Home extends LitElement {
       <button @click=${this.selectFile}>Select file</button>
       <output>${this.progress?.toString()}</output>
       <div>
-        ${this.reports?.map(
+        ${this.showReports &&
+        this.reports?.map(
           (description, i) =>
             html`<button @click=${() => runReport(i)}>${description}</button>`
         )}
