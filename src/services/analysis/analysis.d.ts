@@ -12,5 +12,7 @@ declare global {
       value: string; // actually an enum, but since it's readonly I think it's okay to be more general until we have codegen that can define TS enums from Go enums
       onChange(callback: () => void): void;
     }>;
+    getReportsList(): string[];
+    runReport(reportEnum: number): unknown;
   }
 }

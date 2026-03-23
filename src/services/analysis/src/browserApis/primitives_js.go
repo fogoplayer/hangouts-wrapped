@@ -1,8 +1,6 @@
 package browserApis
 
 import (
-	"encoding/binary"
-	"errors"
 	"fmt"
 	"reflect"
 	"syscall/js"
@@ -41,21 +39,25 @@ func JsFromJsReturnValueUnchanged(v js.Value) (js.Value, error) {
 //
 // Panics if value is of some other type, does not actually return an error.
 // However, it needs to match the signature of other *FromJs methods
+// TODO add error handling using InstanceOf
 func ByteArrayFromJs(v js.Value) ([]byte, error) {
 	data := make([]byte, v.Length())
 	js.CopyBytesToGo(data, v)
 	return data, nil
 }
 
-func GetIntFromJs(jsValue js.Value) (int64, error) {
-	valueBytes := []byte{}
-	js.CopyBytesToGo(valueBytes, jsValue)
-
-	value, bytesRead := binary.Varint(valueBytes)
-	if bytesRead <= 0 {
-		return 0, errors.New("Couldn't read int")
+func IntFromJs(jsValue js.Value) (int, error) {
+	if jsValue.Type() != js.TypeNumber {
+		return -1, TypeMismatchError[int](jsValue)
 	}
-	return value, nil
+	return jsValue.Int(), nil
+}
+
+func StringFromJs(jsValue js.Value) (string, error) {
+	if jsValue.Type() != js.TypeString {
+		return "", fmt.Errorf("&s is not a string", jsValue)
+	}
+	return jsValue.String(), nil
 }
 
 // /////////////////// //

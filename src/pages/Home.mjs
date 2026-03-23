@@ -4,6 +4,8 @@ import "../services/analysis/analysis.mjs";
 import {
   getApplicationPhase,
   getIngestStats,
+  getReports,
+  runReport,
   selectDirectoryForAnalysis,
 } from "../services/analysis/analysis.mjs";
 import { documentJsonFile } from "../services/JsonDocumenter.mjs";
@@ -32,6 +34,8 @@ export default class Home extends LitElement {
   connectedCallback() {
     super.connectedCallback();
 
+    this.reports = getReports();
+
     const phaseState = getApplicationPhase();
     phaseState.onChange(() => {
       const secondPhase = getApplicationPhase();
@@ -56,10 +60,23 @@ export default class Home extends LitElement {
       <main>Welcome to my app!</main>
       <button @click=${this.selectDirectory}>Select Directory</button>
       <button @click=${this.selectFile}>Select file</button>
-      <output>${this.progress?.toString()}</output>`;
+      <output>${this.progress?.toString()}</output>
+      <div>
+        ${this.reports?.map(
+          (description, i) =>
+            html`<button @click=${() => runReport(i)}>${description}</button>`
+        )}
+      </div>`;
   }
 
-  static styles = [globalCss, css``];
+  static styles = [
+    globalCss,
+    css`
+      button {
+        outline: 1px solid;
+      }
+    `,
+  ];
 }
 
 customElements.define("home-", Home);

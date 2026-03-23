@@ -33,6 +33,19 @@ var ReportDescriptions = map[ReportName]string{
 	CountByPerson: "Number of messages sent by each user",
 }
 
+func GetReportDescriptionsAsList() []string {
+	result := make([]string, len(ReportDescriptions))
+	for reportEnum, description := range ReportDescriptions {
+		reportEnumAsInt := int(reportEnum)
+		if reportEnum >= 0 && reportEnumAsInt < len(result) {
+			result[reportEnumAsInt] = description
+		} else {
+			panic(fmt.Errorf("%s is an out-of-order enum", description))
+		}
+	}
+	return result
+}
+
 func RunReport(report ReportName) any { // TODO what is the format of report results? Some sort of table?
 	fmt.Println("Running", report)
 	fmt.Println(ReportDescriptions[report])
