@@ -1,10 +1,10 @@
 package main
 
 import (
+	"zarinloosli.com/hangouts-wrapped/model/reports"
 	"zarinloosli.com/hangouts-wrapped/state"
 	"zarinloosli.com/hangouts-wrapped/subroutines"
 	"zarinloosli.com/hangouts-wrapped/subroutines/setup"
-	"zarinloosli.com/hangouts-wrapped/util"
 )
 
 func main() {
@@ -22,6 +22,12 @@ func main() {
 	state.ApplicationPhase.Set(state.WaitingForReport)
 	subroutines.PostIngest()
 
-	selectedReport := subroutines.PromptForReport()
-	util.UseVar(selectedReport)
+	for true {
+		selectedReport := subroutines.PromptForReport()
+
+		state.ApplicationPhase.Set(state.GeneratingReport)
+		reports.RunReport(selectedReport)
+
+		state.ApplicationPhase.Set(state.WaitingForReport)
+	}
 }

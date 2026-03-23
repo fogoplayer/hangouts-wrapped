@@ -6,7 +6,7 @@ import (
 
 func WhileIngesting() {}
 
-var reportToRunChannel = make(chan reports.ReportName, 1)
+var reportToRunChannel = make(chan reports.ReportName)
 
 func PromptForReport() reports.ReportName {
 	return <-reportToRunChannel
@@ -14,5 +14,4 @@ func PromptForReport() reports.ReportName {
 
 func SelectReport(selectedReport reports.ReportName) {
 	reportToRunChannel <- selectedReport
-	close(reportToRunChannel)
 }
