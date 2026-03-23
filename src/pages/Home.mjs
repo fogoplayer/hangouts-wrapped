@@ -69,11 +69,14 @@ export default class Home extends LitElement {
       <button @click=${this.selectFile}>Select file</button>
       <output>${this.progress?.toString()}</output>
       <div>
-        ${this.showReports &&
-        this.reports?.map(
-          (description, i) =>
-            html`<button @click=${() => runReport(i)}>${description}</button>`
-        )}
+        ${this.showReports
+          ? this.reports?.map(
+              (description, i) =>
+                html`<button @click=${() => runReport(i)}>
+                  ${description}
+                </button>`
+            )
+          : ""}
       </div>`;
   }
 
