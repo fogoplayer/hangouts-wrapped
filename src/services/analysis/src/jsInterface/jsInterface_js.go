@@ -56,7 +56,7 @@ var getApplicationPhase js.Func = js.FuncOf(func(this js.Value, args []js.Value)
 			for _, arg := range args {
 				isFunction := arg.Type() == js.TypeFunction
 				if isFunction {
-					state.ApplicationPhase.OnChange(func() {
+					state.ApplicationPhase.OnChange(func(state.ApplicationPhaseType) {
 						arg.Call("call")
 					})
 				}
