@@ -31,6 +31,7 @@ func ParseChatDirectoryHandleInWaitGoRoutine(handle model.ChatDirectoryHandle) {
 			state.IncrementStat(state.MessagesIngested)
 		}
 
+		state.AllChats.Add(&chat)
 		state.IncrementStat(state.ChatsIngested)
 	})
 }

@@ -1,8 +1,12 @@
 package reports
 
-import "fmt"
+import (
+	"fmt"
 
-type report func(...[]any) any // TODO narrow this
+	"zarinloosli.com/hangouts-wrapped/state"
+)
+
+type report func() ReportOutput // TODO narrow this
 
 type ReportName int
 
@@ -27,7 +31,9 @@ const (
 	WordCountByUser
 )
 
-var Reports = map[ReportName]report{}
+var Reports = map[ReportName]report{
+	CountByPerson: countByPerson,
+}
 
 var ReportDescriptions = map[ReportName]string{
 	CountByPerson: "Number of messages sent by each user",
@@ -46,8 +52,61 @@ func GetReportDescriptionsAsList() []string {
 	return result
 }
 
-func RunReport(report ReportName) any { // TODO what is the format of report results? Some sort of table?
-	fmt.Println("Running", report)
-	fmt.Println(ReportDescriptions[report])
-	return nil
+func RunReport(reportName ReportName) any { // TODO what is the format of report results? Some sort of table?
+	report := Reports[reportName]
+	if report == nil {
+		// TODO eventually this should be a panic
+		fmt.Printf("%d does not exist (%s)\n", reportName, ReportDescriptions[reportName])
+	}
+
+	return report()
+}
+
+// /////////// //
+// Return Type //
+// /////////// //
+
+type ReportKind string
+
+const (
+	Bar         ReportKind = "bar"
+	Line        ReportKind = "line"
+	SingleValue ReportKind = "singlevalue"
+)
+
+type ReportOutput struct {
+	Kind   ReportKind
+	Labels []string
+	Values []any
+}
+
+func (reportOutput *ReportOutput) ToJsReadyMap() map[string]any {
+	return map[string]any{
+		"kind":   reportOutput.Kind,
+		"labels": reportOutput.Labels,
+		"Values": reportOutput.Values,
+	}
+}
+
+// /////// //
+// Reports //
+// /////// //
+
+func countByPerson() ReportOutput {
+	allChats := state.AllChats.Value()
+	messagesByUser := make(map[string]int)
+	for _, chat := range allChats {
+		for _, message := range chat.Messages.Values() {
+			messagesByUser[message.Creator.String()] += 1
+		}
+	}
+
+	output := ReportOutput{}
+	output.Kind = Bar
+	for user, count := range messagesByUser {
+		output.Labels = append(output.Labels, user)
+		output.Values = append(output.Values, count)
+	}
+
+	return output
 }
