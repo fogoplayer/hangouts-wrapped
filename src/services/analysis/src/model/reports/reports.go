@@ -2,6 +2,8 @@ package reports
 
 import (
 	"fmt"
+	"math"
+	"strings"
 
 	"zarinloosli.com/hangouts-wrapped/state"
 )
@@ -52,7 +54,7 @@ func GetReportDescriptionsAsList() []string {
 	return result
 }
 
-func RunReport(reportName ReportName) any { // TODO what is the format of report results? Some sort of table?
+func RunReport(reportName ReportName) ReportOutput { // TODO what is the format of report results? Some sort of table?
 	report := Reports[reportName]
 	if report == nil {
 		// TODO eventually this should be a panic
@@ -84,7 +86,51 @@ func (reportOutput *ReportOutput) ToJsReadyMap() map[string]any {
 	return map[string]any{
 		"kind":   reportOutput.Kind,
 		"labels": reportOutput.Labels,
-		"Values": reportOutput.Values,
+		"values": reportOutput.Values,
+	}
+}
+
+func (reportOutput *ReportOutput) String() string {
+	builder := &strings.Builder{}
+	if len(reportOutput.Labels) != len(reportOutput.Values) {
+		panic(fmt.Errorf("Report has %d labels and %d values!", len(reportOutput.Labels), len(reportOutput.Values)))
+	}
+
+	switch reportOutput.Kind {
+	case Bar:
+		reportOutput.barString(builder)
+	default:
+		reportOutput.rawString(builder)
+	}
+
+	return builder.String()
+}
+func (reportOutput *ReportOutput) barString(builder *strings.Builder) {
+	COLUMNS := 20.0
+	max := -1.0
+	for _, value := range reportOutput.Values {
+		valueAsFloat := float64(value.(int))
+		if valueAsFloat > max {
+			max = valueAsFloat
+		}
+	}
+
+	for i := range reportOutput.Labels {
+		fmt.Fprintf(builder, "%s: ", reportOutput.Labels[i])
+		value := float64(reportOutput.Values[i].(int))
+		chars := float64(value) / max * COLUMNS
+		roundedChars := int(math.Round(chars))
+		for range roundedChars {
+			fmt.Fprintf(builder, "%c", 0x2588)
+		}
+		fmt.Fprintln(builder, value)
+	}
+	reportOutput.rawString(builder)
+}
+
+func (reportOutput *ReportOutput) rawString(builder *strings.Builder) {
+	for i := range reportOutput.Labels {
+		fmt.Fprintf(builder, "%s: %s\n", reportOutput.Labels[i], reportOutput.Values[i])
 	}
 }
 

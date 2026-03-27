@@ -29,7 +29,7 @@ func main() {
 
 		state.ApplicationPhase.Set(state.GeneratingReport)
 		results := reports.RunReport(selectedReport)
-		fmt.Println(results)
+		fmt.Println(results.String())
 
 		state.ApplicationPhase.Set(state.WaitingForReport)
 	}

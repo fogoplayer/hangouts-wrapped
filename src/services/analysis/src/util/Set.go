@@ -1,5 +1,7 @@
 package util
 
+// TODO mutexes for access
+
 type Set[T comparable] map[T]bool
 
 func (set Set[T]) Add(value T) {
