@@ -1,6 +1,8 @@
 package util
 
-import "container/heap"
+import (
+	"container/heap"
+)
 
 type Heap[T any] struct {
 	innerHeap[T]
@@ -10,8 +12,19 @@ func (h *Heap[T]) Push(x T) {
 	heap.Push(&h.innerHeap, x)
 }
 
-func (h *Heap[T]) Pop() any {
-	return heap.Pop(&h.innerHeap)
+func (h *Heap[T]) Pop() T {
+	if h.innerHeap.Len() == 0 {
+		return *new(T)
+	}
+	return heap.Pop(&h.innerHeap).(T)
+}
+
+func CreateHeap[T any](comparator func(T, T) int) Heap[T] {
+	return Heap[T]{
+		innerHeap: innerHeap[T]{
+			comparator: comparator,
+		},
+	}
 }
 
 // ///////// //
