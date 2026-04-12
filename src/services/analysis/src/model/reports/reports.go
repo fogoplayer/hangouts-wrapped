@@ -2,6 +2,8 @@ package reports
 
 import (
 	"fmt"
+
+	. "zarinloosli.com/hangouts-wrapped/model/reports/reportOutputs"
 )
 
 type report func() ReportOutputInterface // TODO narrow this

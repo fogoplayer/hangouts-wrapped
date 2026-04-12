@@ -3,6 +3,7 @@ package reports
 import (
 	"fmt"
 
+	. "zarinloosli.com/hangouts-wrapped/model/reports/reportOutputs"
 	"zarinloosli.com/hangouts-wrapped/state"
 )
 
