@@ -36,6 +36,16 @@ func StartsWithWords(candidate string, prefixes ...string) bool {
 	return false
 }
 
+/////////////
+// ForEach //
+/////////////
+
+func ListForEach[T any](array []T, converter func(T)) {
+	for _, v := range array {
+		converter(v)
+	}
+}
+
 // /////// //
 // Mapping //
 // /////// //
