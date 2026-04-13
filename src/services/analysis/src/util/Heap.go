@@ -55,4 +55,20 @@ func (h *innerHeap[T]) Pop() any {
 	return x
 }
 
+func (h innerHeap[T]) Values() []T {
+	// TODO memoize
+	// Have a property for "memoized value" and a flag for "has changed"
+	// Pushing and popping changes, if no change return memoized value
+	values := make([]T, 0, h.Len())
+	h.data = CopyList(h.data) // deep copy of data slice so that popping doesn't affect the heap
+
+	for h.Len() > 0 {
+		heap.Init(&h)
+		v := heap.Pop(&h).(T)
+		values = append(values, v)
+	}
+
+	return values
+}
+
 var _ heap.Interface = &innerHeap[any]{}
