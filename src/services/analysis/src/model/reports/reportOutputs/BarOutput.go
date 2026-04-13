@@ -53,12 +53,14 @@ func (barOutput *BarOutput) toString(builders ...*strings.Builder) string {
 func CreateBarOutput() BarOutput {
 	return BarOutput{
 		ReportOutput[int]{
-			Kind: Bar,
-			values: util.CreateHeap(func(a, b ReportOutputEntry[int]) int {
-				return b.Value - a.Value
-			}),
+			Kind:   Bar,
+			values: util.CreateHeap(CompareBarOutputEntries),
 		},
 	}
+}
+
+func CompareBarOutputEntries(a, b ReportOutputEntry[int]) int {
+	return b.Value - a.Value
 }
 
 var _ ReportOutputInterface = &BarOutput{} // Compile-time inheritance check
