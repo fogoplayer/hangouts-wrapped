@@ -65,4 +65,4 @@ func (reportOutput *ReportOutput[T]) toString(builders ...*strings.Builder) stri
 	return builder.String()
 }
 
-var _ ReportOutputInterface = ReportOutput[any]{} // Compile-time inheritance check
+var _ ReportOutputInterface = &ReportOutput[any]{} // Compile-time inheritance check

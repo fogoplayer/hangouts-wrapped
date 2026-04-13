@@ -7,7 +7,7 @@ import (
 	"zarinloosli.com/hangouts-wrapped/state"
 )
 
-func countByPerson() BarOutput {
+func countByPerson() *BarOutput {
 	allChats := state.AllChats.Value()
 	messagesByUser := make(map[string]int)
 	for _, chat := range allChats {
@@ -36,5 +36,5 @@ func countByPerson() BarOutput {
 		// output.Values = append(output.Values, count)
 	}
 
-	return output
+	return &output
 }

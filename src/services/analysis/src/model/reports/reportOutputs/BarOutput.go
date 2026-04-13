@@ -61,4 +61,4 @@ func CreateBarOutput() BarOutput {
 	}
 }
 
-var _ ReportOutputInterface = BarOutput{} // Compile-time inheritance check
+var _ ReportOutputInterface = &BarOutput{} // Compile-time inheritance check

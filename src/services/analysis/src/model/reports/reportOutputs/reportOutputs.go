@@ -12,6 +12,7 @@ type ReportOutputInterface interface {
 	Labels() []string
 	Values() []any
 	String() string
+	ToJsReadyMap() map[string]any
 }
 
 type ReportOutputEntry[T any] struct {

@@ -49,13 +49,16 @@ func GetReportDescriptionsAsList() []string {
 }
 
 func RunReport(reportName ReportName) ReportOutputInterface {
+	var output ReportOutputInterface
+
 	switch reportName {
 	case CountByPerson:
-		return countByPerson()
-
+		output = countByPerson()
 	default:
 		// TODO eventually this should be a panic
 		fmt.Printf("%d does not exist (%s)\n", reportName, ReportDescriptions[reportName])
-		return ReportOutput[any]{}
 	}
+
+	return output
+
 }
