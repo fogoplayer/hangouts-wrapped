@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"strings"
+	"text/tabwriter"
 
 	"zarinloosli.com/hangouts-wrapped/util"
 )
@@ -23,6 +24,7 @@ func (barOutput *BarOutput) toString(builders ...*strings.Builder) string {
 	} else {
 		builder = &strings.Builder{}
 	}
+	tabWriter := tabwriter.NewWriter(builder, 0, 0, 0, ' ', 0)
 
 	COLUMNS := 40.0
 	max := -1.0
@@ -38,15 +40,17 @@ func (barOutput *BarOutput) toString(builders ...*strings.Builder) string {
 	labels := barOutput.Labels()
 
 	for i := range len(labels) {
-		fmt.Fprintf(builder, "%s: ", labels[i])
+		fmt.Fprintf(tabWriter, "%s:\t", labels[i])
 		value := float64(values[i])
 		chars := float64(value) / max * COLUMNS
 		roundedChars := int(math.Round(chars))
 		for range roundedChars {
-			fmt.Fprintf(builder, "%c", 0x2588)
+			fmt.Fprintf(tabWriter, "%c", 0x2588)
 		}
-		fmt.Fprintln(builder, "\t", value)
+		fmt.Fprintln(tabWriter, "\t", value)
 	}
+
+	tabWriter.Flush()
 	return builder.String()
 }
 
