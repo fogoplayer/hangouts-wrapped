@@ -47,7 +47,7 @@ func (barOutput *BarOutput) toString(builders ...*strings.Builder) string {
 		}
 		fmt.Fprintln(builder, "\t", value)
 	}
-	return barOutput.ReportOutput.toString(builder)
+	return builder.String()
 }
 
 func CreateBarOutput() BarOutput {
