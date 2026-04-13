@@ -24,25 +24,17 @@ func (reportOutput ReportOutput[T]) Labels() []string {
 }
 
 func (reportOutput ReportOutput[T]) Values() []any {
-	labels := make([]any, 0, reportOutput.values.Len())
-
-	for reportOutput.values.Len() > 0 {
-		v := reportOutput.values.Pop()
-		labels = append(labels, v.Value)
-	}
-
-	return labels
+	return util.ListMap(reportOutput.TypedValues(), func(value T) any { return value })
 }
 
 func (reportOutput ReportOutput[T]) TypedValues() []T {
-	labels := make([]T, 0, reportOutput.values.Len())
+	values := make([]T, 0, reportOutput.values.Len())
 
-	for reportOutput.values.Len() > 0 {
-		v := reportOutput.values.Pop()
-		labels = append(labels, v.Value)
+	for _, v := range reportOutput.values.Values() {
+		values = append(values, v.Value)
 	}
 
-	return labels
+	return values
 }
 
 func (reportOutput *ReportOutput[T]) ToJsReadyMap() map[string]any {
@@ -51,6 +43,12 @@ func (reportOutput *ReportOutput[T]) ToJsReadyMap() map[string]any {
 		"labels": reportOutput.Labels(),
 		"values": reportOutput.Values(),
 	}
+}
+
+func (reportOutput *ReportOutput[T]) Push(vals ...ReportOutputEntry[T]) {
+	util.ListForEach(vals, func(val ReportOutputEntry[T]) {
+		reportOutput.values.Push(val)
+	})
 }
 
 func (reportOutput ReportOutput[T]) String() string {
@@ -74,6 +72,13 @@ func (reportOutput *ReportOutput[T]) toString(builders ...*strings.Builder) stri
 	}
 
 	return builder.String()
+}
+
+func CreateReportOutput[T any](comparator func(a, b ReportOutputEntry[T]) int) ReportOutput[T] {
+	return ReportOutput[T]{
+		Kind:   Bar,
+		values: util.CreateHeap(comparator),
+	}
 }
 
 var _ ReportOutputInterface = &ReportOutput[any]{} // Compile-time inheritance check
