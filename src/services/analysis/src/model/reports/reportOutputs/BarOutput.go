@@ -26,20 +26,20 @@ func (barOutput *BarOutput) toString(builders ...*strings.Builder) string {
 
 	COLUMNS := 40.0
 	max := -1.0
-	for _, value := range barOutput.Values() {
-		valueAsFloat := float64(value.(int)) // TODO simplify casting
+	for _, value := range barOutput.TypedValues() {
+		valueAsFloat := float64(value)
 		if valueAsFloat > max {
 			max = valueAsFloat
 		}
 	}
 
 	// TODO calling these methods is not stable, find a way to stablize them
-	values := barOutput.Values()
+	values := barOutput.TypedValues()
 	labels := barOutput.Labels()
 
 	for i := range len(labels) {
 		fmt.Fprintf(builder, "%s: ", labels[i])
-		value := float64(values[i].(int)) // TODO store type somehow
+		value := float64(values[i])
 		chars := float64(value) / max * COLUMNS
 		roundedChars := int(math.Round(chars))
 		for range roundedChars {

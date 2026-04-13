@@ -34,6 +34,17 @@ func (reportOutput ReportOutput[T]) Values() []any {
 	return labels
 }
 
+func (reportOutput ReportOutput[T]) TypedValues() []T {
+	labels := make([]T, 0, reportOutput.values.Len())
+
+	for reportOutput.values.Len() > 0 {
+		v := reportOutput.values.Pop()
+		labels = append(labels, v.Value)
+	}
+
+	return labels
+}
+
 func (reportOutput *ReportOutput[T]) ToJsReadyMap() map[string]any {
 	return map[string]any{
 		"kind":   reportOutput.Kind,
