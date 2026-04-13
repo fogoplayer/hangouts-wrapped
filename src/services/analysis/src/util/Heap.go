@@ -2,7 +2,6 @@ package util
 
 import (
 	"container/heap"
-	"fmt"
 )
 
 type Heap[T any] struct {
@@ -66,7 +65,6 @@ func (h innerHeap[T]) Values() []T {
 	for h.Len() > 0 {
 		heap.Init(&h)
 		v := heap.Pop(&h).(T)
-		fmt.Println(v, h.data)
 		values = append(values, v)
 	}
 
