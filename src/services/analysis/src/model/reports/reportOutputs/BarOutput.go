@@ -24,7 +24,7 @@ func (barOutput *BarOutput) toString(builders ...*strings.Builder) string {
 	} else {
 		builder = &strings.Builder{}
 	}
-	tabWriter := tabwriter.NewWriter(builder, 0, 0, 0, ' ', 0)
+	tabWriter := tabwriter.NewWriter(builder, 0, 0, 1, ' ', 0)
 
 	COLUMNS := 40.0
 	max := -1.0
@@ -40,14 +40,19 @@ func (barOutput *BarOutput) toString(builders ...*strings.Builder) string {
 	labels := barOutput.Labels()
 
 	for i := range len(labels) {
-		fmt.Fprintf(tabWriter, "%s:\t", labels[i])
+		fmt.Fprintf(tabWriter, "%d. %s:", i+1, labels[i])
+		fmt.Fprint(tabWriter, "\t")
+
 		value := float64(values[i])
+		fmt.Fprint(tabWriter, value)
+		fmt.Fprint(tabWriter, "\t")
+
 		chars := float64(value) / max * COLUMNS
 		roundedChars := int(math.Round(chars))
 		for range roundedChars {
 			fmt.Fprintf(tabWriter, "%c", 0x2588)
 		}
-		fmt.Fprintln(tabWriter, "\t", value)
+		fmt.Fprintln(tabWriter)
 	}
 
 	tabWriter.Flush()
