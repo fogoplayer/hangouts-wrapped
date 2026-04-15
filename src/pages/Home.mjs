@@ -9,6 +9,7 @@ import {
   selectDirectoryForAnalysis,
 } from "../services/analysis/analysis.mjs";
 import { documentJsonFile } from "../services/JsonDocumenter.mjs";
+import "../components/Chart.mjs";
 /** @typedef {import("../libs/chart@4.5.0.js").ChartConfiguration} ChartConfiguration */
 
 export default class Home extends LitElement {
@@ -81,7 +82,13 @@ export default class Home extends LitElement {
             )
           : ""}
       </div>
-      <div>${this.results?.map((chart) => chart)}</div>`;
+      <button @click=${() => (this.results = [])}>Clear</button>
+      <div>${this.results?.map((config) => JSON.stringify(config))}</div>
+      <div>
+        ${this.results?.map(
+          (config) => html`<chart- .config=${config}></chart->`
+        )}
+      </div> `;
   }
 
   static styles = [
