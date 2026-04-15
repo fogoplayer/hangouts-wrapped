@@ -36,6 +36,10 @@ func StartsWithWords(candidate string, prefixes ...string) bool {
 	return false
 }
 
+func ToAny[T any](val T) any {
+	return val
+}
+
 /////////////
 // ForEach //
 /////////////

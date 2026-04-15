@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"zarinloosli.com/hangouts-wrapped/model/reports"
+	reportoutputs "zarinloosli.com/hangouts-wrapped/model/reports/reportOutputs"
 	"zarinloosli.com/hangouts-wrapped/state"
 	"zarinloosli.com/hangouts-wrapped/userInteractionIo"
 	"zarinloosli.com/hangouts-wrapped/util"
@@ -38,4 +39,8 @@ func PromptForReport() reports.ReportName { // TODO is this the right package fo
 	}
 	selectedReport := keys[selection]
 	return selectedReport
+}
+
+func OutputReport(results reportoutputs.ReportOutputInterface) {
+	fmt.Println(results.String())
 }

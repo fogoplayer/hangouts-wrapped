@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"zarinloosli.com/hangouts-wrapped/model/reports"
 	"zarinloosli.com/hangouts-wrapped/state"
 	"zarinloosli.com/hangouts-wrapped/subroutines"
@@ -29,7 +27,7 @@ func main() {
 
 		state.ApplicationPhase.Set(state.GeneratingReport)
 		results := reports.RunReport(selectedReport)
-		fmt.Println(results.String())
+		subroutines.OutputReport(results)
 
 		state.ApplicationPhase.Set(state.WaitingForReport)
 	}

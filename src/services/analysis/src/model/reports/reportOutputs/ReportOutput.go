@@ -23,6 +23,9 @@ func (reportOutput ReportOutput[T]) Labels() []string {
 	return labels
 }
 
+// TODO delete
+// replace all uses with TypedValues
+// rename TypedValues to Values
 func (reportOutput ReportOutput[T]) Values() []any {
 	return util.ListMap(reportOutput.TypedValues(), func(value T) any { return value })
 }
@@ -39,9 +42,9 @@ func (reportOutput ReportOutput[T]) TypedValues() []T {
 
 func (reportOutput *ReportOutput[T]) ToJsReadyMap() map[string]any {
 	return map[string]any{
-		"kind":   reportOutput.Kind,
-		"labels": reportOutput.Labels(),
-		"values": reportOutput.Values(),
+		"kind":   string(reportOutput.Kind),
+		"labels": util.ListMap(reportOutput.Labels(), util.ToAny),
+		"values": util.ListMap(reportOutput.TypedValues(), util.ToAny),
 	}
 }
 

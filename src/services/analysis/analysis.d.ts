@@ -1,4 +1,5 @@
 import { documentJsonString as documentJsonType } from "../JsonDocumenter.mjs";
+import type { ChartConfiguration } from "../../libs/chart@4.5.0";
 
 declare global {
   interface Window {
@@ -13,6 +14,6 @@ declare global {
       onChange(callback: () => void): void;
     }>;
     getReportsList(): string[];
-    runReport(reportEnum: number): unknown;
+    runReport(reportEnum: number): ChartConfiguration;
   }
 }

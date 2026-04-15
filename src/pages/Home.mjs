@@ -9,12 +9,14 @@ import {
   selectDirectoryForAnalysis,
 } from "../services/analysis/analysis.mjs";
 import { documentJsonFile } from "../services/JsonDocumenter.mjs";
+/** @typedef {import("../libs/chart@4.5.0.js").ChartConfiguration} ChartConfiguration */
 
 export default class Home extends LitElement {
   static properties = {
     progress: { type: Object, state: true, default: undefined },
     applicationPhase: { type: String, state: true },
     showReports: { type: String, state: true, default: false },
+    results: { type: Array, state: true, default: [] },
   };
 
   /** @type {NodeJS.Timeout | undefined} */ // TODO ? is null in this repo, for some reason?
@@ -33,6 +35,7 @@ export default class Home extends LitElement {
     super.connectedCallback();
 
     this.reports = getReports();
+    /** @type {ChartConfiguration[]} */ this.results = [];
 
     const phaseState = getApplicationPhase();
     this.applicationPhase = phaseState.value;
@@ -72,12 +75,13 @@ export default class Home extends LitElement {
         ${this.showReports
           ? this.reports?.map(
               (description, i) =>
-                html`<button @click=${() => runReport(i)}>
+                html`<button @click=${() => this.results?.push(runReport(i))}>
                   ${description}
                 </button>`
             )
           : ""}
-      </div>`;
+      </div>
+      <div>${this.results?.map((chart) => chart)}</div>`;
   }
 
   static styles = [
