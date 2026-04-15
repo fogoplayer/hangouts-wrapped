@@ -13,6 +13,17 @@ type BarOutput struct {
 	ReportOutput[int]
 }
 
+// TODO maybe we move all of these ToJsReady methods into a a reportOutputs_js.go file
+// and can I alias map[string]any to JSObject without making ValueOf mad?
+
+func (barOutput *BarOutput) ToJsReadyMap() map[string]any {
+	chartConfig := barOutput.ReportOutput.ToJsReadyMap()
+	chartConfig["options"] = map[string]any{
+		"indexAxis": "y",
+	}
+	return chartConfig
+}
+
 func (barOutput BarOutput) String() string {
 	return barOutput.toString()
 }
