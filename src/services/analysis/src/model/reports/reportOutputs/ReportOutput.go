@@ -42,9 +42,13 @@ func (reportOutput ReportOutput[T]) TypedValues() []T {
 
 func (reportOutput *ReportOutput[T]) ToJsReadyMap() map[string]any {
 	return map[string]any{
-		"kind":   string(reportOutput.Kind),
-		"labels": util.ListMap(reportOutput.Labels(), util.ToAny),
-		"values": util.ListMap(reportOutput.TypedValues(), util.ToAny),
+		"type": string(reportOutput.Kind),
+		"data": map[string]any{
+			"labels": util.ListMap(reportOutput.Labels(), util.ToAny),
+			"datasets": []any{map[string]any{
+				"data": util.ListMap(reportOutput.TypedValues(), util.ToAny),
+			}},
+		},
 	}
 }
 
