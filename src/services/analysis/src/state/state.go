@@ -49,8 +49,6 @@ func (applicationState *ApplicationState[T]) OnChange(callback func(T)) func() {
 // SetApplicationState //
 // /////////////////// //
 
-// TODO is there a way to keep users from calling state.Value().Add? Or state.Set()
-
 type SetApplicationState[T comparable] struct {
 	ApplicationState[T]
 	value util.Set[T]

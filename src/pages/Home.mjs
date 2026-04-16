@@ -83,9 +83,6 @@ export default class Home extends LitElement {
           : ""}
       </div>
       <button @click=${() => (this.results = [])}>Clear</button>
-      <!-- <div>${this.results?.map((config) =>
-        JSON.stringify(config)
-      )}</div> -->
       <div>
         ${this.results?.map(
           (config) => html`<chart- .config=${config}></chart->`
