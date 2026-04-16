@@ -60,6 +60,28 @@ func StringFromJs(jsValue js.Value) (string, error) {
 	return jsValue.String(), nil
 }
 
+func ArrayFromJs[T any](jsValue js.Value, converter func(js.Value) (T, error)) ([]T, error) {
+	if !isJsArray(jsValue) {
+		return nil, TypeMismatchError[[]T](jsValue)
+	}
+
+	length := jsValue.Get("length").Int()
+	result := make([]T, 0, length)
+
+	jsValue.Call("forEach", js.FuncOf(func(this js.Value, args []js.Value) any {
+		item := args[0]
+		itemAsGo, _ := converter(item) // TODO error handling
+		result = append(result, itemAsGo)
+		return nil
+	}))
+
+	return result, nil
+}
+
+func isJsArray(jsValue js.Value) bool {
+	return js.Global().Get("Array").Call("isArray", jsValue).Bool()
+}
+
 // /////////////////// //
 // JSFromGo Converters //
 // /////////////////// //
