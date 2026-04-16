@@ -1,7 +1,6 @@
 package jsInterface
 
 import (
-	"fmt"
 	"syscall/js"
 
 	"zarinloosli.com/hangouts-wrapped/browserApis"
@@ -77,10 +76,6 @@ var runReport js.Func = js.FuncOf(func(this js.Value, args []js.Value) any {
 	// TODO error handling
 	subroutines.SelectReport(reports.ReportName(reportEnum))
 	results := subroutines.GetResults()
-
-	fmt.Println("kind", js.ValueOf(results.ToJsReadyMap()["kind"]))
-	fmt.Println("labels", js.ValueOf(results.ToJsReadyMap()["labels"]))
-	fmt.Println("values", js.ValueOf(results.ToJsReadyMap()["values"]))
 
 	return results.ToJsReadyMap()
 })

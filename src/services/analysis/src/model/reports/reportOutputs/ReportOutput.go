@@ -41,8 +41,6 @@ func (reportOutput ReportOutput[T]) TypedValues() []T {
 }
 
 func (reportOutput *ReportOutput[T]) ToJsReadyMap() map[string]any {
-	// for some reason, when these are inlined into the map, the order isn't stable.
-	// But it seems to work properly like this
 	labels := util.ListMap(reportOutput.Labels(), util.ToAny)
 	data := util.ListMap(reportOutput.TypedValues(), util.ToAny)
 	return map[string]any{
