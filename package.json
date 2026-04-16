@@ -17,6 +17,7 @@
     "@eslint/json": "^1.0.1",
     "@types/filesystem": "^0.0.36",
     "@types/wicg-file-system-access": "^2023.10.7",
+    "chart.js": "4.5.0",
     "eslint": "^8.57.1",
     "firebase": "^10.1.0",
     "firebase-tools": "^11.18.0",

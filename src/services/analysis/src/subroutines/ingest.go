@@ -46,9 +46,7 @@ const (
 	MESSAGES               = "messages.json"
 )
 
-func ProcessFileInWaitGoRoutine(
-	path string,
-) {
+func ProcessFileInWaitGoRoutine(path string) { // TODO is this the right package for this function?
 	state.IngestWaitGroup.Go(func() {
 		fsHandle := fsIo.GetFSHandleFromPath(path)
 		if directoryHandle, err := fsHandle.AsDirectoryHandle(); err == nil {

@@ -9,6 +9,7 @@ import (
 
 	"zarinloosli.com/hangouts-wrapped/model"
 	"zarinloosli.com/hangouts-wrapped/model/jsonSchema"
+	"zarinloosli.com/hangouts-wrapped/model/parsed"
 	"zarinloosli.com/hangouts-wrapped/state"
 	"zarinloosli.com/hangouts-wrapped/util"
 )
@@ -30,6 +31,7 @@ func ParseChatDirectoryHandleInWaitGoRoutine(handle model.ChatDirectoryHandle) {
 			state.IncrementStat(state.MessagesIngested)
 		}
 
+		state.AllChats.Add(&chat)
 		state.IncrementStat(state.ChatsIngested)
 	})
 }
@@ -55,9 +57,9 @@ func parseJson(bytes []byte, destinationPointer any) error {
 	return nil
 }
 
-func parseGroupInfo(groupInfo jsonSchema.GroupInfo_JsonSchema) model.Chat {
-	chat := model.Chat{
-		Messages: model.YearTreeList{},
+func parseGroupInfo(groupInfo jsonSchema.GroupInfo_JsonSchema) parsed.Chat {
+	chat := parsed.Chat{
+		Messages: parsed.YearTreeList{},
 	}
 
 	for _, member := range groupInfo.Members {
@@ -78,8 +80,8 @@ func parseGroupInfo(groupInfo jsonSchema.GroupInfo_JsonSchema) model.Chat {
 	return chat
 }
 
-func parseMember(member jsonSchema.GroupInfo_Members_JsonSchema) model.User {
-	return model.User{Name: member.Name, Email: member.Email}
+func parseMember(member jsonSchema.GroupInfo_Members_JsonSchema) parsed.User {
+	return parsed.User{Name: member.Name, Email: member.Email}
 }
 
 /////////////
@@ -88,8 +90,8 @@ func parseMember(member jsonSchema.GroupInfo_Members_JsonSchema) model.User {
 
 // TODO this should probably be its own file(s)
 
-func parseMessage(message jsonSchema.Message) model.Message {
-	return model.Message{
+func parseMessage(message jsonSchema.Message) parsed.Message {
+	return parsed.Message{
 		Creator:   parseCreator(message.Creator),
 		TopicId:   message.Topic_Id,
 		MessageId: message.Message_Id,
@@ -108,8 +110,8 @@ func parseMessage(message jsonSchema.Message) model.Message {
 	}
 }
 
-func parseCreator(creator jsonSchema.Creator) model.Creator {
-	return model.Creator{
+func parseCreator(creator jsonSchema.Creator) parsed.Creator {
+	return parsed.Creator{
 		Name:        creator.Name,
 		Email:       creator.Email,
 		UserType_:   creator.User_type_,
@@ -117,8 +119,8 @@ func parseCreator(creator jsonSchema.Creator) model.Creator {
 	}
 }
 
-func parseActingUser(actingUser jsonSchema.ActingUser) *model.ActingUser {
-	return &model.ActingUser{
+func parseActingUser(actingUser jsonSchema.ActingUser) *parsed.ActingUser {
+	return &parsed.ActingUser{
 		Name:     actingUser.Name,
 		UserId:   actingUser.User_id,
 		UserType: actingUser.User_type,
@@ -152,9 +154,9 @@ func parseTime(dateTime string) time.Time {
 
 }
 
-func parseMessageState(messageState string) *model.MessageState {
+func parseMessageState(messageState string) *parsed.MessageState {
 	if messageState == "DELETED" {
-		v := model.DELETED
+		v := parsed.DELETED
 		return &v
 	}
 	if messageState == "" {
@@ -164,8 +166,8 @@ func parseMessageState(messageState string) *model.MessageState {
 	panic(fmt.Errorf("Unexpected message state: %s", messageState))
 }
 
-func parseQuotedMessageMetadata(quotedMessageMetadata jsonSchema.QuotedMessageMetadata) *model.QuotedMessageMetadata {
-	v := model.QuotedMessageMetadata{
+func parseQuotedMessageMetadata(quotedMessageMetadata jsonSchema.QuotedMessageMetadata) *parsed.QuotedMessageMetadata {
+	v := parsed.QuotedMessageMetadata{
 		Creator: parseCreator(quotedMessageMetadata.Creator),
 		Text:    quotedMessageMetadata.Text,
 
@@ -175,24 +177,24 @@ func parseQuotedMessageMetadata(quotedMessageMetadata jsonSchema.QuotedMessageMe
 	return &v
 }
 
-func parseDeletedMetadata(deletedMetadata jsonSchema.DeletionMetadata) *model.DeletionTypeEnum {
+func parseDeletedMetadata(deletedMetadata jsonSchema.DeletionMetadata) *parsed.DeletionTypeEnum {
 	if deletedMetadata.Deletion_type == "" {
 		return nil
 	}
 
-	switch model.DeletionType[deletedMetadata.Deletion_type] {
-	case model.CREATOR:
-		v := model.CREATOR
+	switch parsed.DeletionType[deletedMetadata.Deletion_type] {
+	case parsed.CREATOR:
+		v := parsed.CREATOR
 		return &v
 	default:
 		panic(fmt.Errorf("Unexpeced deletionType %s", deletedMetadata.Deletion_type))
 	}
 }
 
-func parseAnnotations(annotations []jsonSchema.Annotation) []model.Annotation {
-	parsedAnnotations := []model.Annotation{}
+func parseAnnotations(annotations []jsonSchema.Annotation) []parsed.Annotation {
+	parsedAnnotations := []parsed.Annotation{}
 	for _, annotation := range annotations {
-		parsedAnnotations = append(parsedAnnotations, model.Annotation{
+		parsedAnnotations = append(parsedAnnotations, parsed.Annotation{
 			StartIndex:                 annotation.Start_index,
 			Length:                     annotation.Length,
 			YoutubeMetadata_:           parseYoutubeMetadata(annotation.Youtube_metadata_),
@@ -207,16 +209,16 @@ func parseAnnotations(annotations []jsonSchema.Annotation) []model.Annotation {
 	return parsedAnnotations
 }
 
-func parseYoutubeMetadata(youtubeMetadata jsonSchema.YoutubeMetadata) *model.YoutubeMetadata {
-	v := model.YoutubeMetadata{
+func parseYoutubeMetadata(youtubeMetadata jsonSchema.YoutubeMetadata) *parsed.YoutubeMetadata {
+	v := parsed.YoutubeMetadata{
 		Id:        youtubeMetadata.Id,
 		StartTime: youtubeMetadata.Start_time,
 	}
 	return &v
 }
 
-func parseUrlMetadata(urlMetadata jsonSchema.UrlMetadata) *model.UrlMetadata {
-	v := model.UrlMetadata{
+func parseUrlMetadata(urlMetadata jsonSchema.UrlMetadata) *parsed.UrlMetadata {
+	v := parsed.UrlMetadata{
 		Title:     urlMetadata.Title,
 		Snippet:   urlMetadata.Snippet,
 		Image_url: urlMetadata.Image_url,
@@ -229,20 +231,20 @@ func parseUrl(url jsonSchema.Url) string {
 	return url.Private_do_not_access_or_else_safe_url_wrapped_value
 }
 
-func parseFormatMetadata(formatMetadata jsonSchema.FormatMetadata) *model.FormatMetadata {
-	v := model.FormatMetadata{
+func parseFormatMetadata(formatMetadata jsonSchema.FormatMetadata) *parsed.FormatMetadata {
+	v := parsed.FormatMetadata{
 		FormatType: parseFormatType(formatMetadata.Format_type),
 		FontColor_: formatMetadata.Font_color_,
 	}
 	return &v
 }
 
-func parseFormatType(formatType string) model.FormatTypeEnum {
-	return model.FormatType[formatType]
+func parseFormatType(formatType string) parsed.FormatTypeEnum {
+	return parsed.FormatType[formatType]
 }
 
-func parseGsuiteIntegrationMetadata(gsuiteIntegrationMetadata jsonSchema.GsuiteIntegrationMetadata) *model.GsuiteIntegrationMetadata {
-	v := model.GsuiteIntegrationMetadata{
+func parseGsuiteIntegrationMetadata(gsuiteIntegrationMetadata jsonSchema.GsuiteIntegrationMetadata) *parsed.GsuiteIntegrationMetadata {
+	v := parsed.GsuiteIntegrationMetadata{
 		CallData_:          parseCallData(gsuiteIntegrationMetadata.Call_data_),
 		CalendarEventData_: parseCalendarEventData(gsuiteIntegrationMetadata.Calendar_event_data_),
 		TasksData_:         parseTasksData(gsuiteIntegrationMetadata.Tasks_data_),
@@ -250,19 +252,19 @@ func parseGsuiteIntegrationMetadata(gsuiteIntegrationMetadata jsonSchema.GsuiteI
 	return &v
 }
 
-func parseCallData(callData jsonSchema.CallData) *model.CallData {
-	v := model.CallData{
+func parseCallData(callData jsonSchema.CallData) *parsed.CallData {
+	v := parsed.CallData{
 		CallStatus: parseCallStatus(callData.Call_status),
 	}
 	return &v
 }
 
-func parseCallStatus(callStatus string) model.CallStatusEnum {
-	return model.CallStatus[callStatus]
+func parseCallStatus(callStatus string) parsed.CallStatusEnum {
+	return parsed.CallStatus[callStatus]
 }
 
-func parseCalendarEventData(calendarEventData jsonSchema.CalendarEventData) *model.CalendarEventData {
-	v := model.CalendarEventData{
+func parseCalendarEventData(calendarEventData jsonSchema.CalendarEventData) *parsed.CalendarEventData {
+	v := parsed.CalendarEventData{
 		Title:     calendarEventData.Calendar_event.Title,
 		StartTime: parseTime(calendarEventData.Calendar_event.Start_time.Timed),
 		EndTime:   parseTime(calendarEventData.Calendar_event.End_time.Timed),
@@ -270,8 +272,8 @@ func parseCalendarEventData(calendarEventData jsonSchema.CalendarEventData) *mod
 	return &v
 }
 
-func parseTasksData(tasksData jsonSchema.TasksData) *model.TasksData {
-	v := model.TasksData{
+func parseTasksData(tasksData jsonSchema.TasksData) *parsed.TasksData {
+	v := parsed.TasksData{
 		Title:          tasksData.Task_properties.Title,
 		Completed:      tasksData.Task_properties.Completed,
 		Deleted:        tasksData.Task_properties.Deleted,
@@ -282,18 +284,18 @@ func parseTasksData(tasksData jsonSchema.TasksData) *model.TasksData {
 	return &v
 }
 
-func parseDriveMetadata(driveMetadata jsonSchema.DriveMetadata) *model.DriveMetadata {
-	return &model.DriveMetadata{
+func parseDriveMetadata(driveMetadata jsonSchema.DriveMetadata) *parsed.DriveMetadata {
+	return &parsed.DriveMetadata{
 		Id:           driveMetadata.Id,
 		Title:        driveMetadata.Title,
 		ThumbnailUrl: driveMetadata.Thumbnail_url,
 	} // TODO apparently &v isn't necessary?
 }
 
-func parseAttachedFiles(attachedFiles []jsonSchema.AttachedFile) []model.AttachedFile {
-	parsedAttachedFiles := []model.AttachedFile{}
+func parseAttachedFiles(attachedFiles []jsonSchema.AttachedFile) []parsed.AttachedFile {
+	parsedAttachedFiles := []parsed.AttachedFile{}
 	for _, attachedFile := range attachedFiles {
-		parsedAttachedFiles = append(parsedAttachedFiles, model.AttachedFile{
+		parsedAttachedFiles = append(parsedAttachedFiles, parsed.AttachedFile{
 			ExportName:    attachedFile.Export_name,
 			OriginalName_: attachedFile.Original_name_,
 		})
@@ -301,10 +303,10 @@ func parseAttachedFiles(attachedFiles []jsonSchema.AttachedFile) []model.Attache
 	return parsedAttachedFiles
 }
 
-func parseReactions(reactions []jsonSchema.Reaction) []model.Reaction {
-	parsedReactions := []model.Reaction{}
+func parseReactions(reactions []jsonSchema.Reaction) []parsed.Reaction {
+	parsedReactions := []parsed.Reaction{}
 	for _, reaction := range reactions {
-		parsedReactions = append(parsedReactions, model.Reaction{
+		parsedReactions = append(parsedReactions, parsed.Reaction{
 			Emoji:         reaction.Emoji.Unicode,
 			ReactorEmails: reaction.Reactor_emails,
 		})
@@ -312,10 +314,10 @@ func parseReactions(reactions []jsonSchema.Reaction) []model.Reaction {
 	return parsedReactions
 }
 
-func parsePreviousMesssageVersions(previousMessageVersions []jsonSchema.PreviousMessageVersion) []model.PreviousMessageVersion {
-	parsedPreviousMessageVersions := []model.PreviousMessageVersion{}
+func parsePreviousMesssageVersions(previousMessageVersions []jsonSchema.PreviousMessageVersion) []parsed.PreviousMessageVersion {
+	parsedPreviousMessageVersions := []parsed.PreviousMessageVersion{}
 	for _, previousMessageVersion := range previousMessageVersions {
-		parsedPreviousMessageVersions = append(parsedPreviousMessageVersions, model.PreviousMessageVersion{
+		parsedPreviousMessageVersions = append(parsedPreviousMessageVersions, parsed.PreviousMessageVersion{
 			CreatedDate_:            parseTime(previousMessageVersion.Created_date_),
 			Text_:                   previousMessageVersion.Text_,
 			Updated_date_:           parseTime(previousMessageVersion.Updated_date_),

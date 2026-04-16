@@ -1,17 +1,17 @@
 package main
 
 import (
-	"fmt"
-
+	"zarinloosli.com/hangouts-wrapped/model/reports"
 	"zarinloosli.com/hangouts-wrapped/state"
 	"zarinloosli.com/hangouts-wrapped/subroutines"
+	"zarinloosli.com/hangouts-wrapped/subroutines/setup"
 )
 
 func main() {
-	subroutines.Setup()
+	setup.Setup()
 	state.ApplicationPhase.Set(state.WaitingForDirectory)
 
-	chatDataDirectory := promptForChatDataDirectory()
+	chatDataDirectory := promptForChatDataDirectory() // TODO move to subroutines directory
 	subroutines.IngestChatDirectory(chatDataDirectory)
 	subroutines.ParseIngestedFiles()
 
@@ -21,5 +21,14 @@ func main() {
 
 	state.ApplicationPhase.Set(state.WaitingForReport)
 	subroutines.PostIngest()
-	fmt.Println(state.GetIngestStats())
+
+	for true {
+		selectedReport := subroutines.PromptForReport()
+
+		state.ApplicationPhase.Set(state.GeneratingReport)
+		results := reports.RunReport(selectedReport)
+		subroutines.OutputReport(results)
+
+		state.ApplicationPhase.Set(state.WaitingForReport)
+	}
 }

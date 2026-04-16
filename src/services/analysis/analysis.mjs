@@ -21,4 +21,14 @@ export function getApplicationPhase() {
   return window.getApplicationPhase();
 }
 
+/** @returns {string[]} */
+export function getReports() {
+  return window.getReportsList();
+}
+
+/** @param {number} reportEnum */
+export function runReport(reportEnum) {
+  return window.runReport(reportEnum);
+}
+
 window.documentJson = documentJsonFunc;

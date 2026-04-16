@@ -1,6 +1,7 @@
-package model
+package parsed
 
 import (
+	"fmt"
 	"time"
 )
 
@@ -42,6 +43,10 @@ type Creator struct {
 
 	UserType_   string
 	ActingUser_ *ActingUser
+}
+
+func (creator *Creator) String() string {
+	return fmt.Sprintf("%s (%s)", creator.Name, creator.Email)
 }
 
 type ActingUser struct {
