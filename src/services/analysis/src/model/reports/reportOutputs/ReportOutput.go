@@ -15,8 +15,7 @@ type ReportOutput[T any] struct {
 func (reportOutput ReportOutput[T]) Labels() []string {
 	labels := make([]string, 0, reportOutput.values.Len())
 
-	for reportOutput.values.Len() > 0 {
-		v := reportOutput.values.Pop()
+	for _, v := range reportOutput.values.Values() {
 		labels = append(labels, v.Label)
 	}
 
@@ -43,6 +42,7 @@ func (reportOutput ReportOutput[T]) TypedValues() []T {
 func (reportOutput *ReportOutput[T]) ToJsReadyMap() map[string]any {
 	labels := util.ListMap(reportOutput.Labels(), util.ToAny)
 	data := util.ListMap(reportOutput.TypedValues(), util.ToAny)
+
 	return map[string]any{
 		"type": string(reportOutput.Kind),
 		"data": map[string]any{
@@ -60,7 +60,7 @@ func (reportOutput *ReportOutput[T]) Push(vals ...ReportOutputEntry[T]) {
 	})
 }
 
-func (reportOutput ReportOutput[T]) String() string {
+func (reportOutput ReportOutput[T]) String() string { // TODO we probably don't need a 2-tier system now
 	return reportOutput.toString()
 }
 

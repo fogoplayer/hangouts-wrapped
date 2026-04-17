@@ -68,7 +68,7 @@ var getApplicationPhase js.Func = js.FuncOf(func(this js.Value, args []js.Value)
 
 var getReportsList js.Func = js.FuncOf(func(this js.Value, args []js.Value) any {
 	reportsList := reports.GetReportDescriptionsAsList()
-	return util.ListMap(reportsList, func(el string) any { return el })
+	return util.ListMap(reportsList, func(el string) any { return el }) // TODO we have a standard function for this now
 })
 
 var runReport js.Func = js.FuncOf(func(this js.Value, args []js.Value) any {

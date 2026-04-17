@@ -6,6 +6,8 @@ type Chat struct {
 	Name     string
 	Members  []User
 	Messages YearTreeList
+	Id       string
+	// TODO Type (DM/Space)
 }
 
 type User struct {

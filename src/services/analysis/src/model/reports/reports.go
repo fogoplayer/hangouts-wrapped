@@ -12,11 +12,12 @@ type ReportName int
 
 const (
 	CountByPerson ReportName = iota //Post count by person
-	// CountByDay reportName // Post count by day (month?)
+	CountByChat                     // Post count by chat (which is the biggest in the timeframe)
+	ChatsById                       // Map chat names to IDs
+	CountByDay                      // Post count by day (month?)
 	CountByMonth
 	CountByYear
 	CountByHour
-	CountByChat        // Post count by chat (which is the biggest in the timeframe)
 	RandomMessage      // Get a random message in selection
 	RandomImage        // Get a random image in selection
 	MostUsedEmoji      // Emoji frequency?
@@ -33,13 +34,15 @@ const (
 
 var ReportDescriptions = map[ReportName]string{
 	CountByPerson: "Number of messages sent by each user",
+	CountByChat:   "Number of messages sent in each chat",
+	ChatsById:     "Map chat names to IDs",
 }
 
 func GetReportDescriptionsAsList() []string {
 	result := make([]string, len(ReportDescriptions))
-	for reportEnum, description := range ReportDescriptions {
-		reportEnumAsInt := int(reportEnum)
-		if reportEnum >= 0 && reportEnumAsInt < len(result) {
+	for reportEnumAsInt := range len(ReportDescriptions) {
+		description := ReportDescriptions[ReportName(reportEnumAsInt)]
+		if reportEnumAsInt >= 0 && reportEnumAsInt < len(result) {
 			result[reportEnumAsInt] = description
 		} else {
 			panic(fmt.Errorf("%s is an out-of-order enum", description))
@@ -53,7 +56,11 @@ func RunReport(reportName ReportName) ReportOutputInterface {
 
 	switch reportName {
 	case CountByPerson:
-		output = countByPerson()
+		return countByPerson()
+	case CountByChat:
+		return countByChat()
+	case ChatsById:
+		return chatsById()
 	default:
 		// TODO eventually this should be a panic
 		fmt.Printf("%d does not exist (%s)\n", reportName, ReportDescriptions[reportName])

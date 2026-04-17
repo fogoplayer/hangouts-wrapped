@@ -24,7 +24,7 @@ func PanicIfError(err error) {
 	}
 }
 
-func UseVar(any) {}
+func UseVar(...any) {}
 
 func StartsWithWords(candidate string, prefixes ...string) bool {
 	for _, prefix := range prefixes {

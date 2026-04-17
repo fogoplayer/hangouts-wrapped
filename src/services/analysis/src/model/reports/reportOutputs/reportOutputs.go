@@ -6,6 +6,7 @@ const (
 	Bar         ReportKind = "bar"
 	Line        ReportKind = "line"
 	SingleValue ReportKind = "singlevalue"
+	Text        ReportKind = "text"
 )
 
 type ReportOutputInterface interface {
