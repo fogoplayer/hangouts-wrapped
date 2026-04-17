@@ -10,13 +10,13 @@ const (
 )
 
 type ReportOutputInterface interface {
-	Labels() []string
+	LabelStrings() []string
 	Values() []any
 	String() string
 	ToJsReadyMap() map[string]any
 }
 
-type ReportOutputEntry[T any] struct {
-	Label string
-	Value T
+type ReportOutputEntry[L comparable, V any] struct {
+	Label L
+	Value V
 }

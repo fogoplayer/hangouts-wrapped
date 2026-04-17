@@ -16,7 +16,7 @@ func countByPerson() *BarOutput {
 
 	output := CreateBarOutput()
 	for user, count := range messagesByUser {
-		output.Push(ReportOutputEntry[int]{
+		output.Push(ReportOutputEntry[string, int]{
 			Label: user,
 			Value: count,
 		})
