@@ -97,6 +97,7 @@ func parseMessage(message jsonSchema.Message) parsed.Message {
 		TopicId:   message.Topic_Id,
 		MessageId: message.Message_Id,
 
+		// TODO handle previous versions, annotations
 		CreatedDate_:               parseTime(message.Created_Date_),
 		Text_:                      message.Text_,
 		Message_State_:             parseMessageState(message.Message_State_),
