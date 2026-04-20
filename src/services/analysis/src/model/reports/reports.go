@@ -13,9 +13,9 @@ type ReportName int
 const (
 	CountByPerson ReportName = iota //Post count by person
 	CountByChat                     // Post count by chat (which is the biggest in the timeframe)
-	// CountByMonth                    // Post count by month
-	// CountByYear                     // Post count by year
-	// CountByHour
+	CountByMonth                    // Post count by month
+	CountByYear                     // Post count by year
+	CountByHour
 	ChatsById // Map chat names to IDs
 	// RandomMessage      // Get a random message in selection
 	// RandomImage        // Get a random image in selection
@@ -36,10 +36,10 @@ const (
 var ReportDescriptions = map[ReportName]string{
 	CountByPerson: "Number of messages sent by each user",
 	CountByChat:   "Number of messages sent in each chat",
-	// CountByMonth:  "Number of messages sent each month",
-	// CountByYear:   "Number of messages sent each year",
-	// CountByHour:   "Number of messages sent each hour of the day",
-	ChatsById: "Map chat names to IDs",
+	CountByMonth:  "Number of messages sent each month",
+	CountByYear:   "Number of messages sent each year",
+	CountByHour:   "Number of messages sent each hour of the day",
+	ChatsById:     "Map chat names to IDs",
 }
 
 func GetReportDescriptionsAsList() []string {
@@ -65,10 +65,12 @@ func RunReport(reportName ReportName) ReportOutputInterface {
 		return countByChat()
 	case ChatsById:
 		return chatsById()
-	// case CountByMonth:
-	// 	return countByMonth()
-	// case CountByYear:
-	// 	return countByYear()
+	case CountByMonth:
+		return countByMonth()
+	case CountByYear:
+		return countByYear()
+	case CountByHour:
+		return countByHour()
 	default:
 		// TODO eventually this should be a panic
 		fmt.Printf("%d does not exist (%s)\n", reportName, ReportDescriptions[reportName])

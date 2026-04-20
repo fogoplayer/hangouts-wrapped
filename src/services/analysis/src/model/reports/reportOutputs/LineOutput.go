@@ -1,0 +1,100 @@
+package reportoutputs
+
+import (
+	"fmt"
+	"math"
+	"strings"
+	"text/tabwriter"
+	"time"
+
+	"zarinloosli.com/hangouts-wrapped/util"
+)
+
+type LineOutput struct {
+	ReportOutput[time.Time, int]
+	keyToString func(time.Time) string
+}
+
+// TODO maybe we move all of these ToJsReady methods into a a reportOutputs_js.go file
+// and can I alias map[string]any to JSObject without making ValueOf mad?
+
+// TODO hide legend
+
+func (output *LineOutput) LabelStrings() []string {
+	return util.ListMap(output.Labels(), output.keyToString)
+}
+
+func (output *LineOutput) ToJsReadyMap() map[string]any {
+	chartConfig := output.ReportOutput.ToJsReadyMap()
+	// chartConfig["options"] = map[string]any{
+	// 	"indexAxis": "y",
+	// }
+	return chartConfig
+}
+
+func (output LineOutput) String() string {
+	return output.toString()
+}
+
+func (output *LineOutput) toString(builders ...*strings.Builder) string {
+	var builder *strings.Builder
+	if len(builders) > 0 {
+		builder = builders[0]
+	} else {
+		builder = &strings.Builder{}
+	}
+	tabWriter := tabwriter.NewWriter(builder, 0, 0, 1, ' ', 0)
+
+	COLUMNS := 40.0
+	max := -1.0
+	for _, value := range output.TypedValues() {
+		valueAsFloat := float64(value)
+		if valueAsFloat > max {
+			max = valueAsFloat
+		}
+	}
+
+	values := output.TypedValues()
+	labels := output.LabelStrings()
+
+	for i := range len(labels) {
+		fmt.Fprintf(tabWriter, "%s:", labels[i])
+		fmt.Fprint(tabWriter, "\t")
+
+		value := float64(values[i])
+		fmt.Fprint(tabWriter, value)
+		fmt.Fprint(tabWriter, "\t")
+
+		chars := float64(value) / max * COLUMNS
+		roundedChars := int(math.Round(chars))
+		for range roundedChars {
+			fmt.Fprintf(tabWriter, "%c", 0x2588)
+		}
+		fmt.Fprintln(tabWriter)
+	}
+
+	tabWriter.Flush()
+	return builder.String()
+}
+
+func CreateLineOutput(keyToString func(time.Time) string) LineOutput {
+	return LineOutput{
+		ReportOutput[time.Time, int]{
+			Kind:   Line,
+			values: util.CreateHeap(CompareLineOutputEntries),
+		},
+		keyToString,
+	}
+}
+
+func CompareLineOutputEntries(a, b ReportOutputEntry[time.Time, int]) int {
+	if a.Label.Before(b.Label) {
+		return -1
+	} else if a.Label.After(b.Label) {
+		return 1
+	} else {
+		return 0
+	}
+}
+
+var _ ReportOutputInterface = &LineOutput{} // Compile-time inheritance check
