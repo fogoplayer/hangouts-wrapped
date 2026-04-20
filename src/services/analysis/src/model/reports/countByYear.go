@@ -20,7 +20,7 @@ func countByYear() *LineOutput {
 
 	for _, chat := range allChats {
 		for year, monthTreeList := range chat.Messages {
-			countsByYear[time.Date(int(year), 0, 0, 0, 0, 0, 0, time.UTC)] += len(monthTreeList.Values())
+			countsByYear[time.Date(int(year), 1, 1, 0, 0, 0, 0, time.UTC)] += len(monthTreeList.Values())
 		}
 	}
 
