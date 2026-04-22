@@ -5,8 +5,6 @@ import (
 	"reflect"
 )
 
-// TODO break this file up
-
 func WrongNumberOfArgumentsPanic(numberOfArguments int) {
 	panic(fmt.Errorf("Wrong number of arguments passed: %d", numberOfArguments))
 }
@@ -40,92 +38,4 @@ func StartsWithWords(candidate string, prefixes ...string) bool {
 
 func ToAny[T any](val T) any {
 	return val
-}
-
-/////////////
-// ForEach //
-/////////////
-
-func ListForEach[T any](array []T, converter func(T)) {
-	for _, v := range array {
-		converter(v)
-	}
-}
-
-// /////// //
-// Mapping //
-// /////// //
-
-func ListMap[T any, U any](array []T, converter func(T) U) []U {
-	result := make([]U, len(array))
-	for i, v := range array {
-		result[i] = converter(v)
-	}
-	return result
-}
-
-func MapMap[
-	InputKey comparable, InputValue any, OutputKey comparable, OutputValue any,
-](
-	value map[InputKey]InputValue,
-	converter func(key InputKey, value InputValue) (OutputKey, OutputValue),
-) map[OutputKey]OutputValue {
-	result := make(map[OutputKey]OutputValue)
-	for key, value := range value {
-		newKey, newValue := converter(key, value)
-		result[newKey] = newValue
-	}
-	return result
-}
-
-func GetMapKeys[InputKey comparable, OutputKey any](m map[InputKey]OutputKey) []InputKey {
-	keys := make([]InputKey, 0, len(m))
-	for key := range m {
-		keys = append(keys, key)
-	}
-	return keys
-}
-
-func GetMapVals[InputKey comparable, OutputKey any](m map[InputKey]OutputKey) []OutputKey {
-	values := make([]OutputKey, 0, len(m))
-	for _, value := range m {
-		values = append(values, value)
-	}
-	return values
-}
-
-func ListsAreEqual[T any](list1 []T, list2 []T, comparators ...func(a, b T) bool) bool {
-	if len(list1) != len(list2) {
-		return false
-	}
-
-	var elementsAreEqual func(a, b T) bool
-	if len(comparators) > 1 {
-		panic(fmt.Errorf("Passed in too many comparators (%d)", len(comparators)))
-	} else if len(comparators) == 1 {
-		elementsAreEqual = comparators[0]
-	} else {
-		elementsAreEqual = func(a, b T) bool {
-			v := reflect.ValueOf(a)
-			if v.Comparable() {
-				u := reflect.ValueOf(b)
-				return v.Equal(u)
-			}
-			panic("type cannot be compared")
-		}
-	}
-
-	for i := range len(list1) {
-		if !elementsAreEqual(list1[i], list2[i]) {
-			return false
-		}
-	}
-
-	return true
-}
-
-func CopyList[T any](list []T) []T {
-	value := make([]T, len(list))
-	copy(value, list)
-	return value
 }
