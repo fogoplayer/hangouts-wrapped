@@ -20,7 +20,7 @@ type LineOutput struct {
 
 // TODO hide legend
 
-func (output *LineOutput) LabelStrings() []string {
+func (output *LineOutput) LabelsAsStrings() []string {
 	return util.ListMap(output.Labels(), output.keyToString)
 }
 
@@ -47,15 +47,15 @@ func (output *LineOutput) toString(builders ...*strings.Builder) string {
 
 	COLUMNS := 40.0
 	max := -1.0
-	for _, value := range output.TypedValues() {
+	for _, value := range output.Values() {
 		valueAsFloat := float64(value)
 		if valueAsFloat > max {
 			max = valueAsFloat
 		}
 	}
 
-	values := output.TypedValues()
-	labels := output.LabelStrings()
+	values := output.Values()
+	labels := output.LabelsAsStrings()
 
 	for i := range len(labels) {
 		fmt.Fprintf(tabWriter, "%s:", labels[i])
