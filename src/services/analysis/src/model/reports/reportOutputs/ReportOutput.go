@@ -78,17 +78,8 @@ func (reportOutput *ReportOutput[L, V]) Push(vals ...ReportOutputEntry[L, V]) {
 	})
 }
 
-func (reportOutput ReportOutput[L, V]) String() string { // TODO we probably don't need a 2-tier system now
-	return reportOutput.toString()
-}
-
-func (reportOutput *ReportOutput[L, V]) toString(builders ...*strings.Builder) string {
-	var builder *strings.Builder
-	if len(builders) > 0 {
-		builder = builders[0]
-	} else {
-		builder = &strings.Builder{}
-	}
+func (reportOutput ReportOutput[L, V]) String() string {
+	builder := &strings.Builder{}
 
 	if len(reportOutput.Labels()) != len(reportOutput.Values()) {
 		panic(fmt.Errorf("Report has %d labels and %d values!", len(reportOutput.Labels()), len(reportOutput.Values())))

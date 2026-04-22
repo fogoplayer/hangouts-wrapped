@@ -33,16 +33,7 @@ func (output *LineOutput) ToJsReadyMap() map[string]any {
 }
 
 func (output LineOutput) String() string {
-	return output.toString()
-}
-
-func (output *LineOutput) toString(builders ...*strings.Builder) string {
-	var builder *strings.Builder
-	if len(builders) > 0 {
-		builder = builders[0]
-	} else {
-		builder = &strings.Builder{}
-	}
+	builder := &strings.Builder{}
 	tabWriter := tabwriter.NewWriter(builder, 0, 0, 1, ' ', 0)
 
 	COLUMNS := 40.0
