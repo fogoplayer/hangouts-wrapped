@@ -26,18 +26,9 @@ func (output *LineOutput) LabelStrings() []string {
 
 func (output *LineOutput) ToJsReadyMap() map[string]any {
 	chartConfig := output.ReportOutput.ToJsReadyMap()
-	labels := chartConfig["data"].(map[string]any)["labels"]
-	// Convert dates to strings, then convert them back client-side
-	labels = util.ListMap(labels.([]any),
-		func(t any) any {
-			var time time.Time = t.(time.Time)
-			timeString := time.Format(util.HANGOUTS)
-			return any(timeString)
-		})
-	chartConfig["data"].(map[string]any)["labels"] = labels
-	// chartConfig["options"] = map[string]any{
-	// 	"indexAxis": "y",
-	// }
+	// format labels for display
+	labels := util.ListMap(output.Labels(), output.keyToString)
+	chartConfig["data"].(map[string]any)["labels"] = util.ListMap(labels, util.ToAny)
 	return chartConfig
 }
 
