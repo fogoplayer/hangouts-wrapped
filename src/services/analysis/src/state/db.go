@@ -32,3 +32,5 @@ var MaxDateFilter = ApplicationState[time.Time]{
 var IncludedUsersFilter = SetApplicationState[string]{}
 
 var IncludedChatsFilter = SetApplicationState[*parsed.Chat]{}
+
+// TODO move queries into this file

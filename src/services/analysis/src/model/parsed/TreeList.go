@@ -12,6 +12,8 @@ type Minute int
 // 	Values() []ValueType
 // }
 
+// TODO proper past version handling
+
 type YearTreeList map[Year]MonthTreeList
 
 func (yearTreeList YearTreeList) Values() []Message {
