@@ -10,11 +10,13 @@ import (
 )
 
 type BarOutput struct {
-	ReportOutput[int]
+	ReportOutput[string, int]
 }
 
 // TODO maybe we move all of these ToJsReady methods into a a reportOutputs_js.go file
 // and can I alias map[string]any to JSObject without making ValueOf mad?
+
+// TODO hide legend
 
 func (barOutput *BarOutput) ToJsReadyMap() map[string]any {
 	chartConfig := barOutput.ReportOutput.ToJsReadyMap()
@@ -72,14 +74,14 @@ func (barOutput *BarOutput) toString(builders ...*strings.Builder) string {
 
 func CreateBarOutput() BarOutput {
 	return BarOutput{
-		ReportOutput[int]{
+		ReportOutput[string, int]{
 			Kind:   Bar,
 			values: util.CreateHeap(CompareBarOutputEntries),
 		},
 	}
 }
 
-func CompareBarOutputEntries(a, b ReportOutputEntry[int]) int {
+func CompareBarOutputEntries(a, b ReportOutputEntry[string, int]) int {
 	return b.Value - a.Value
 }
 

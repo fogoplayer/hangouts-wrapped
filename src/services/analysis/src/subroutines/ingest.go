@@ -34,6 +34,8 @@ func ParseIngestedFiles() {
 	})
 }
 
+// TODO if no match, recursively check child folders
+
 const (
 	CHAT_DATA_DIRECTORY    = "Google Chat"
 	GROUPS_DIRECTORY       = "Groups"

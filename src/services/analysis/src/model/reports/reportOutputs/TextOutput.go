@@ -9,7 +9,7 @@ import (
 )
 
 type TextOutput struct {
-	ReportOutput[string]
+	ReportOutput[string, string]
 }
 
 func (output *TextOutput) String() string {
@@ -30,17 +30,17 @@ func (output *TextOutput) String() string {
 
 func CreateTextOutput() TextOutput {
 	return TextOutput{
-		ReportOutput[string]{
+		ReportOutput[string, string]{
 			Kind:   Text,
 			values: util.CreateHeap(CompareTextOutputEntries),
 		},
 	}
 }
 
-func CompareTextOutputEntries(a, b ReportOutputEntry[string]) int {
-	if a.Value < b.Value {
+func CompareTextOutputEntries(a, b ReportOutputEntry[string, string]) int {
+	if a.Label < b.Label {
 		return 1
-	} else if a.Value > b.Value {
+	} else if a.Label > b.Label {
 		return -1
 	} else {
 		return 0

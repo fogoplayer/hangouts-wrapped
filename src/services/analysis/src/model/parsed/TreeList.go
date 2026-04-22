@@ -12,6 +12,8 @@ type Minute int
 // 	Values() []ValueType
 // }
 
+// TODO proper past version handling
+
 type YearTreeList map[Year]MonthTreeList
 
 func (yearTreeList YearTreeList) Values() []Message {
@@ -24,6 +26,9 @@ func (yearTreeList YearTreeList) Values() []Message {
 
 func (yearTreeList YearTreeList) Insert(value Message) {
 	createdDate := value.CreatedDate_
+	if createdDate.IsZero() {
+		createdDate = value.Updated_Date_
+	}
 	year := Year(createdDate.Year())
 	if yearTreeList[year] == nil {
 		yearTreeList[year] = make(MonthTreeList)
@@ -43,6 +48,9 @@ func (monthTreeList MonthTreeList) Values() []Message {
 
 func (monthTreeList MonthTreeList) Insert(value Message) {
 	createdDate := value.CreatedDate_
+	if createdDate.IsZero() {
+		createdDate = value.Updated_Date_
+	}
 	month := Month(createdDate.Month())
 	if monthTreeList[month] == nil {
 		monthTreeList[month] = make(DayTreeList)
@@ -62,6 +70,9 @@ func (dayTreeList DayTreeList) Values() []Message {
 
 func (dayTreeList DayTreeList) Insert(value Message) {
 	createdDate := value.CreatedDate_
+	if createdDate.IsZero() {
+		createdDate = value.Updated_Date_
+	}
 	day := Day(createdDate.Day())
 	if dayTreeList[day] == nil {
 		dayTreeList[day] = make(HourTreeList)
@@ -81,6 +92,9 @@ func (hourTreeList HourTreeList) Values() []Message {
 
 func (hourTreeList HourTreeList) Insert(value Message) {
 	createdDate := value.CreatedDate_
+	if createdDate.IsZero() {
+		createdDate = value.Updated_Date_
+	}
 	hour := Hour(createdDate.Hour())
 	if hourTreeList[hour] == nil {
 		hourTreeList[hour] = make(MinuteTreeList)
@@ -101,6 +115,9 @@ func (minuteTreeList MinuteTreeList) Values() []Message {
 // TODO preserve ordering
 func (minuteTreeList MinuteTreeList) Insert(value Message) {
 	createdDate := value.CreatedDate_
+	if createdDate.IsZero() {
+		createdDate = value.Updated_Date_
+	}
 	minute := Minute(createdDate.Minute())
 	minuteTreeList[minute] = append(minuteTreeList[minute], value)
 }

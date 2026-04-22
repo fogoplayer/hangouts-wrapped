@@ -3,7 +3,6 @@ package util
 import (
 	"fmt"
 	"reflect"
-	"strings"
 )
 
 // TODO break this file up
@@ -28,7 +27,10 @@ func UseVar(...any) {}
 
 func StartsWithWords(candidate string, prefixes ...string) bool {
 	for _, prefix := range prefixes {
-		firstWord := strings.Split(candidate, " ")[0]
+		if len(candidate) < len(prefix) {
+			continue
+		}
+		firstWord := candidate[0:len(prefix)]
 		if firstWord == prefix {
 			return true
 		}

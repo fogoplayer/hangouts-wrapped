@@ -13,28 +13,32 @@ type ReportName int
 const (
 	CountByPerson ReportName = iota //Post count by person
 	CountByChat                     // Post count by chat (which is the biggest in the timeframe)
-	ChatsById                       // Map chat names to IDs
-	CountByDay                      // Post count by day (month?)
-	CountByMonth
-	CountByYear
+	CountByMonth                    // Post count by month
+	CountByYear                     // Post count by year
 	CountByHour
-	RandomMessage      // Get a random message in selection
-	RandomImage        // Get a random image in selection
-	MostUsedEmoji      // Emoji frequency?
-	MostReactions      // Most reacted-to message
-	MembershipTimeline // Every time someone joined and left one the selected chats in the selected timeframe
+	ChatsById // Map chat names to IDs
+	// RandomMessage      // Get a random message in selection
+	// RandomImage        // Get a random image in selection
+	// MostUsedEmoji      // Emoji frequency?
+	// MostReactions      // Most reacted-to message
+	// MembershipTimeline // Every time someone joined and left one the selected chats in the selected timeframe
+
 	// Pipe dreams
-	WordFrequency // Google Books-style word frequency (Also check for common misspellings?)
+	// WordFrequency // Google Books-style word frequency (Also check for common misspellings?)
 	// Line graphs of how often people were posting / emoji were used / words were used over time to see the ebb and flow
-	LongestThreads  // Longest thread
-	FirstMessages   // Each user's First message
-	WordCountByChat // Get the number of words that have been written
-	WordCountByUser
+	// LongestThreads  // Longest thread
+	// FirstMessages   // Each user's First message
+	// WordCountByChat // Get the number of words that have been written
+	// WordCountByUser
+	// CountByDay                   // Post count by day (month?)
 )
 
 var ReportDescriptions = map[ReportName]string{
 	CountByPerson: "Number of messages sent by each user",
 	CountByChat:   "Number of messages sent in each chat",
+	CountByMonth:  "Number of messages sent each month",
+	CountByYear:   "Number of messages sent each year",
+	CountByHour:   "Number of messages sent each hour of the day",
 	ChatsById:     "Map chat names to IDs",
 }
 
@@ -61,6 +65,12 @@ func RunReport(reportName ReportName) ReportOutputInterface {
 		return countByChat()
 	case ChatsById:
 		return chatsById()
+	case CountByMonth:
+		return countByMonth()
+	case CountByYear:
+		return countByYear()
+	case CountByHour:
+		return countByHour()
 	default:
 		// TODO eventually this should be a panic
 		fmt.Printf("%d does not exist (%s)\n", reportName, ReportDescriptions[reportName])

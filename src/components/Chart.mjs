@@ -4,15 +4,18 @@ import { createRef, html, LitElement, ref } from "../libs/lit-all@2.7.6.js";
 export class ChartComponent extends LitElement {
   static properties = {
     config: { type: Object },
-    outputLineCount: { type: Number },
+    outputDataPointsCount: { type: Number },
+    orientation: { type: String },
   };
 
   /** @type {number} */
-  outputLineCount = 0;
+  outputDataPointsCount = 0;
   /** @type {import("../services/analysis/analysis.js").ReportData | undefined} */
   config = undefined;
   /** @type {import("../libs/lit-all@2.7.6.js").Ref<HTMLCanvasElement>} */
   canvasRef = createRef();
+  /** @type {"vertical" | "horizontal"} */
+  orientation = "vertical";
 
   firstUpdated() {
     this.updateChart();
@@ -31,9 +34,21 @@ export class ChartComponent extends LitElement {
         return;
       }
 
-      this.outputLineCount = this.config.data.labels?.length ?? 0;
+      if (this.config.type.toLowerCase() === "line") {
+        this.orientation = "horizontal";
+      } else {
+        this.orientation = "vertical";
+      }
+
+      this.outputDataPointsCount = this.config.data.labels?.length ?? 0;
       // I don't fully understand why this is is needed in addition to the height, but it is
-      this.canvasRef.value.style.height = this.outputLineCount + "em";
+      if (this.orientation === "vertical") {
+        this.canvasRef.value.style.height = this.outputDataPointsCount + "em";
+      } else {
+        this.canvasRef.value.style.height = "30em"; // TODO better solution here
+        this.canvasRef.value.style.width = this.outputDataPointsCount + "em";
+      }
+
       (async () => new Chart(this.canvasRef.value, this.config))(); // TODO fix type
     }
   }
@@ -53,10 +68,17 @@ export class ChartComponent extends LitElement {
               </tr>`
           )}
         </table>`
-      : html`<canvas
-          ${ref(this.canvasRef)}
-          height=${this.outputLineCount * 32}
-        ></canvas>`;
+      : this.orientation === "vertical"
+        ? // TODO make responsive
+          // TODO overflow:auto wrapper around fixed size chart
+          html`<canvas
+            ${ref(this.canvasRef)}
+            height=${this.outputDataPointsCount * 32}
+          ></canvas>`
+        : html`<canvas
+            ${ref(this.canvasRef)}
+            width=${this.outputDataPointsCount * 32}
+          ></canvas>`;
   }
 }
 

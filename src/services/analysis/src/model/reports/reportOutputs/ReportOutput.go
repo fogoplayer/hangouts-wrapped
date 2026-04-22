@@ -2,18 +2,19 @@ package reportoutputs
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"zarinloosli.com/hangouts-wrapped/util"
 )
 
-type ReportOutput[T any] struct {
+type ReportOutput[L comparable, V any] struct {
 	Kind   ReportKind
-	values util.Heap[ReportOutputEntry[T]]
+	values util.Heap[ReportOutputEntry[L, V]]
 }
 
-func (reportOutput ReportOutput[T]) Labels() []string {
-	labels := make([]string, 0, reportOutput.values.Len())
+func (reportOutput ReportOutput[L, V]) Labels() []L {
+	labels := make([]L, 0, reportOutput.values.Len())
 
 	for _, v := range reportOutput.values.Values() {
 		labels = append(labels, v.Label)
@@ -22,15 +23,35 @@ func (reportOutput ReportOutput[T]) Labels() []string {
 	return labels
 }
 
+func (reportOutput ReportOutput[L, V]) LabelStrings() []string {
+	return util.ListMap(reportOutput.Labels(), func(label L) string {
+		labelAsAny := util.ToAny(label)
+
+		str, isString := labelAsAny.(string) // TODO rework to To[Any]
+		if isString {
+			return str
+		}
+		stringer, isStringer := labelAsAny.(fmt.Stringer) // TODO rework to To[Any]
+		if isStringer {
+			return stringer.String()
+		}
+		i, isInt := labelAsAny.(int)
+		if isInt {
+			return strconv.Itoa(i)
+		}
+		panic(fmt.Errorf("%s is not a string or an int", label))
+	})
+}
+
 // TODO delete
 // replace all uses with TypedValues
 // rename TypedValues to Values
-func (reportOutput ReportOutput[T]) Values() []any {
-	return util.ListMap(reportOutput.TypedValues(), func(value T) any { return value })
+func (reportOutput ReportOutput[L, V]) Values() []any {
+	return util.ListMap(reportOutput.TypedValues(), func(value V) any { return value })
 }
 
-func (reportOutput ReportOutput[T]) TypedValues() []T {
-	values := make([]T, 0, reportOutput.values.Len())
+func (reportOutput ReportOutput[L, V]) TypedValues() []V {
+	values := make([]V, 0, reportOutput.values.Len())
 
 	for _, v := range reportOutput.values.Values() {
 		values = append(values, v.Value)
@@ -39,7 +60,7 @@ func (reportOutput ReportOutput[T]) TypedValues() []T {
 	return values
 }
 
-func (reportOutput *ReportOutput[T]) ToJsReadyMap() map[string]any {
+func (reportOutput *ReportOutput[L, V]) ToJsReadyMap() map[string]any {
 	labels := util.ListMap(reportOutput.Labels(), util.ToAny)
 	data := util.ListMap(reportOutput.TypedValues(), util.ToAny)
 
@@ -54,17 +75,17 @@ func (reportOutput *ReportOutput[T]) ToJsReadyMap() map[string]any {
 	}
 }
 
-func (reportOutput *ReportOutput[T]) Push(vals ...ReportOutputEntry[T]) {
-	util.ListForEach(vals, func(val ReportOutputEntry[T]) {
+func (reportOutput *ReportOutput[L, V]) Push(vals ...ReportOutputEntry[L, V]) {
+	util.ListForEach(vals, func(val ReportOutputEntry[L, V]) {
 		reportOutput.values.Push(val)
 	})
 }
 
-func (reportOutput ReportOutput[T]) String() string { // TODO we probably don't need a 2-tier system now
+func (reportOutput ReportOutput[L, V]) String() string { // TODO we probably don't need a 2-tier system now
 	return reportOutput.toString()
 }
 
-func (reportOutput *ReportOutput[T]) toString(builders ...*strings.Builder) string {
+func (reportOutput *ReportOutput[L, V]) toString(builders ...*strings.Builder) string {
 	var builder *strings.Builder
 	if len(builders) > 0 {
 		builder = builders[0]
@@ -83,11 +104,11 @@ func (reportOutput *ReportOutput[T]) toString(builders ...*strings.Builder) stri
 	return builder.String()
 }
 
-func CreateReportOutput[T any](comparator func(a, b ReportOutputEntry[T]) int) ReportOutput[T] {
-	return ReportOutput[T]{
+func CreateReportOutput[L comparable, V any](comparator func(a, b ReportOutputEntry[L, V]) int) ReportOutput[L, V] {
+	return ReportOutput[L, V]{
 		Kind:   Bar,
 		values: util.CreateHeap(comparator),
 	}
 }
 
-var _ ReportOutputInterface = &ReportOutput[any]{} // Compile-time inheritance check
+var _ ReportOutputInterface = &ReportOutput[*any, any]{} // Compile-time inheritance check

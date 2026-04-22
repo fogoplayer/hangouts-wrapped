@@ -97,6 +97,7 @@ func parseMessage(message jsonSchema.Message) parsed.Message {
 		TopicId:   message.Topic_Id,
 		MessageId: message.Message_Id,
 
+		// TODO handle previous versions, annotations
 		CreatedDate_:               parseTime(message.Created_Date_),
 		Text_:                      message.Text_,
 		Message_State_:             parseMessageState(message.Message_State_),
@@ -130,27 +131,24 @@ func parseActingUser(actingUser jsonSchema.ActingUser) *parsed.ActingUser {
 
 func parseTime(dateTime string) time.Time {
 	// Layout strings, based on  "01/02 03:04:05PM '06 -0700"
-	var HANGOUTS = "Monday, January 2, 2006 at 3:04:05PM UTC"
-	var CALENDAR = time.RFC3339
-
 	if dateTime == "" {
 		return time.Time{}
 	}
 
 	dateTime = strings.ReplaceAll(dateTime, "\xe2\x80\xaf", "") // handle non-Ascii spaces Google inserts for some reason
-	parsedTime, err := time.Parse(HANGOUTS, dateTime)
+	parsedTime, err := time.Parse(util.HANGOUTS, dateTime)
 	if err == nil {
 		return parsedTime
 	}
 
-	parsedTime, err = time.Parse(CALENDAR, dateTime)
+	parsedTime, err = time.Parse(util.CALENDAR, dateTime)
 	if err == nil {
 		return parsedTime
 	}
 
 	fmt.Println("unable to parse time", dateTime)
 	fmt.Println("1:", dateTime)
-	fmt.Println("2:", HANGOUTS)
+	fmt.Println("2:", util.HANGOUTS)
 	panic(err)
 
 }

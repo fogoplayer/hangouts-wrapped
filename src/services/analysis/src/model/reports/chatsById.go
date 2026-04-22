@@ -10,7 +10,7 @@ func chatsById() *TextOutput {
 
 	output := CreateTextOutput()
 	for _, chat := range allChats {
-		output.Push(ReportOutputEntry[string]{ // TODO reports should just have a "push" method
+		output.Push(ReportOutputEntry[string, string]{ // TODO reports should just have a "push" method
 			Label: chat.Name,
 			Value: chat.Id,
 		})

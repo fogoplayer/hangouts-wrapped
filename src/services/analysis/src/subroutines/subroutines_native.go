@@ -35,5 +35,7 @@ func PromptForReport() reports.ReportName { // TODO is this the right package fo
 }
 
 func OutputReport(results reportoutputs.ReportOutputInterface) {
+	// jsReadyMap := results.ToJsReadyMap()
+	// util.UseVar(jsReadyMap)
 	fmt.Println(results.String())
 }

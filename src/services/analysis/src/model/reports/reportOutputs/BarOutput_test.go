@@ -19,7 +19,7 @@ func TestValues(t *testing.T) {
 	i := 0
 	util.ListForEach(baseValues, func(value int) {
 		i += 1
-		bundle := ReportOutputEntry[int]{strconv.Itoa(i), value}
+		bundle := ReportOutputEntry[string, int]{strconv.Itoa(i), value}
 		barOutput.Push(bundle)
 	})
 
@@ -39,7 +39,7 @@ func TestValuesStability(t *testing.T) {
 	i := 0
 	util.ListForEach(baseValues, func(value int) {
 		i += 1
-		bundle := ReportOutputEntry[int]{strconv.Itoa(i), value}
+		bundle := ReportOutputEntry[string, int]{strconv.Itoa(i), value}
 		barOutput.Push(bundle)
 	})
 
@@ -68,7 +68,7 @@ func TestValuesWithDuplicateKeys(t *testing.T) {
 	i := 0
 	util.ListForEach(baseValues, func(value int) {
 		i += 1
-		bundle := ReportOutputEntry[int]{"key", value}
+		bundle := ReportOutputEntry[string, int]{"key", value}
 		barOutput.Push(bundle)
 	})
 
@@ -93,7 +93,7 @@ func TestValuesStabilityWithDuplicateKeys(t *testing.T) {
 	i := 0
 	util.ListForEach(baseValues, func(value int) {
 		i += 1
-		bundle := ReportOutputEntry[int]{"key", value}
+		bundle := ReportOutputEntry[string, int]{"key", value}
 		barOutput.Push(bundle)
 	})
 

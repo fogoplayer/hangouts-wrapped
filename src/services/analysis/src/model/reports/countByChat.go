@@ -10,7 +10,7 @@ func countByChat() *BarOutput {
 
 	output := CreateBarOutput()
 	for _, chat := range allChats {
-		output.Push(ReportOutputEntry[int]{
+		output.Push(ReportOutputEntry[string, int]{
 			Label: chat.Name,
 			Value: len(chat.Messages.Values()),
 		})
