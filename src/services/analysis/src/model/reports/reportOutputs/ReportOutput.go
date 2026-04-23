@@ -39,7 +39,7 @@ func (reportOutput ReportOutput[L, V]) LabelsAsStrings() []string {
 		if isInt {
 			return strconv.Itoa(i)
 		}
-		panic(fmt.Errorf("%s is not a string or an int", label))
+		panic(fmt.Errorf("%v is not a string or an int", label))
 	})
 }
 
@@ -86,7 +86,7 @@ func (reportOutput ReportOutput[L, V]) String() string {
 	}
 
 	for i := range reportOutput.Labels() {
-		fmt.Fprintf(builder, "%s: %s\n", reportOutput.Labels()[i], reportOutput.Values()[i])
+		fmt.Fprintf(builder, "%s: %v\n", reportOutput.LabelsAsStrings()[i], reportOutput.Values()[i])
 	}
 
 	return builder.String()

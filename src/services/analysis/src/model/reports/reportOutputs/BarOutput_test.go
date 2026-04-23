@@ -27,7 +27,7 @@ func TestValues(t *testing.T) {
 	sorted.Sort()
 	slices.Reverse(sorted) // BarOutput uses increasing, not decreasing order
 
-	fromHeap := barOutput.TypedValues()
+	fromHeap := barOutput.Values()
 	require.True(t, util.ListsAreEqual(fromHeap, sorted), "Lists do not match")
 }
 
@@ -47,16 +47,16 @@ func TestValuesStability(t *testing.T) {
 	sorted.Sort()
 	slices.Reverse(sorted) // BarOutput uses increasing, not decreasing order
 
-	fromHeap := barOutput.TypedValues()
+	fromHeap := barOutput.Values()
 	require.True(t, util.ListsAreEqual(fromHeap, sorted), "Lists do not match")
 
-	fromHeap = barOutput.TypedValues()
+	fromHeap = barOutput.Values()
 	require.True(t, util.ListsAreEqual(fromHeap, sorted), "Lists do not match")
 
-	fromHeap = barOutput.TypedValues()
+	fromHeap = barOutput.Values()
 	require.True(t, util.ListsAreEqual(fromHeap, sorted), "Lists do not match")
 
-	fromHeap = barOutput.TypedValues()
+	fromHeap = barOutput.Values()
 	require.True(t, util.ListsAreEqual(fromHeap, sorted), "Lists do not match")
 }
 
@@ -76,7 +76,7 @@ func TestValuesWithDuplicateKeys(t *testing.T) {
 	sorted.Sort()
 	slices.Reverse(sorted) // BarOutput uses increasing, not decreasing order
 
-	fromHeap := barOutput.TypedValues()
+	fromHeap := barOutput.Values()
 	assert.True(t, util.ListsAreEqual(fromHeap, sorted), "Lists do not match")
 
 	t.Log(fromHeap)
@@ -101,9 +101,9 @@ func TestValuesStabilityWithDuplicateKeys(t *testing.T) {
 	sorted.Sort()
 	slices.Reverse(sorted) // BarOutput uses increasing, not decreasing order
 
-	fromHeap := barOutput.TypedValues()
+	fromHeap := barOutput.Values()
 	assert.True(util.ListsAreEqual(fromHeap, sorted), "Lists do not match")
 
-	fromHeap = barOutput.TypedValues()
+	fromHeap = barOutput.Values()
 	assert.True(util.ListsAreEqual(fromHeap, sorted), "Lists do not match")
 }
