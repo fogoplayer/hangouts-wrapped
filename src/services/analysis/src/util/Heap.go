@@ -48,6 +48,7 @@ func (h *innerHeap[T]) Push(x any) {
 	// Push and Pop use pointer receivers because they modify the slice's length,
 	// not just its contents.
 	h.data = append(h.data, x.(T))
+	h.cacheClean = false
 }
 
 func (h *innerHeap[T]) Pop() any {
@@ -55,17 +56,19 @@ func (h *innerHeap[T]) Pop() any {
 	n := len(old)
 	x := old[n-1]
 	h.data = old[0 : n-1]
+	h.cacheClean = false
 	return x
 }
 
 func (h *innerHeap[T]) Values() []T {
-	// TODO memoize
-	// Have a property for "memoized value" and a flag for "has changed"
-	// Pushing and popping changes, if no change return memoized value
-	// h := *innerheap // create copy of innerheap
-	values := CopyList(h.data)
+	if h.cacheClean {
+		return h.cachedValues
+	}
 
+	values := CopyList(h.data)
 	slices.SortStableFunc(values, h.comparator)
+	h.cachedValues = values
+	h.cacheClean = true
 	return values
 }
 

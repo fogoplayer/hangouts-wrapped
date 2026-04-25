@@ -81,9 +81,9 @@ func TestValuesIsIndempotent(t *testing.T) {
 	returned1 := heap.Values()
 	returned2 := heap.Values()
 	listsAreEqual := ListsAreEqual(returned1, returned2)
-	t.Log(returned1)
-	t.Log(returned2)
 	if !listsAreEqual {
+		t.Log(returned1)
+		t.Log(returned2)
 		t.Log("Lists are not equal")
 		t.Fail()
 	}
