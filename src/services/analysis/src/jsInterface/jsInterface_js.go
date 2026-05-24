@@ -7,6 +7,7 @@ import (
 	"zarinloosli.com/hangouts-wrapped/fsIo"
 	"zarinloosli.com/hangouts-wrapped/model/reports"
 	"zarinloosli.com/hangouts-wrapped/state"
+	"zarinloosli.com/hangouts-wrapped/state/stats"
 	"zarinloosli.com/hangouts-wrapped/subroutines"
 	"zarinloosli.com/hangouts-wrapped/util"
 )
@@ -34,17 +35,17 @@ var showDirectoryPicker js.Func = js.FuncOf(func(this js.Value, args []js.Value)
 
 var getIngestStats js.Func = js.FuncOf(func(this js.Value, args []js.Value) any {
 	jsReadyMap := func() map[string]int {
-		convertToStringKeys := func(k state.IngestStatsKey, v int) (string, int) {
+		convertToStringKeys := func(k stats.IngestStatsKey, v int) (string, int) {
 			return string(k), v
 		}
 
-		return util.MapMap(state.GetIngestStats(), convertToStringKeys)
+		return util.MapMap(stats.GetIngestStats(), convertToStringKeys)
 	}()
 	jsObject := browserApis.ObjectFromGo(jsReadyMap)
 	jsObject.Set("toString", js.FuncOf(func(this js.Value, args []js.Value) any {
 		// TODO this only works because we mark the return value as Readonly
 		// Might be worth using code gen to get a more robust solution
-		return js.ValueOf(state.GetIngestStats().String())
+		return js.ValueOf(stats.GetIngestStats().String())
 	}))
 	return jsObject
 })

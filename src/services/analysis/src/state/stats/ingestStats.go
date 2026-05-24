@@ -1,6 +1,4 @@
-package state
-
-// TODO create model/stats subpackage
+package stats
 
 import (
 	"fmt"

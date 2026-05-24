@@ -87,7 +87,7 @@ func handleDirectoryInGoRoutine(directoryHandle model.FSAgnosticDirectoryHandle)
 				state.FilePathsToIngestChannel <- entry.Path()
 			})
 		}
-		state.IncrementStat(state.FilesParsed) // handing a directory counts as "parsing" it
+		stats.IncrementStat(stats.FilesParsed) // handing a directory counts as "parsing" it
 	})
 }
 
