@@ -20,7 +20,7 @@ export default class Home extends LitElement {
     results: { type: Array, state: true, default: [] },
   };
 
-  /** @type {NodeJS.Timeout | undefined} */ // TODO ? is null in this repo, for some reason?
+  /** @type {NodeJS.Timeout | undefined} */
   statsInterval = undefined;
 
   async selectFile() {

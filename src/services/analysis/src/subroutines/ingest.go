@@ -7,6 +7,7 @@ import (
 	"zarinloosli.com/hangouts-wrapped/model"
 	"zarinloosli.com/hangouts-wrapped/parse"
 	"zarinloosli.com/hangouts-wrapped/state"
+	"zarinloosli.com/hangouts-wrapped/state/stats"
 	"zarinloosli.com/hangouts-wrapped/util"
 )
 
@@ -29,7 +30,7 @@ func ParseIngestedFiles() {
 
 	state.IngestWaitGroup.Go(func() {
 		for userInfoBytes := range state.UserInfoChannel {
-			go parse.ParseUserInfoInWaitGoRoutine(userInfoBytes)
+			parse.ParseUserInfoInWaitGoRoutine(userInfoBytes)
 		}
 	})
 }
@@ -48,7 +49,7 @@ const (
 	MESSAGES               = "messages.json"
 )
 
-func ProcessFileInWaitGoRoutine(path string) { // TODO is this the right package for this function?
+func ProcessFileInWaitGoRoutine(path string) {
 	state.IngestWaitGroup.Go(func() {
 		fsHandle := fsIo.GetFSHandleFromPath(path)
 		if directoryHandle, err := fsHandle.AsDirectoryHandle(); err == nil {
@@ -100,11 +101,7 @@ func handleChatDirectoryInWaitGoRoutine(directoryHandle model.FSAgnosticDirector
 			}
 		}()
 
-		messagesEntry, err := directoryHandle.GetEntry("messages.json")
-		util.PanicIfError(err)
-		messagesFile, err := messagesEntry.AsFileHandle()
-		util.PanicIfError(err)
-		messagesBytesChannel := messagesFile.Bytes()
+		messagesBytesChannel := handeMessagesDirectory(directoryHandle)
 
 		groupInfoEntry, err := directoryHandle.GetEntry("group_info.json")
 		util.PanicIfError(err)
@@ -119,8 +116,16 @@ func handleChatDirectoryInWaitGoRoutine(directoryHandle model.FSAgnosticDirector
 				GroupInfo:       groupInfoBytesChannel,
 			}
 		})
-		state.IncrementStat(state.FilesParsed) // handing a directory counts as "parsing" it
+		stats.IncrementStat(stats.FilesParsed) // handing a directory counts as "parsing" it
 	})
+}
+
+func handeMessagesDirectory(directoryHandle model.FSAgnosticDirectoryHandle) chan []byte {
+	messagesEntry, err := directoryHandle.GetEntry("messages.json")
+	util.PanicIfError(err)
+	messagesFile, err := messagesEntry.AsFileHandle()
+	util.PanicIfError(err)
+	return messagesFile.Bytes()
 }
 
 func handleUserInfoInWaitGoRoutine(userInfoFileHandle model.FSAgnosticFileHandle) {

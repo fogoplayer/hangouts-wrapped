@@ -28,7 +28,7 @@ func WhileIngesting() {
 	})
 }
 
-func PromptForReport() reports.ReportName { // TODO is this the right package for this function?
+func PromptForReport() reports.ReportName {
 	values := reports.GetReportDescriptionsAsList()
 	selection := userInteractionIo.Prompt("Choose a report by typing a number:", values)
 	return reports.ReportName(selection)
