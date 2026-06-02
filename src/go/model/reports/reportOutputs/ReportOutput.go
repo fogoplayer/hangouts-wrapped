@@ -23,15 +23,15 @@ func (reportOutput ReportOutput[L, V]) Labels() []L {
 	return labels
 }
 
-func (reportOutput ReportOutput[L, V]) LabelStrings() []string {
+func (reportOutput ReportOutput[L, V]) LabelsAsStrings() []string {
 	return util.ListMap(reportOutput.Labels(), func(label L) string {
 		labelAsAny := util.ToAny(label)
 
-		str, isString := labelAsAny.(string) // TODO rework to To[Any]
+		str, isString := labelAsAny.(string)
 		if isString {
 			return str
 		}
-		stringer, isStringer := labelAsAny.(fmt.Stringer) // TODO rework to To[Any]
+		stringer, isStringer := labelAsAny.(fmt.Stringer)
 		if isStringer {
 			return stringer.String()
 		}
@@ -39,18 +39,15 @@ func (reportOutput ReportOutput[L, V]) LabelStrings() []string {
 		if isInt {
 			return strconv.Itoa(i)
 		}
-		panic(fmt.Errorf("%s is not a string or an int", label))
+		panic(fmt.Errorf("%v is not a string or an int", label))
 	})
 }
 
-// TODO delete
-// replace all uses with TypedValues
-// rename TypedValues to Values
-func (reportOutput ReportOutput[L, V]) Values() []any {
-	return util.ListMap(reportOutput.TypedValues(), func(value V) any { return value })
+func (reportOutput ReportOutput[L, V]) ValuesAsAny() []any {
+	return util.ListMap(reportOutput.Values(), func(value V) any { return value })
 }
 
-func (reportOutput ReportOutput[L, V]) TypedValues() []V {
+func (reportOutput ReportOutput[L, V]) Values() []V {
 	values := make([]V, 0, reportOutput.values.Len())
 
 	for _, v := range reportOutput.values.Values() {
@@ -62,7 +59,7 @@ func (reportOutput ReportOutput[L, V]) TypedValues() []V {
 
 func (reportOutput *ReportOutput[L, V]) ToJsReadyMap() map[string]any {
 	labels := util.ListMap(reportOutput.Labels(), util.ToAny)
-	data := util.ListMap(reportOutput.TypedValues(), util.ToAny)
+	data := util.ListMap(reportOutput.Values(), util.ToAny)
 
 	return map[string]any{
 		"type": string(reportOutput.Kind),
@@ -81,24 +78,15 @@ func (reportOutput *ReportOutput[L, V]) Push(vals ...ReportOutputEntry[L, V]) {
 	})
 }
 
-func (reportOutput ReportOutput[L, V]) String() string { // TODO we probably don't need a 2-tier system now
-	return reportOutput.toString()
-}
-
-func (reportOutput *ReportOutput[L, V]) toString(builders ...*strings.Builder) string {
-	var builder *strings.Builder
-	if len(builders) > 0 {
-		builder = builders[0]
-	} else {
-		builder = &strings.Builder{}
-	}
+func (reportOutput ReportOutput[L, V]) String() string {
+	builder := &strings.Builder{}
 
 	if len(reportOutput.Labels()) != len(reportOutput.Values()) {
 		panic(fmt.Errorf("Report has %d labels and %d values!", len(reportOutput.Labels()), len(reportOutput.Values())))
 	}
 
 	for i := range reportOutput.Labels() {
-		fmt.Fprintf(builder, "%s: %s\n", reportOutput.Labels()[i], reportOutput.Values()[i])
+		fmt.Fprintf(builder, "%s: %v\n", reportOutput.LabelsAsStrings()[i], reportOutput.Values()[i])
 	}
 
 	return builder.String()

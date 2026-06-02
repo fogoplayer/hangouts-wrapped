@@ -11,6 +11,7 @@ import (
 	"zarinloosli.com/hangouts-wrapped/model/jsonSchema"
 	"zarinloosli.com/hangouts-wrapped/model/parsed"
 	"zarinloosli.com/hangouts-wrapped/state"
+	"zarinloosli.com/hangouts-wrapped/state/stats"
 	"zarinloosli.com/hangouts-wrapped/util"
 )
 
@@ -20,19 +21,19 @@ func ParseChatDirectoryHandleInWaitGoRoutine(handle model.ChatDirectoryHandle) {
 		messagesJson := jsonSchema.Messages_JsonSchema{}
 
 		parseJson(<-handle.GroupInfo, &groupInfoJson)
-		state.IncrementStat(state.ChatsParsed)
+		stats.IncrementStat(stats.ChatsParsed)
 		chat := parseGroupInfo(handle.Name(), groupInfoJson)
 
 		parseJson(<-handle.Messages, &messagesJson)
-		state.IncrementStat(state.MessagesParsed, len(messagesJson.Messages)) // TODO move incrementstats into actual parseMessage method
+		stats.IncrementStat(stats.MessagesParsed, len(messagesJson.Messages)) // TODO move incrementstats into actual parseMessage method
 		// TODO parse each message in its own goroutine
 		for _, parsedMessage := range util.ListMap(messagesJson.Messages, parseMessage) {
 			chat.Messages.Insert(parsedMessage)
-			state.IncrementStat(state.MessagesIngested)
+			stats.IncrementStat(stats.MessagesIngested)
 		}
 
 		state.AllChats.Add(&chat)
-		state.IncrementStat(state.ChatsIngested)
+		stats.IncrementStat(stats.ChatsIngested)
 	})
 }
 
@@ -53,7 +54,7 @@ func parseJson(bytes []byte, destinationPointer any) error {
 		return errors.New("invalid json")
 	}
 	json.Unmarshal(bytes, destinationPointer)
-	state.IncrementStat(state.FilesParsed)
+	stats.IncrementStat(stats.FilesParsed)
 	return nil
 }
 

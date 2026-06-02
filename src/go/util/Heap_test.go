@@ -68,3 +68,23 @@ func TestStructHeapPopsInOrder(t *testing.T) {
 		}
 	}
 }
+
+// Tests that calling Values multiple times doesn't lead to issues
+func TestValuesIsIndempotent(t *testing.T) {
+	heap := CreateHeap(func(a, b int) int { return a - b })
+
+	values := []int{14, 11, 3, 6, 7, 18}
+	ListForEach(values, func(value int) {
+		heap.Push(value)
+	})
+
+	returned1 := heap.Values()
+	returned2 := heap.Values()
+	listsAreEqual := ListsAreEqual(returned1, returned2)
+	if !listsAreEqual {
+		t.Log(returned1)
+		t.Log(returned2)
+		t.Log("Lists are not equal")
+		t.Fail()
+	}
+}

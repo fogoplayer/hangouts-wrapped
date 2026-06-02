@@ -11,6 +11,7 @@ import {
 import { documentJsonFile } from "../services/JsonDocumenter.mjs";
 import "../components/Chart.mjs";
 /** @typedef {import("../libs/chart@4.5.0.js").ChartConfiguration} ChartConfiguration */
+/** @typedef {import("../services/analysis/analysis.js").ReportData} ReportData */
 
 export default class Home extends LitElement {
   static properties = {
@@ -20,7 +21,7 @@ export default class Home extends LitElement {
     results: { type: Array, state: true, default: [] },
   };
 
-  /** @type {NodeJS.Timeout | undefined} */ // TODO ? is null in this repo, for some reason?
+  /** @type {NodeJS.Timeout | undefined} */
   statsInterval = undefined;
 
   async selectFile() {
@@ -36,7 +37,7 @@ export default class Home extends LitElement {
     super.connectedCallback();
 
     this.reports = getReports();
-    /** @type {ChartConfiguration[]} */ this.results = [];
+    /** @type {ReportData[]} */ this.results = [];
 
     const phaseState = getApplicationPhase();
     this.applicationPhase = phaseState.value;
@@ -54,7 +55,6 @@ export default class Home extends LitElement {
   updated(changedProperties) {
     if (changedProperties.get("applicationPhase")) {
       if (this.applicationPhase === "Ingesting") {
-        // TODO this currently does nothing because ingesting blocks the main thread. Seek ways around this.
         this.statsInterval = setInterval(() => {
           this.progress = getIngestStats();
         }, 50);

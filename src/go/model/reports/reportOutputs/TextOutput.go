@@ -16,12 +16,12 @@ func (output *TextOutput) String() string {
 	builder := &strings.Builder{}
 	tabWriter := tabwriter.NewWriter(builder, 0, 0, 1, ' ', 0)
 
-	if len(output.Labels()) != len(output.Values()) {
-		panic(fmt.Errorf("Report has %d labels and %d values!", len(output.Labels()), len(output.Values())))
+	if len(output.Labels()) != len(output.ValuesAsAny()) {
+		panic(fmt.Errorf("Report has %d labels and %d values!", len(output.Labels()), len(output.ValuesAsAny())))
 	}
 
 	for i := range output.Labels() {
-		fmt.Fprintf(tabWriter, "%s:\t%s\n", output.Labels()[i], output.TypedValues()[i])
+		fmt.Fprintf(tabWriter, "%s:\t%s\n", output.Labels()[i], output.Values()[i])
 	}
 
 	tabWriter.Flush()

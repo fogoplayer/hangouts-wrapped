@@ -10,8 +10,8 @@ const (
 )
 
 type ReportOutputInterface interface {
-	LabelStrings() []string
-	Values() []any
+	LabelsAsStrings() []string
+	ValuesAsAny() []any
 	String() string
 	ToJsReadyMap() map[string]any
 }

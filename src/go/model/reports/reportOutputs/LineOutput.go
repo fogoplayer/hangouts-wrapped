@@ -20,7 +20,7 @@ type LineOutput struct {
 
 // TODO hide legend
 
-func (output *LineOutput) LabelStrings() []string {
+func (output *LineOutput) LabelsAsStrings() []string {
 	return util.ListMap(output.Labels(), output.keyToString)
 }
 
@@ -33,29 +33,20 @@ func (output *LineOutput) ToJsReadyMap() map[string]any {
 }
 
 func (output LineOutput) String() string {
-	return output.toString()
-}
-
-func (output *LineOutput) toString(builders ...*strings.Builder) string {
-	var builder *strings.Builder
-	if len(builders) > 0 {
-		builder = builders[0]
-	} else {
-		builder = &strings.Builder{}
-	}
+	builder := &strings.Builder{}
 	tabWriter := tabwriter.NewWriter(builder, 0, 0, 1, ' ', 0)
 
 	COLUMNS := 40.0
 	max := -1.0
-	for _, value := range output.TypedValues() {
+	for _, value := range output.Values() {
 		valueAsFloat := float64(value)
 		if valueAsFloat > max {
 			max = valueAsFloat
 		}
 	}
 
-	values := output.TypedValues()
-	labels := output.LabelStrings()
+	values := output.Values()
+	labels := output.LabelsAsStrings()
 
 	for i := range len(labels) {
 		fmt.Fprintf(tabWriter, "%s:", labels[i])

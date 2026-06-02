@@ -1,13 +1,11 @@
-package state
-
-// TODO create model/stats subpackage
+package stats
 
 import (
 	"fmt"
 	"sync"
 )
 
-type IngestStatsType map[IngestStatsKey]int
+type ingestStatsType map[IngestStatsKey]int
 type IngestStatsKey string
 
 const (
@@ -31,7 +29,7 @@ var ingestStats = map[IngestStatsKey]int{
 	MessagesIngested: 0,
 }
 
-func (ingestStats IngestStatsType) String() string {
+func (ingestStats ingestStatsType) String() string {
 	ingestStatsMutex.RLock()
 	defer func() { ingestStatsMutex.RUnlock() }()
 	return fmt.Sprint(
@@ -53,7 +51,7 @@ func IncrementStat(key IngestStatsKey, amounts ...int) {
 	}
 }
 
-func GetIngestStats() IngestStatsType {
+func GetIngestStats() ingestStatsType {
 	ingestStatsMutex.RLock()
 	defer func() { ingestStatsMutex.RUnlock() }()
 	return ingestStats

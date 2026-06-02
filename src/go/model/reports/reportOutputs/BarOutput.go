@@ -27,29 +27,20 @@ func (barOutput *BarOutput) ToJsReadyMap() map[string]any {
 }
 
 func (barOutput BarOutput) String() string {
-	return barOutput.toString()
-}
+	builder := &strings.Builder{}
 
-func (barOutput *BarOutput) toString(builders ...*strings.Builder) string {
-	var builder *strings.Builder
-	if len(builders) > 0 {
-		builder = builders[0]
-	} else {
-		builder = &strings.Builder{}
-	}
 	tabWriter := tabwriter.NewWriter(builder, 0, 0, 1, ' ', 0)
 
 	COLUMNS := 40.0
 	max := -1.0
-	for _, value := range barOutput.TypedValues() {
+	for _, value := range barOutput.Values() {
 		valueAsFloat := float64(value)
 		if valueAsFloat > max {
 			max = valueAsFloat
 		}
 	}
 
-	// TODO calling these methods is not stable, find a way to stablize them
-	values := barOutput.TypedValues()
+	values := barOutput.Values()
 	labels := barOutput.Labels()
 
 	for i := range len(labels) {
