@@ -96,14 +96,14 @@ type Uint8Array struct {
 	js.Value
 }
 
-func Uint8ArrayFromGo(bytes []byte) js.Value /* Uint8Array */ {
+func Uint8ArrayFromGo(bytes []byte) Uint8Array {
 	jsUint8Array := CreateUint8Array(len(bytes))
-	js.CopyBytesToJS(jsUint8Array /* .Value */, bytes)
-	return /* Uint8Array( */ jsUint8Array /* ) */
+	js.CopyBytesToJS(jsUint8Array.Value, bytes)
+	return jsUint8Array
 }
 
-func CreateUint8Array(len int) js.Value /* Uint8Array */ {
-	return /* Uint8Array{ */ CreateJsClassInstance("Uint8Array", len) /* } */
+func CreateUint8Array(len int) Uint8Array {
+	return Uint8Array{CreateJsClassInstance("Uint8Array", len)}
 }
 
 // String
@@ -115,7 +115,7 @@ type JSString struct {
 func StringFromGoBytes(bytes []byte) JSString {
 	jsUint8Array := Uint8ArrayFromGo(bytes)
 	textDecoder := CreateTextDecoder()
-	return textDecoder.Decode(jsUint8Array)
+	return textDecoder.Decode(jsUint8Array.Value)
 }
 
 func StringFromGoString(value string) JSString {
@@ -124,16 +124,16 @@ func StringFromGoString(value string) JSString {
 
 // TextDecoder
 
-type TextDecoder struct {
+type textDecoder struct {
 	js.Value
 }
 
-func (textDecoder TextDecoder) Decode(bytes js.Value /* Uint8Array */) JSString {
+func (textDecoder textDecoder) Decode(bytes js.Value /* Uint8Array */) JSString {
 	return JSString{textDecoder.Value.Call("decode", bytes)}
 }
 
-func CreateTextDecoder() TextDecoder {
-	return TextDecoder{CreateJsClassInstance("TextDecoder")}
+func CreateTextDecoder() textDecoder {
+	return textDecoder{CreateJsClassInstance("TextDecoder")}
 }
 
 // Object
@@ -152,4 +152,3 @@ func ObjectFromGo[
 // ////////////////////// //
 
 // TODO is there a way to use type aliases or embedded types to allow passing a JS type where a JS value is accepted?
-// TODO make the types private so you have to use constructors, then use InstanceOf to make sure they are what they say they are?
