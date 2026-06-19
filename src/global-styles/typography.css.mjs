@@ -8,15 +8,13 @@ export default css`
     font-family: var(--sans);
   }
 
-  * {
-    font: inherit;
-  }
-
   h1 {
-    font-family: var(--serif);
+    font-family: var(--sans);
     font-size: 1.5em;
     font-weight: 400;
     line-height: 1.3em;
+
+    margin: 1em 0 0.25em;
   }
 
   h2 {

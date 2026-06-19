@@ -51,6 +51,7 @@ var getIngestStats js.Func = js.FuncOf(func(this js.Value, args []js.Value) any 
 })
 
 var getApplicationPhase js.Func = js.FuncOf(func(this js.Value, args []js.Value) any {
+	// TODO don't recreate object each time
 	return js.ValueOf(map[string]any{
 		"value": string(state.ApplicationPhase.Value()),
 		"onChange": js.FuncOf(func(this js.Value, args []js.Value) any {

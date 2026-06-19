@@ -1,5 +1,12 @@
+import globalCss from "../global-styles/global.css.mjs";
 import "../libs/chart@4.5.0.umd.js";
-import { createRef, html, LitElement, ref } from "../libs/lit-all@2.7.6.js";
+import {
+  createRef,
+  html,
+  LitElement,
+  ref,
+  css,
+} from "../libs/lit-all@2.7.6.js";
 
 export class ChartComponent extends LitElement {
   static properties = {
@@ -80,6 +87,15 @@ export class ChartComponent extends LitElement {
             width=${this.outputDataPointsCount * 32}
           ></canvas>`;
   }
+
+  static styles = [
+    globalCss,
+    css`
+      table tr:nth-child(even) {
+        background-color: var(--theme-background);
+      }
+    `,
+  ];
 }
 
 customElements.define("chart-", ChartComponent);

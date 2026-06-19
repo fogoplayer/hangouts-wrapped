@@ -16,6 +16,28 @@
 
   <script src="./libs/page@1.11.5.js"></script>
   <script type="module" src="./App.mjs"></script>
+
+  <!-- Material Web -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <script type="importmap">
+      {
+        "imports": {
+          "tslib": "https://cdnjs.cloudflare.com/ajax/libs/tslib/2.8.1/tslib.min.js",
+          "lit/": "https://esm.sh/lit@3.3.3/",
+          "lit": "/libs/lit-all@2.7.6.js",
+          "@material/mwc-button": "https://esm.sh/@material/mwc-button/",
+          "@material/mwc-top-app-bar-fixed": "https://esm.sh/@material/mwc-top-app-bar-fixed",
+          "@material/mwc-list-item": "https://esm.sh/@material/mwc-list/mwc-list-item.js",
+          "@material/mwc-menu": "https://esm.sh/@material/mwc-menu/mwc-menu.js",
+          "@material/mwc-icon": "https://esm.sh/@material/mwc-icon",
+          "@material/mwc-icon-button": "https://esm.sh/@material/mwc-icon-button",
+          "@material/mwc-select": "https://esm.sh/@material/mwc-select"
+        }
+      }
+    </script>
+  <script type="module">
+    import "@material/mwc-top-app-bar-fixed" // TODO why won't this load from app.js?
+  </script>
 </head>
 
 <body>

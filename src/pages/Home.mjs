@@ -4,12 +4,11 @@ import "../services/analysis/analysis.mjs";
 import {
   getApplicationPhase,
   getIngestStats,
-  getReports,
-  runReport,
   selectDirectoryForAnalysis,
 } from "../services/analysis/analysis.mjs";
 import { documentJsonFile } from "../services/JsonDocumenter.mjs";
 import "../components/Chart.mjs";
+import "@material/mwc-button";
 /** @typedef {import("../libs/chart@4.5.0.js").ChartConfiguration} ChartConfiguration */
 /** @typedef {import("../services/analysis/analysis.js").ReportData} ReportData */
 
@@ -36,13 +35,21 @@ export default class Home extends LitElement {
   connectedCallback() {
     super.connectedCallback();
 
-    this.reports = getReports();
-    /** @type {ReportData[]} */ this.results = [];
-
     const phaseState = getApplicationPhase();
-    this.applicationPhase = phaseState.value;
     phaseState.onChange(() => {
-      this.applicationPhase = getApplicationPhase().value;
+      const applicationPhase = getApplicationPhase().value;
+
+      switch (applicationPhase) {
+        case "WaitingForDirectory":
+          clearInterval(this.statsInterval);
+          break;
+
+        case "Ingesting":
+          this.statsInterval = setInterval(() => {
+            this.progress = getIngestStats(); // TODO not working
+          }, 50);
+          break;
+      }
     });
   }
 
@@ -51,50 +58,27 @@ export default class Home extends LitElement {
     clearInterval(this.statsInterval);
   }
 
-  /** @param {Map<string, boolean>} changedProperties  */
-  updated(changedProperties) {
-    if (changedProperties.get("applicationPhase")) {
-      if (this.applicationPhase === "Ingesting") {
-        this.statsInterval = setInterval(() => {
-          this.progress = getIngestStats();
-        }, 50);
-      } else clearInterval(this.statsInterval);
-
-      if (this.applicationPhase === "WaitingForReport") {
-        this.showReports = true;
-      } else this.showReports = false;
-    }
-  }
-
   render() {
-    return html`<header><h1>hangouts-wrapped</h1></header>
-      <main>Welcome to my app!</main>
-      <button @click=${this.selectDirectory}>Select Directory</button>
-      <button @click=${this.selectFile}>Select file</button>
+    return html`
+      <mwc-button @click=${this.selectDirectory} raised
+        >Select Directory</mwc-button
+      >
+      <!-- <mwc-button @click=${this
+        .selectFile} raised>Select file</mwc-button> -->
       <output>${this.progress?.toString()}</output>
-      <div>
-        ${this.showReports
-          ? this.reports?.map(
-              (description, i) =>
-                html`<button @click=${() => this.results?.push(runReport(i))}>
-                  ${description}
-                </button>`
-            )
-          : ""}
-      </div>
-      <button @click=${() => (this.results = [])}>Clear</button>
-      <div>
-        ${this.results?.map(
-          (config) => html`<chart- .config=${config}></chart->`
-        )}
-      </div> `;
+    `;
   }
 
   static styles = [
     globalCss,
     css`
-      button {
-        outline: 1px solid;
+      :host {
+        flex: 1;
+
+        display: flex;
+        flex-flow: column nowrap;
+        align-items: center;
+        justify-content: center;
       }
     `,
   ];
