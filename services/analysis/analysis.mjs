@@ -1,4 +1,4 @@
-import "../../libs/go-wasm-runtime.js";
+import "../../../libs/go-wasm-runtime.js";
 import { documentJsonString as documentJsonFunc } from "../JsonDocumenter.mjs";
 
 const go = new Go();

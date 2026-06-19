@@ -1,5 +1,5 @@
 import { documentJsonString as documentJsonType } from "../JsonDocumenter.mjs";
-import type { ChartConfiguration } from "../../libs/chart@4.5.0";
+import type { ChartConfiguration } from "../../../libs/chart@4.5.0";
 
 type TextConfiguration = {
   type: "text";

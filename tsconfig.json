@@ -14,7 +14,11 @@
     "src/**/*.js",
     "src/**/*.mjs",
     "src/**/*.d.ts",
-    "src/libs/go-wasm-runtime@1.23.4.d.ts"
+    "libs/go-wasm-runtime@1.23.4.d.ts",
+    "global.d.ts",
+    "App.mjs",
+    "mockResults.mjs",
+    "service-worker.js"
   ],
   "exclude": ["node_modules"]
 }
