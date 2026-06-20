@@ -16,8 +16,7 @@ const (
 	CountByMonth                    // Post count by month
 	CountByYear                     // Post count by year
 	CountByHour
-	ChatsById // Map chat names to IDs
-	// RandomMessage      // Get a random message in selection
+	RandomMessage // Get a random message in selection
 	// RandomImage        // Get a random image in selection
 	// MostUsedEmoji      // Emoji frequency?
 	// MostReactions      // Most reacted-to message
@@ -31,6 +30,7 @@ const (
 	// WordCountByChat // Get the number of words that have been written
 	// WordCountByUser
 	// CountByDay                   // Post count by day (month?)
+	ChatsById // Map chat names to IDs
 )
 
 var ReportDescriptions = map[ReportName]string{
@@ -39,6 +39,7 @@ var ReportDescriptions = map[ReportName]string{
 	CountByMonth:  "Number of messages sent each month",
 	CountByYear:   "Number of messages sent each year",
 	CountByHour:   "Number of messages sent each hour of the day",
+	RandomMessage: "A random message from the selection",
 	ChatsById:     "Map chat names to IDs",
 }
 
@@ -71,6 +72,8 @@ func RunReport(reportName ReportName) ReportOutputInterface {
 		return countByYear()
 	case CountByHour:
 		return countByHour()
+	case RandomMessage:
+		return randomMessage()
 	default:
 		// TODO eventually this should be a panic
 		fmt.Printf("%d does not exist (%s)\n", reportName, ReportDescriptions[reportName])

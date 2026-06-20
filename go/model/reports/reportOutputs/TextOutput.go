@@ -28,20 +28,22 @@ func (output *TextOutput) String() string {
 	return builder.String()
 }
 
-func CreateTextOutput() TextOutput {
+func CreateTextOutput(comparators ...func(a, b ReportOutputEntry[string, string]) int) TextOutput {
+	comparator := util.ExtractOptionalArgumentWithDefault(comparators, CompareTextOutputEntries)
+
 	return TextOutput{
 		ReportOutput[string, string]{
 			Kind:   Text,
-			values: util.CreateHeap(CompareTextOutputEntries),
+			values: util.CreateHeap(comparator),
 		},
 	}
 }
 
 func CompareTextOutputEntries(a, b ReportOutputEntry[string, string]) int {
 	if a.Label < b.Label {
-		return 1
-	} else if a.Label > b.Label {
 		return -1
+	} else if a.Label > b.Label {
+		return 1
 	} else {
 		return 0
 	}
