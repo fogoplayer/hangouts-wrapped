@@ -5,6 +5,7 @@ import (
 
 	"zarinloosli.com/hangouts-wrapped/browserApis"
 	"zarinloosli.com/hangouts-wrapped/fsIo"
+	"zarinloosli.com/hangouts-wrapped/model/parsed"
 	"zarinloosli.com/hangouts-wrapped/model/reports"
 	"zarinloosli.com/hangouts-wrapped/state"
 	"zarinloosli.com/hangouts-wrapped/state/stats"
@@ -24,6 +25,8 @@ func Initialize() {
 	js.Global().Set("getApplicationPhase", getApplicationPhase)
 	js.Global().Set("getReportsList", getReportsList)
 	js.Global().Set("runReport", runReport)
+	js.Global().Set("getStableChatsList", getStableChatsList)
+	js.Global().Set("setChatFilter", setChatFilter)
 }
 
 var showDirectoryPicker js.Func = js.FuncOf(func(this js.Value, args []js.Value) any {
@@ -71,6 +74,27 @@ var getApplicationPhase js.Func = js.FuncOf(func(this js.Value, args []js.Value)
 var getReportsList js.Func = js.FuncOf(func(this js.Value, args []js.Value) any {
 	reportsList := reports.GetReportDescriptionsAsList()
 	return util.ListMap(reportsList, func(el string) any { return el }) // TODO we have a standard function for this now
+})
+
+var setChatFilter js.Func = js.FuncOf(func(this js.Value, args []js.Value) any {
+	selectedChatIndexes := util.ListMap(args, func(jsValue js.Value) int {
+		num, err := browserApis.IntFromJs(jsValue)
+		if err != nil {
+			panic(err)
+		}
+		return num
+	})
+
+	selectedChatPointers := util.ListMap(selectedChatIndexes, func(chatIndex int) *parsed.Chat {
+		return state.GetStableChatsList()[chatIndex]
+	})
+
+	state.IncludedChatsFilter.Overwrite(selectedChatPointers...)
+	return nil
+})
+
+var getStableChatsList = js.FuncOf(func(this js.Value, args []js.Value) any {
+	return util.ListMap(state.GetStableChatNamesList(), util.ToAny)
 })
 
 var runReport js.Func = js.FuncOf(func(this js.Value, args []js.Value) any {

@@ -11,20 +11,9 @@ import (
 
 func countByMonth() *LineOutput {
 
-	allChats := state.AllChats.Value()
-
 	output := CreateLineOutput(func(t time.Time) string { return t.Format(util.MONTH_YEAR) })
 
-	countsByMonth := make(map[time.Time]int)
-
-	for _, chat := range allChats {
-		// util.MapMap(map[]chat.Messages)
-		for year, monthTreeList := range chat.Messages {
-			for month, dayTreeList := range monthTreeList {
-				countsByMonth[time.Date(int(year), time.Month(month), 1, 0, 0, 0, 0, time.UTC)] += len(dayTreeList.Values())
-			}
-		}
-	}
+	countsByMonth := state.CountMessagesByMonthAndYear()
 
 	months := util.GetMapKeys(countsByMonth)
 	slices.SortFunc(months, func(i, j time.Time) int {

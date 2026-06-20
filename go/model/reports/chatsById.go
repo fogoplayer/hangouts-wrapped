@@ -6,7 +6,7 @@ import (
 )
 
 func chatsById() *TextOutput {
-	allChats := state.AllChats.Value()
+	allChats := state.GetFilteredChats()
 
 	output := CreateTextOutput()
 	for _, chat := range allChats {

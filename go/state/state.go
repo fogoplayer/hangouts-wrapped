@@ -101,6 +101,22 @@ func (applicationState *SetApplicationState[T]) Value() []T {
 	return util.GetMapKeys(applicationState.value)
 }
 
+func (applicationState *SetApplicationState[T]) Overwrite(values ...T) {
+	// TODO code duplication with Set.Overwrite
+	newValuesSet := make(util.Set[T])
+	newValuesSet.Add(values...)
+
+	notSharedValues := applicationState.value.Disjoint(newValuesSet)
+
+	for notSharedValue := range notSharedValues {
+		if applicationState.Includes(notSharedValue) {
+			applicationState.Delete(notSharedValue)
+		} else if newValuesSet.Includes(notSharedValue) {
+			applicationState.Add(notSharedValue)
+		}
+	}
+}
+
 // ///////////////// //
 // Application Phase //
 // ///////////////// //
@@ -110,7 +126,7 @@ type ApplicationPhaseType string
 const (
 	WaitingForDirectory ApplicationPhaseType = "WaitingForDirectory"
 	Ingesting           ApplicationPhaseType = "Ingesting"
-	WaitingForReport    ApplicationPhaseType = "WaitingForReport"
+	WaitingForInput     ApplicationPhaseType = "WaitingForReport"
 	GeneratingReport    ApplicationPhaseType = "GeneratingReport"
 )
 

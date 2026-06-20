@@ -10,8 +10,8 @@
       "type": "go",
       "request": "launch",
       "mode": "auto",
-      "program": "${workspaceFolder}/src/services/analysis/src",
-      "args": ["/var/tmp/Temporary Downloads/Takeout/Google Chat"],
+      "program": "${workspaceFolder}/go",
+      "args": ["/var/tmp/Temporary Downloads/Council Only/Takeout/Google Chat"],
       "console": "integratedTerminal"
     },
     {

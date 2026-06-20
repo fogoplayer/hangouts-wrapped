@@ -6,13 +6,7 @@ import (
 )
 
 func countByPerson() *BarOutput {
-	allChats := state.AllChats.Value()
-	messagesByUser := make(map[string]int)
-	for _, chat := range allChats {
-		for _, message := range chat.Messages.Values() {
-			messagesByUser[message.Creator.String()] += 1
-		}
-	}
+	messagesByUser := state.CountMessagesByUser()
 
 	output := CreateBarOutput()
 	for user, count := range messagesByUser {

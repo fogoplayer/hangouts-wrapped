@@ -1,5 +1,10 @@
 import { html, LitElement, css } from "lit"; // TODO fix import
-import { getReports, runReport } from "../services/analysis/analysis.mjs";
+import {
+  getReports,
+  getStableChatsList,
+  runReport,
+  setChatsFilter,
+} from "../services/analysis/analysis.mjs";
 import "@material/mwc-button";
 import "@material/mwc-icon-button";
 import "@material/mwc-menu";
@@ -12,12 +17,14 @@ export class ReportsPage extends LitElement {
   static properties = {
     showReports: { type: String, state: true, default: false },
     results: { type: Array, state: true, default: [] },
+    selectedReport: { type: Number, state: true, default: 0 },
   };
 
   connectedCallback() {
     super.connectedCallback();
     this.reports = getReports();
     /** @type {(ReportData | string)[]} */ this.results = [];
+    /** @type {number} */ this.selectedReport;
   }
 
   render() {
@@ -35,30 +42,34 @@ export class ReportsPage extends LitElement {
       <form action="">
         <div class="filters-group">
           <mwc-select
-            unelevated
+            label="Chats"
+            naturalMenuWidth="true"
+            value=""
+            @selected=${(/** @type {{detail:{index: number}}} */ event) => {
+              if (event.detail.index === 0) return;
+
+              setChatsFilter(event.detail.index - 1);
+            }}
+          >
+            <mwc-list-item></mwc-list-item>
+            ${getStableChatsList()?.map(
+              (chatName, i) =>
+                html`<mwc-list-item group="a" graphic="icon" value="i">
+                  <span> ${chatName} </span>
+                </mwc-list-item> `
+            )}
+          </mwc-select>
+          <mwc-select
             label="Report"
             naturalMenuWidth="true"
             @selected=${(/** @type {{detail:{index: number}}} */ event) => {
-              // offset by one for blank default selection
-              if (event.detail.index === 0) return;
-
-              const reportEnum = event.detail.index - 1;
-              const reportDescription = this.reports?.[reportEnum];
-              if (reportDescription) {
-                this.results?.push(reportDescription);
-              }
-              this.results?.push();
-              const result = runReport(reportEnum);
-              this.results?.push(result);
-              this.requestUpdate();
+              this.selectedReport = event.detail.index;
             }}
           >
             <mwc-list-item></mwc-list-item>
             ${this.reports?.map(
               (description, i) =>
                 html`<mwc-list-item group="a" graphic="icon" value="i">
-                  <!-- <mwc-icon slot="graphic">check</mwc-icon> -->
-                  <mwc-icon slot="graphic">${i + 1}</mwc-icon>
                   <span> ${description} </span>
                 </mwc-list-item> `
             )}
@@ -72,7 +83,20 @@ export class ReportsPage extends LitElement {
         <mwc-icon-button
           label="Submit"
           icon="send"
-          @click=${() => (this.results = [])}
+          @click=${() => {
+            // offset by one for blank default selection
+            if (this.selectedReport === 0) return;
+
+            const reportEnum = this.selectedReport - 1;
+            const reportDescription = this.reports?.[reportEnum];
+            if (reportDescription) {
+              this.results?.push(reportDescription);
+            }
+            this.results?.push();
+            const result = runReport(reportEnum);
+            this.results?.push(result);
+            this.requestUpdate();
+          }}
         ></mwc-icon-button>
       </form>
     `;

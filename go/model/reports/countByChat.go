@@ -6,7 +6,7 @@ import (
 )
 
 func countByChat() *BarOutput {
-	allChats := state.AllChats.Value()
+	allChats := state.GetFilteredChats()
 
 	output := CreateBarOutput()
 	for _, chat := range allChats {

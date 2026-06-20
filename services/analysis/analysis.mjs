@@ -31,4 +31,13 @@ export function runReport(reportEnum) {
   return window.runReport(reportEnum);
 }
 
+export function getStableChatsList() {
+  return window.getStableChatsList();
+}
+
+/** @param {...number} indexes  */
+export function setChatsFilter(...indexes) {
+  window.setChatFilter(...indexes);
+}
+
 window.documentJson = documentJsonFunc;

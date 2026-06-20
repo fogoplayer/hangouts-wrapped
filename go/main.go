@@ -19,16 +19,20 @@ func main() {
 	subroutines.WhileIngesting()
 	state.IngestWaitGroup.Wait()
 
-	state.ApplicationPhase.Set(state.WaitingForReport)
+	state.ApplicationPhase.Set(state.WaitingForInput)
 	subroutines.PostIngest()
 
 	for true {
-		selectedReport := subroutines.PromptForReport()
+		switch subroutines.PromptForAction() {
+		case subroutines.RunReport:
+			selectedReport := subroutines.PromptForReport()
 
-		state.ApplicationPhase.Set(state.GeneratingReport)
-		results := reports.RunReport(selectedReport)
-		subroutines.OutputReport(results)
-
-		state.ApplicationPhase.Set(state.WaitingForReport)
+			state.ApplicationPhase.Set(state.GeneratingReport)
+			results := reports.RunReport(selectedReport)
+			subroutines.OutputReport(results)
+		case subroutines.SetIncludedChats:
+			subroutines.SetChatFilter()
+		}
+		state.ApplicationPhase.Set(state.WaitingForInput)
 	}
 }

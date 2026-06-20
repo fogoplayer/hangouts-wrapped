@@ -25,3 +25,9 @@ func OutputReport(results reportoutputs.ReportOutputInterface) {
 func GetResults() reportoutputs.ReportOutputInterface {
 	return <-reportResultsChannel
 }
+
+func PromptForAction() action {
+	return RunReport
+}
+
+func SetChatFilter() {}

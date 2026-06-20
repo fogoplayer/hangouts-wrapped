@@ -10,19 +10,7 @@ import (
 )
 
 func countByYear() *LineOutput {
-	allChats := state.AllChats.Value()
-
-	output := CreateLineOutput(func(t time.Time) string {
-		return t.Format(util.YEAR_ONLY)
-	})
-
-	countsByYear := make(map[time.Time]int)
-
-	for _, chat := range allChats {
-		for year, monthTreeList := range chat.Messages {
-			countsByYear[time.Date(int(year), 1, 1, 0, 0, 0, 0, time.UTC)] += len(monthTreeList.Values())
-		}
-	}
+	countsByYear := state.CountMessagesByYear()
 
 	years := util.GetMapKeys(countsByYear)
 	slices.SortFunc(years, func(i, j time.Time) int {
@@ -33,6 +21,10 @@ func countByYear() *LineOutput {
 		} else {
 			return 0
 		}
+	})
+
+	output := CreateLineOutput(func(t time.Time) string {
+		return t.Format(util.YEAR_ONLY)
 	})
 
 	for _, year := range years {

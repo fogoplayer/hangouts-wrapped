@@ -27,5 +27,7 @@ declare global {
     }>;
     getReportsList(): string[];
     runReport(reportEnum: number): ReportData;
+    getStableChatsList(): string[];
+    setChatFilter(...indexes: number[]): void;
   }
 }
