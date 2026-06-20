@@ -88,3 +88,16 @@ func CountMessagesByUser() map[string]int {
 
 	return messagesByUser
 }
+
+func GetMessagesByUser() map[string][]*parsed.Message {
+	chats := GetFilteredChats()
+	messagesByUser := make(map[string][]*parsed.Message)
+	for _, chat := range chats {
+		for _, message := range chat.Messages.Values() {
+			// TODO make user objects singletons so we can use pointers
+			messagesByUser[message.Creator.String()] = append(messagesByUser[message.Creator.String()], &message)
+		}
+	}
+
+	return messagesByUser
+}

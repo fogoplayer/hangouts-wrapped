@@ -26,7 +26,7 @@ const (
 	// WordFrequency // Google Books-style word frequency (Also check for common misspellings?)
 	// Line graphs of how often people were posting / emoji were used / words were used over time to see the ebb and flow
 	// LongestThreads  // Longest thread
-	// FirstMessages   // Each user's First message
+	FirstMessages // Each user's First message
 	// WordCountByChat // Get the number of words that have been written
 	// WordCountByUser
 	// CountByDay                   // Post count by day (month?)
@@ -40,6 +40,7 @@ var ReportDescriptions = map[ReportName]string{
 	CountByYear:   "Number of messages sent each year",
 	CountByHour:   "Number of messages sent each hour of the day",
 	RandomMessage: "A random message from the selection",
+	FirstMessages: "Each user's first message",
 	ChatsById:     "Map chat names to IDs",
 }
 
@@ -74,6 +75,8 @@ func RunReport(reportName ReportName) ReportOutputInterface {
 		return countByHour()
 	case RandomMessage:
 		return randomMessage()
+	case FirstMessages:
+		return firstMessages()
 	default:
 		// TODO eventually this should be a panic
 		fmt.Printf("%d does not exist (%s)\n", reportName, ReportDescriptions[reportName])
