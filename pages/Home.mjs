@@ -1,4 +1,4 @@
-import { LitElement, html, css } from "../../libs/lit-all@2.7.6.js";
+import { LitElement, html, css } from "../libs/lit-all@2.7.6.js";
 import globalCss from "../global-styles/global.css.mjs";
 import "../services/analysis/analysis.mjs";
 import {
@@ -9,7 +9,7 @@ import {
 import { documentJsonFile } from "../services/JsonDocumenter.mjs";
 import "../components/Chart.mjs";
 import "@material/mwc-button";
-/** @typedef {import("../../libs/chart@4.5.0.js").ChartConfiguration} ChartConfiguration */
+/** @typedef {import("../libs/chart@4.5.0.js").ChartConfiguration} ChartConfiguration */
 /** @typedef {import("../services/analysis/analysis.js").ReportData} ReportData */
 
 export default class Home extends LitElement {

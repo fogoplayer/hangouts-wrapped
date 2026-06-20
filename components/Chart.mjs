@@ -28,7 +28,7 @@ export class ChartComponent extends LitElement {
     this.updateChart();
   }
 
-  /** @param {import("lit").PropertyValues} changedProperties  */
+  /** @param {import("../libs/lit-all@2.7.6.js").PropertyValues} changedProperties  */
   updated(changedProperties) {
     if (changedProperties.has("config")) {
       this.updateChart();

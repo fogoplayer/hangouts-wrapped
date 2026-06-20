@@ -1,9 +1,9 @@
-import "../../../libs/go-wasm-runtime.js";
+import "../../libs/go-wasm-runtime.js";
 import { documentJsonString as documentJsonFunc } from "../JsonDocumenter.mjs";
 
 const go = new Go();
 await WebAssembly.instantiateStreaming(
-  fetch("/services/analysis/analysis.wasm"),
+  fetch("services/analysis/analysis.wasm"),
   go.importObject
 ).then((result) => {
   go.run(result.instance);
