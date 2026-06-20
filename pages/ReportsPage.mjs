@@ -1,4 +1,4 @@
-import { html, LitElement, css } from "lit"; // TODO fix import
+import { html, LitElement, css } from "../libs/lit-all@2.7.6.js"; // TODO fix import
 import {
   getReports,
   getStableChatsList,

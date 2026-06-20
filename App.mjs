@@ -24,9 +24,19 @@ export default class App extends LitElement {
 
   constructor() {
     super();
+    this.setBaseUrl();
     this.createRoute("/", Home);
     this.createRoute("/reports", ReportsPage);
     page.start();
+  }
+
+  setBaseUrl() {
+    const pathFraments = location.pathname.split("/");
+    // 0: empty string before the first /
+    // 1: first URL segment
+    if (pathFraments[1] === "hangouts-wrapped") {
+      page.base("/hangouts-wrapped");
+    }
   }
 
   connectedCallback() {
@@ -85,7 +95,8 @@ export default class App extends LitElement {
   /** @param {string} path  */
   navigate(path) {
     if (path === window.location.pathname) return;
-    page.show("/reports");
+    if ("/hangouts-wrapped" + path === window.location.pathname) return;
+    page.show(path);
   }
 
   static styles = [
