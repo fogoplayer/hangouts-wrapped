@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"zarinloosli.com/hangouts-wrapped/model/reports"
 	"zarinloosli.com/hangouts-wrapped/state"
 	"zarinloosli.com/hangouts-wrapped/subroutines"
@@ -32,6 +34,8 @@ func main() {
 			subroutines.OutputReport(results)
 		case subroutines.SetIncludedChats:
 			subroutines.SetChatFilter()
+		case subroutines.Exit:
+			os.Exit(0)
 		}
 		state.ApplicationPhase.Set(state.WaitingForInput)
 	}
