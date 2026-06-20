@@ -11,7 +11,7 @@
       "request": "launch",
       "mode": "auto",
       "program": "${workspaceFolder}/go",
-      "args": ["/var/tmp/Temporary Downloads/Council Only/Takeout/Google Chat"],
+      "args": ["/var/tmp/Temporary Downloads/Council Only/Google Chat"],
       "console": "integratedTerminal"
     },
     {
