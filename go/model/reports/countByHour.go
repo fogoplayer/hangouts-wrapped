@@ -10,10 +10,16 @@ import (
 
 func countByHour() *LineOutput {
 	countsByHour := state.CountMessagesByHour()
+	countsByLocalHour := make([]int, len(countsByHour))
+
+	for hour, count := range countsByHour {
+		localHour := time.Date(0, 0, 0, hour, 0, 0, 0, time.UTC).Local().Hour()
+		countsByLocalHour[localHour] = count
+	}
 
 	output := CreateLineOutput(func(t time.Time) string { return t.Format(util.HOUR_ONLY) })
 
-	for hour, count := range countsByHour {
+	for hour, count := range countsByLocalHour {
 		output.Push(ReportOutputEntry[time.Time, int]{
 			Label: time.Date(0, 0, 0, hour, 0, 0, 0, time.UTC),
 			Value: count,
