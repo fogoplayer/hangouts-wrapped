@@ -2,6 +2,7 @@ package util
 
 import (
 	"fmt"
+	"math/rand"
 	"reflect"
 )
 
@@ -53,4 +54,9 @@ func CopyList[T any](list []T) []T {
 	value := make([]T, len(list))
 	copy(value, list)
 	return value
+}
+
+func RandomFromList[T any](list []T) T {
+	randomIndex := rand.Intn(len(list))
+	return list[randomIndex]
 }
