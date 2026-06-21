@@ -45,6 +45,18 @@ func (applicationState *ApplicationState[T]) OnChange(callback func(T)) func() {
 	return cleanup
 }
 
+func NewApplicationState[T comparable](value T, listeners ...*func(T)) *ApplicationState[T] {
+	listenersMap := make(map[*func(T)]struct{})
+	for _, listener := range listeners {
+		listenersMap[listener] = struct{}{}
+	}
+
+	return &ApplicationState[T]{
+		value,
+		listenersMap,
+	}
+}
+
 // /////////////////// //
 // SetApplicationState //
 // /////////////////// //
@@ -115,6 +127,23 @@ func (applicationState *SetApplicationState[T]) Overwrite(values ...T) {
 			applicationState.Add(notSharedValue)
 		}
 	}
+}
+
+func NewSetApplicationState[T comparable](values []T, listeners ...func(T)) *SetApplicationState[T] {
+	listenersMap := make(map[*func(T)]struct{})
+	for _, listener := range listeners {
+		listenersMap[&listener] = struct{}{}
+	}
+
+	var t T
+	new := &SetApplicationState[T]{
+		*NewApplicationState(t, util.GetMapKeys(listenersMap)...),
+		util.Set[T]{},
+	}
+
+	new.value.Overwrite(values...)
+
+	return new
 }
 
 // ///////////////// //

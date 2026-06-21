@@ -6,6 +6,8 @@ import (
 	"zarinloosli.com/hangouts-wrapped/model/parsed"
 )
 
+// TODO dedicated DB package
+
 var _ = func() struct{} {
 	AllChats.OnChange(allChatsListener)
 	return struct{}{}

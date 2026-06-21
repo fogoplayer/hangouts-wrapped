@@ -16,8 +16,8 @@ const (
 	CountByMonth                    // Post count by month
 	CountByYear                     // Post count by year
 	CountByHour
-	RandomMessage // Get a random message in selection
-	// RandomImage        // Get a random image in selection
+	RandomMessage    // Get a random message in selection
+	RandomAttachment // Get a random image in selection
 	// MostUsedEmoji      // Emoji frequency?
 	// MostReactions      // Most reacted-to message
 	// MembershipTimeline // Every time someone joined and left one the selected chats in the selected timeframe
@@ -34,14 +34,15 @@ const (
 )
 
 var ReportDescriptions = map[ReportName]string{
-	CountByPerson: "Number of messages sent by each user",
-	CountByChat:   "Number of messages sent in each chat",
-	CountByMonth:  "Number of messages sent each month",
-	CountByYear:   "Number of messages sent each year",
-	CountByHour:   "Number of messages sent each hour of the day",
-	RandomMessage: "A random message from the selection",
-	FirstMessages: "Each user's first message",
-	ChatsById:     "Map chat names to IDs",
+	CountByPerson:    "Number of messages sent by each user",
+	CountByChat:      "Number of messages sent in each chat",
+	CountByMonth:     "Number of messages sent each month",
+	CountByYear:      "Number of messages sent each year",
+	CountByHour:      "Number of messages sent each hour of the day",
+	RandomMessage:    "A random message",
+	RandomAttachment: "A random attachment",
+	FirstMessages:    "Each user's first message",
+	ChatsById:        "Map chat names to IDs",
 }
 
 func GetReportDescriptionsAsList() []string {
@@ -75,6 +76,8 @@ func RunReport(reportName ReportName) ReportOutputInterface {
 		return countByHour()
 	case RandomMessage:
 		return randomMessage()
+	case RandomAttachment:
+		return randomAttachment()
 	case FirstMessages:
 		return firstMessages()
 	default:

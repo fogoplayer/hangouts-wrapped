@@ -1,5 +1,7 @@
 package parsed
 
+import "zarinloosli.com/hangouts-wrapped/model"
+
 var ChatsById = make(map[string]Chat)
 
 type Chat struct {
@@ -7,6 +9,7 @@ type Chat struct {
 	Members  []User
 	Messages YearTreeList
 	Id       string
+	FSHandle model.FSAgnosticDirectoryHandle
 	// TODO Type (DM/Space)
 }
 
