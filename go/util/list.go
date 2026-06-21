@@ -20,6 +20,16 @@ func ListMap[T any, U any](array []T, converter func(T) U) []U {
 	return result
 }
 
+func ListFilter[T any](array []T, evaluator func(T) bool) []T {
+	result := make([]T, 0, len(array))
+	for _, v := range array {
+		if evaluator(v) {
+			result = append(result, v)
+		}
+	}
+	return result
+}
+
 func ListsAreEqual[T any](list1 []T, list2 []T, comparators ...func(a, b T) bool) bool {
 	if len(list1) != len(list2) {
 		return false
