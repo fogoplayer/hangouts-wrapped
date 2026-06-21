@@ -30,13 +30,13 @@ func WhileIngesting() {
 }
 
 func PromptForAction() action {
-	selection := userInteractionIo.Prompt("Choose an action:", GetActionDescriptionsAsList())
+	selection := userInteractionIo.SelectPrompt("Choose an action:", GetActionDescriptionsAsList())
 	return action(selection)
 }
 
 func PromptForReport() reports.ReportName {
 	values := reports.GetReportDescriptionsAsList()
-	selection := userInteractionIo.Prompt("Choose a report by typing a number:", values)
+	selection := userInteractionIo.SelectPrompt("Choose a report by typing a number:", values)
 	return reports.ReportName(selection)
 }
 

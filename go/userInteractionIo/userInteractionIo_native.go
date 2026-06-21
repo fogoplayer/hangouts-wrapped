@@ -30,7 +30,11 @@ func prompt[T any](message string, options []string, parse func(string) (T, erro
 	}
 }
 
-func Prompt(message string, options []string) int {
+func Prompt[T any](message string, parse func(string) (T, error)) T {
+	return prompt(message, []string{}, parse)
+}
+
+func SelectPrompt(message string, options []string) int {
 	return prompt(message, options, func(text string) (int, error) {
 		selection, err := strconv.Atoi(text)
 		if err == nil && selection >= 0 && selection < len(options) {
