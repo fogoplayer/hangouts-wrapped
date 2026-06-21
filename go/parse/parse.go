@@ -22,7 +22,7 @@ func ParseChatDirectoryHandleInWaitGoRoutine(handle model.ChatDirectoryHandle) {
 
 		parseJson(<-handle.GroupInfo, &groupInfoJson)
 		stats.IncrementStat(stats.ChatsParsed)
-		chat := parseGroupInfo(handle.Name(), groupInfoJson)
+		chat := parseGroupInfo(handle, groupInfoJson)
 
 		parseJson(<-handle.Messages, &messagesJson)
 		stats.IncrementStat(stats.MessagesParsed, len(messagesJson.Messages)) // TODO move incrementstats into actual parseMessage method
@@ -58,10 +58,13 @@ func parseJson(bytes []byte, destinationPointer any) error {
 	return nil
 }
 
-func parseGroupInfo(id string, groupInfo jsonSchema.GroupInfo_JsonSchema) parsed.Chat {
+func parseGroupInfo(handle model.FSAgnosticDirectoryHandle, groupInfo jsonSchema.GroupInfo_JsonSchema) parsed.Chat {
+	id := handle.Name()
+
 	chat := parsed.Chat{
 		Id:       id,
 		Messages: parsed.YearTreeList{},
+		FSHandle: handle,
 	}
 
 	for _, member := range groupInfo.Members {
