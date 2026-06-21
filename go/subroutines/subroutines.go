@@ -20,13 +20,17 @@ type action int
 const (
 	RunReport action = iota
 	SetIncludedChats
+	SetLowerDateBound
+	SetUpperDateBound
 	Exit
 )
 
 var ActionDescriptions = map[action]string{
-	RunReport:        "Run report",
-	SetIncludedChats: "Set chat filter",
-	Exit:             "Exit",
+	RunReport:         "Run report",
+	SetIncludedChats:  "Set chat filter",
+	SetLowerDateBound: "Limit to messages sent after...",
+	SetUpperDateBound: "Limit to messages sent before...", // TODO make an  "update filters" action that goes to a separate menu
+	Exit:              "Exit",
 }
 
 func GetActionDescriptionsAsList() []string {

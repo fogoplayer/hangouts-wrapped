@@ -35,7 +35,11 @@ func main() {
 			subroutines.OutputReport(results)
 		case subroutines.SetIncludedChats:
 			filters.SetChatFilter()
-		case subroutines.Exit:
+		case subroutines.SetLowerDateBound:
+			filters.SetLowerDateFilter()
+		case subroutines.SetUpperDateBound:
+			filters.SetUpperDateFilter()
+		case subroutines.Exit: // TODO
 			os.Exit(0)
 		}
 		state.ApplicationPhase.Set(state.WaitingForInput)

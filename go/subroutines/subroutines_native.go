@@ -6,11 +6,13 @@ import (
 	"fmt"
 	"time"
 
+	"zarinloosli.com/hangouts-wrapped/model/parsed"
 	"zarinloosli.com/hangouts-wrapped/model/reports"
 	reportoutputs "zarinloosli.com/hangouts-wrapped/model/reports/reportOutputs"
 	"zarinloosli.com/hangouts-wrapped/state"
 	"zarinloosli.com/hangouts-wrapped/state/stats"
 	"zarinloosli.com/hangouts-wrapped/userInteractionIo"
+	"zarinloosli.com/hangouts-wrapped/util"
 )
 
 func Setup() {}
@@ -34,7 +36,25 @@ func PromptForAction() action {
 	return action(selection)
 }
 
-func PromptForReport() reports.ReportName {
+func SetChatFilter() {
+	allChats := state.AllChats.Value()
+	allChatNames := util.ListMap(allChats, func(chat *parsed.Chat) string {
+		return chat.Name
+	})
+
+	selections := userInteractionIo.MultiSelectPrompt(
+		"Enter a comma-separated list of the chats you want to include:",
+		allChatNames,
+	)
+
+	selectedChats := util.ListMap(selections, func(index int) *parsed.Chat {
+		return allChats[index]
+	})
+
+	state.IncludedChatsFilter.Overwrite(selectedChats...)
+}
+
+func PromptForReport() reports.ReportName { // TODO add "back to main menu," and loop on reports until it is chosen
 	values := reports.GetReportDescriptionsAsList()
 	selection := userInteractionIo.SelectPrompt("Choose a report by typing a number:", values)
 	return reports.ReportName(selection)

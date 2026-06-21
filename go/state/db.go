@@ -32,6 +32,10 @@ var IncludedUsersFilter = SetApplicationState[string]{}
 
 var IncludedChatsFilter = SetApplicationState[*parsed.Chat]{}
 
+/////////////
+// Queries //
+/////////////
+
 func CountMessagesByYear() map[time.Time]int {
 	chats := GetFilteredChats()
 
