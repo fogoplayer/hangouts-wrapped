@@ -6,6 +6,7 @@ import (
 	"zarinloosli.com/hangouts-wrapped/model/reports"
 	"zarinloosli.com/hangouts-wrapped/state"
 	"zarinloosli.com/hangouts-wrapped/subroutines"
+	"zarinloosli.com/hangouts-wrapped/subroutines/filters"
 	"zarinloosli.com/hangouts-wrapped/subroutines/setup"
 )
 
@@ -33,7 +34,7 @@ func main() {
 			results := reports.RunReport(selectedReport)
 			subroutines.OutputReport(results)
 		case subroutines.SetIncludedChats:
-			subroutines.SetChatFilter()
+			filters.SetChatFilter()
 		case subroutines.Exit:
 			os.Exit(0)
 		}

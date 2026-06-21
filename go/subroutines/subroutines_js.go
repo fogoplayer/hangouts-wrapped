@@ -29,5 +29,3 @@ func GetResults() reportoutputs.ReportOutputInterface {
 func PromptForAction() action {
 	return RunReport
 }
-
-func SetChatFilter() {}

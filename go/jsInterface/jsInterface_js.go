@@ -5,11 +5,11 @@ import (
 
 	"zarinloosli.com/hangouts-wrapped/browserApis"
 	"zarinloosli.com/hangouts-wrapped/fsIo"
-	"zarinloosli.com/hangouts-wrapped/model/parsed"
 	"zarinloosli.com/hangouts-wrapped/model/reports"
 	"zarinloosli.com/hangouts-wrapped/state"
 	"zarinloosli.com/hangouts-wrapped/state/stats"
 	"zarinloosli.com/hangouts-wrapped/subroutines"
+	"zarinloosli.com/hangouts-wrapped/subroutines/filters"
 	"zarinloosli.com/hangouts-wrapped/util"
 )
 
@@ -85,11 +85,7 @@ var setChatFilter js.Func = js.FuncOf(func(this js.Value, args []js.Value) any {
 		return num
 	})
 
-	selectedChatPointers := util.ListMap(selectedChatIndexes, func(chatIndex int) *parsed.Chat {
-		return state.GetStableChatsList()[chatIndex]
-	})
-
-	state.IncludedChatsFilter.Overwrite(selectedChatPointers...)
+	filters.SetChatFilterFromIndexes(selectedChatIndexes)
 	return nil
 })
 

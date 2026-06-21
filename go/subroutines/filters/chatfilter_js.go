@@ -1,0 +1,4 @@
+package filters
+
+func SetChatFilter() {
+}
