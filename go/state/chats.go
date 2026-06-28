@@ -9,7 +9,7 @@ import (
 
 var _ = func() struct{} {
 	AllChats.OnChange(func(c *parsed.Chat) {
-		canonicalUnfilteredChatsOrder = IncludedChatsFilter.Value()
+		canonicalUnfilteredChatsOrder = AllChats.Value()
 		slices.SortFunc(canonicalUnfilteredChatsOrder, func(i, j *parsed.Chat) int {
 			if i.Name < j.Name {
 				return -1
