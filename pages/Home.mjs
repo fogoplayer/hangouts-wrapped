@@ -83,6 +83,8 @@ export default class Home extends LitElement {
 
       output {
         margin-block: 0.5em;
+        white-space: pre-wrap;
+        text-align: center;
       }
     `,
   ];
