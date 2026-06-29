@@ -46,15 +46,19 @@ export class ReportsPage extends LitElement {
             naturalMenuWidth="true"
             value=""
             @selected=${(/** @type {{detail:{index: number}}} */ event) => {
-              if (event.detail.index === 0) return;
-
-              setChatsFilter(event.detail.index - 1);
+              if (event.detail.index === 0) {
+                setChatsFilter(
+                  ...Array.from(getStableChatsList(), (e, i) => i)
+                );
+              } else {
+                setChatsFilter(event.detail.index - 1);
+              }
             }}
           >
             <mwc-list-item></mwc-list-item>
             ${getStableChatsList()?.map(
               (chatName, i) =>
-                html`<mwc-list-item group="a" graphic="icon" value="i">
+                html`<mwc-list-item group="a">
                   <span> ${chatName} </span>
                 </mwc-list-item> `
             )}
@@ -69,7 +73,7 @@ export class ReportsPage extends LitElement {
             <mwc-list-item></mwc-list-item>
             ${this.reports?.map(
               (description, i) =>
-                html`<mwc-list-item group="a" graphic="icon" value="i">
+                html`<mwc-list-item group="a">
                   <span> ${description} </span>
                 </mwc-list-item> `
             )}
