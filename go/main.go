@@ -10,6 +10,7 @@ import (
 )
 
 func main() {
+	// TODO make the entire thing a loop so users can go back and select a new directory
 	setup.Setup()
 	state.ApplicationPhase.Set(state.WaitingForDirectory)
 
