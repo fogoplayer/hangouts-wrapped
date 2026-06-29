@@ -57,10 +57,12 @@ export class ReportsPage extends LitElement {
           >
             <mwc-list-item></mwc-list-item>
             ${getStableChatsList()?.map(
-              (chatName, i) =>
-                html`<mwc-list-item group="a">
+              (chatName, i) => html`
+                <!-- For some reason, if a value isn't passed in the select label doesn't move out of the way correctly, even though it isn't used by the "selected" event -->
+                <mwc-list-item group="a" value="a">
                   <span> ${chatName} </span>
-                </mwc-list-item> `
+                </mwc-list-item>
+              `
             )}
           </mwc-select>
           <mwc-select
@@ -72,10 +74,12 @@ export class ReportsPage extends LitElement {
           >
             <mwc-list-item></mwc-list-item>
             ${this.reports?.map(
-              (description, i) =>
-                html`<mwc-list-item group="a">
+              (description, i) => html`
+                <!-- For some reason, if a value isn't passed in the select label doesn't move out of the way correctly, even though it isn't used by the "selected" event -->
+                <mwc-list-item group="a" value="a">
                   <span> ${description} </span>
-                </mwc-list-item> `
+                </mwc-list-item>
+              `
             )}
           </mwc-select>
         </div>
