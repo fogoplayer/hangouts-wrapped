@@ -69,6 +69,13 @@ func (reportOutput *ReportOutput[L, V]) ToJsReadyMap() map[string]any {
 				"data": data,
 			}},
 		},
+		"options": map[string]any{
+			"plugins": map[string]any{
+				"legend": map[string]any{
+					"display": false,
+				},
+			},
+		},
 	}
 }
 

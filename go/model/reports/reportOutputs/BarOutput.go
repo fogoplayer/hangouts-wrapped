@@ -20,8 +20,13 @@ type BarOutput struct {
 
 func (barOutput *BarOutput) ToJsReadyMap() map[string]any {
 	chartConfig := barOutput.ReportOutput.ToJsReadyMap()
-	chartConfig["options"] = map[string]any{
+	chartConfig["options"] = map[string]any{ // TODO union options instead of re-implementing base options here
 		"indexAxis": "y",
+		"plugins": map[string]any{
+			"legend": map[string]any{
+				"display": false,
+			},
+		},
 	}
 	return chartConfig
 }
