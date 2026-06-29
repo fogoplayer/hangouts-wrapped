@@ -19,7 +19,7 @@ export default css`
 
   h2 {
     /* typography */
-    font-family: var(--serif);
+    /* font-family: var(--serif); */
     font-size: 1.8em;
     font-weight: 400;
     line-height: 1.3em;
@@ -27,7 +27,7 @@ export default css`
 
   h3 {
     /* typography */
-    font-family: var(--serif);
+    /* font-family: var(--serif); */
     font-size: 1.3125em;
     font-weight: 400;
     line-height: 1.3em;

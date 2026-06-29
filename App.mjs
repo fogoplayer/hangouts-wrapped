@@ -94,11 +94,69 @@ export default class App extends LitElement {
             ></mwc-icon-button>
           </mwc-top-app-bar-fixed>
         </a>
+        <!-- TODO move into its own component -->
         <mwc-dialog
           id="dialog"
+          aria-label="How to use"
           .open=${this.openHelpDialog}
           @closed=${() => (this.openHelpDialog = false)}
-        ></mwc-dialog> `,
+        >
+          <h2>How to use</h2>
+          <ol>
+            <li>
+              Create an export of your Google Chat (Hangouts) data using
+              <a href="http://takeout.google.com">Google Takeout</a>.
+              <details>
+                <summary>Google Takeout Instructions</summary>
+                <ol>
+                  <li>Deselect all products</li>
+                  <li>Select only "Google Chat"</li>
+                  <li>Scroll to the bottom and click "next step"</li>
+                  <li>
+                    Choose your desired settings. I usually go for
+                    <ul>
+                      <li>
+                        <span class="setting-name">Transfer to:</span> Send
+                        download link via email
+                      </li>
+                      <li>
+                        <span class="setting-name">Frequency:</span> Export once
+                      </li>
+                      <li><span class="setting-name">File type:</span> .zip</li>
+                      <li><span class="setting-name">File size:</span> 50GB</li>
+                    </ul>
+                  </li>
+                  <li>
+                    Click "create export"
+                    <aside>
+                      It will probably take about 24 hours for the export to be
+                      ready.
+                    </aside>
+                  </li>
+                </ol>
+              </details>
+            </li>
+            <li>
+              Unzip the export. If it came in multiple files, combine them into
+              one folder, so that it's structured like this:
+              <pre>
+Takeout/
+└─ Google Chat/
+   ├─ Groups/
+   │  ├─ Space AAAA.../
+   │  └─ DM AAAA..../
+   └─ Users/
+</pre
+              >
+            </li>
+            <li>
+              Select your Takeout directory, and enjoy your Hangouts Wrapped!
+            </li>
+          </ol>
+          <mwc-button slot="primaryAction" dialogAction="close">
+            Got It
+          </mwc-button>
+        </mwc-dialog> `,
       this.currentPage,
     ];
   }
@@ -123,6 +181,15 @@ export default class App extends LitElement {
         align-items: stretch;
 
         height: 100dvh;
+      }
+
+      .setting-name {
+        font-weight: bold;
+      }
+
+      pre {
+        font-size: 0.75em;
+        line-height: 1.25em;
       }
     `,
   ];
