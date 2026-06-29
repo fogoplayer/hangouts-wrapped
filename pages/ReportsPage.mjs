@@ -30,10 +30,12 @@ export class ReportsPage extends LitElement {
   render() {
     return html`
       <output>
-        ${this.results?.map((configOrMessage) =>
+        ${this.results?.map((configOrMessage, index) =>
           typeof configOrMessage === "string"
-            ? html`<div class="request">${configOrMessage}</div>`
-            : html`<div class="response">
+            ? html`<div class="request" id="request-${index}">
+                ${configOrMessage}
+              </div>`
+            : html`<div class="response" id="response-${index}">
                 <chart- .config=${configOrMessage}></chart->
               </div>`
         )}
@@ -91,7 +93,7 @@ export class ReportsPage extends LitElement {
         <mwc-icon-button
           label="Submit"
           icon="send"
-          @click=${() => {
+          @click=${async () => {
             // offset by one for blank default selection
             if (this.selectedReport === 0) return;
 
@@ -100,10 +102,18 @@ export class ReportsPage extends LitElement {
             if (reportDescription) {
               this.results?.push(reportDescription);
             }
-            this.results?.push();
             const result = runReport(reportEnum);
             this.results?.push(result);
             this.requestUpdate();
+            await this.updateComplete;
+            (
+              this.shadowRoot?.getElementById(
+                "request-" + (this.results?.length - 2)
+              ) ??
+              this.shadowRoot?.getElementById(
+                "response-" + (this.results?.length - 1)
+              )
+            )?.scrollIntoView({ behavior: "smooth" });
           }}
         ></mwc-icon-button>
       </form>
