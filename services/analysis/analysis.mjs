@@ -9,6 +9,9 @@ await WebAssembly.instantiateStreaming(
   go.run(result.instance);
 });
 
+// TODO wasmexport
+// https://go.dev/blog/wasmexport
+
 export function selectDirectoryForAnalysis() {
   window.showWasmDirectoryPicker();
 }
