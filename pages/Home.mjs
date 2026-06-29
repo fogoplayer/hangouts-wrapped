@@ -80,6 +80,10 @@ export default class Home extends LitElement {
         align-items: center;
         justify-content: center;
       }
+
+      output {
+        margin-block: 0.5em;
+      }
     `,
   ];
 }

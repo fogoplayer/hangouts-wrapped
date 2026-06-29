@@ -33,9 +33,9 @@ func (ingestStats ingestStatsType) String() string {
 	ingestStatsMutex.RLock()
 	defer func() { ingestStatsMutex.RUnlock() }()
 	return fmt.Sprint(
-		"Files:", ingestStats[FilesParsed], "/", ingestStats[FilesFound], "\n",
-		"Chats:", ingestStats[ChatsIngested], "/", ingestStats[ChatsParsed], "\n",
-		"Messages:", ingestStats[MessagesIngested], "/", ingestStats[MessagesParsed], "\n",
+		"Files: ", ingestStats[FilesParsed], "/", ingestStats[FilesFound], "\n",
+		"Chats: ", ingestStats[ChatsIngested], "/", ingestStats[ChatsParsed], "\n",
+		"Messages: ", ingestStats[MessagesIngested], "/", ingestStats[MessagesParsed], "\n",
 	)
 }
 
