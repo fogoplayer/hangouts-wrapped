@@ -150,7 +150,7 @@ Takeout/
               >
             </li>
             <li>
-              Select your Takeout directory, and enjoy your Hangouts Wrapped!
+              Select your Google Chat folder, and enjoy your Hangouts Wrapped!
             </li>
           </ol>
           <mwc-button slot="primaryAction" dialogAction="close">
