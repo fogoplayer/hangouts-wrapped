@@ -25,6 +25,7 @@
           "tslib": "https://cdnjs.cloudflare.com/ajax/libs/tslib/2.8.1/tslib.min.js",
           "lit/": "https://esm.sh/lit@3.3.3/",
           "@material/mwc-button": "https://esm.sh/@material/mwc-button/",
+          "@material/mwc-dialog": "https://esm.sh/@material/mwc-dialog/",
           "@material/mwc-top-app-bar-fixed": "https://esm.sh/@material/mwc-top-app-bar-fixed",
           "@material/mwc-list-item": "https://esm.sh/@material/mwc-list/mwc-list-item.js",
           "@material/mwc-menu": "https://esm.sh/@material/mwc-menu/mwc-menu.js",
@@ -35,7 +36,10 @@
       }
     </script>
   <script type="module">
-    import "@material/mwc-top-app-bar-fixed" // TODO why won't this load from app.js?
+    // TODO why won't this load from app.js?
+    import "@material/mwc-top-app-bar-fixed"
+    import "@material/mwc-icon-button";
+    import "@material/mwc-dialog"
   </script>
 </head>
 

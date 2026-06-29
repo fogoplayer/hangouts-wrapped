@@ -20,6 +20,7 @@ export default class App extends LitElement {
   static properties = {
     currentPage: { type: Object, state: true },
     applicationPhase: { type: String, state: true },
+    openHelpDialog: { type: Boolean, state: true },
   };
 
   constructor() {
@@ -46,6 +47,7 @@ export default class App extends LitElement {
     phaseState.onChange(() => {
       this.applicationPhase = getApplicationPhase().value;
     });
+    /** @type {boolean} */ this.openHelpDialog;
   }
 
   /** @param {Map<string, boolean>} changedProperties  */
@@ -80,10 +82,23 @@ export default class App extends LitElement {
   render() {
     return [
       html`<a href="/">
-        <mwc-top-app-bar-fixed centerTitle>
-          <div slot="title">Hangouts Wrapped</div>
-        </mwc-top-app-bar-fixed>
-      </a>`,
+          <mwc-top-app-bar-fixed centerTitle>
+            <div slot="title">Hangouts Wrapped</div>
+            <mwc-icon-button
+              icon="help"
+              slot="actionItems"
+              @click=${(e) => {
+                e.preventDefault();
+                this.openHelpDialog = true;
+              }}
+            ></mwc-icon-button>
+          </mwc-top-app-bar-fixed>
+        </a>
+        <mwc-dialog
+          id="dialog"
+          .open=${this.openHelpDialog}
+          @closed=${() => (this.openHelpDialog = false)}
+        ></mwc-dialog> `,
       this.currentPage,
     ];
   }
